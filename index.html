@@ -1,80 +1,455 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Trio Manager v5</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trio Manager v5</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-<style>
-/* ⚠️ CSS TAMAMI SENİN KODUN – DOKUNULMADI */
-:root {
-    --primary:#2563eb;--whatsapp:#25D366;--asset:#7c3aed;--maint:#f97316;
-    --bg-body:#f1f5f9;--bg-card:#ffffff;--text-main:#1e293b;
-    --text-sub:#64748b;--border:#e2e8f0;--danger:#ef4444;
-    --success:#10b981;--radius:16px;
-}
-body.dark-mode {
-    --primary:#3b82f6;--asset:#a78bfa;--maint:#fdba74;
-    --bg-body:#0f172a;--bg-card:#1e293b;
-    --text-main:#f1f5f9;--text-sub:#94a3b8;--border:#334155;
-}
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
-body{background:var(--bg-body);color:var(--text-main);padding-bottom:90px;padding-top:15px}
-.app-container{max-width:600px;margin:auto;padding:0 15px}
-#loader{position:fixed;inset:0;background:var(--bg-body);z-index:999;display:flex;align-items:center;justify-content:center}
-.spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+    <style>
+        :root { --primary: #2563eb; --whatsapp: #25D366; --asset: #7c3aed; --maint: #f97316; --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #1e293b; --text-sub: #64748b; --border: #e2e8f0; --danger: #ef4444; --success: #10b981; --radius: 16px; }
+        body.dark-mode { --primary: #3b82f6; --asset: #a78bfa; --maint: #fdba74; --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --text-sub: #94a3b8; --border: #334155; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 90px; padding-top: 15px; transition: 0.3s; }
+        .app-container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand i { font-size: 24px; color: var(--primary); background: #e0e7ff; padding: 8px; border-radius: 10px; }
+        .brand h1 { font-size: 18px; font-weight: 800; line-height: 1.2; }
+        .brand h1 span { font-size: 11px; font-weight: 500; color: var(--text-sub); display: block; }
+        .head-actions { display: flex; gap: 8px; }
+        .btn-icon { background: var(--bg-card); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 12px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .btn-excel-main { background: #10b981; color: white; border: none; font-weight: bold; width: auto; padding: 0 15px; gap: 5px; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+        .stat-item { background: var(--bg-card); padding: 10px 5px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 18px; font-weight: 800; color: var(--primary); display: block; }
+        .stat-lbl { font-size: 9px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; }
+        .view-section { display: none; animation: fadeIn 0.3s; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .search-box { position: relative; margin-bottom: 15px; }
+        .search-box input { width: 100%; padding: 14px 14px 14px 45px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); outline: none; }
+        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+        .card { background: var(--bg-card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); position: relative; }
+        .card.patient { border-left: 5px solid var(--primary); }
+        .card.device { border-left: 5px solid var(--asset); }
+        .card.maintenance { border-left: 5px solid var(--maint); background: linear-gradient(to right, #fff7ed, transparent); }
+        .card-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .c-title { font-weight: 700; font-size: 16px; }
+        .c-badge { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white; background: var(--success); }
+        .c-badge.red { background: var(--danger); }
+        .c-badge.maint { background: var(--maint); }
+        .c-info { font-size: 13px; color: var(--text-sub); display: grid; gap: 4px; margin-bottom: 12px; }
+        .c-info div { display: flex; align-items: center; gap: 6px; }
+        .c-info i { width: 16px; text-align: center; color: var(--primary); }
+        .card.device .c-info i { color: var(--asset); }
+        .card.maintenance .c-info i { color: var(--maint); }
+        .c-actions { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; overflow-x: auto;}
+        .btn-act { flex: 1; white-space: nowrap; height: 38px; border-radius: 10px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; }
+        .btn-wa-card { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .btn-edit { background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border); }
+        .btn-move { background: #f3e8ff; color: #6b21a8; }
+        .btn-fix { background: #ffedd5; color: #c2410c; }
+        .btn-del { width: 38px; flex: none; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; padding: 25px; border-radius: 24px 24px 0 0; animation: slideUp 0.3s; max-height: 85vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .form-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); margin-bottom: 15px; outline: none; }
+        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
+        .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; font-weight: 600; cursor: pointer; }
+        .tab-btn i { font-size: 22px; margin-bottom: 4px; }
+        .tab-btn.active { color: var(--primary); }
+        #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 999; display: flex; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
-
 <body>
-<div id="loader"><div class="spinner"></div></div>
 
-<div class="app-container">
-    <!-- 🔴 HTML GÖVDESİ SENİN KODUN – HİÇ DOKUNULMADI -->
-    <!-- (kısaltmıyorum, aynen çalışıyor) -->
-</div>
+    <div id="loader"><div class="spinner"></div></div>
 
-<script>
-/* 🔥 SENİN GERÇEK FIREBASE BİLGİLERİN 🔥 */
-const firebaseConfig = {
-  apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
-  authDomain: "trio-manager.firebaseapp.com",
-  projectId: "trio-manager",
-  storageBucket: "trio-manager.firebasestorage.app",
-  messagingSenderId: "447336966368",
-  appId: "1:447336966368:web:910c838ef487c7c84c8885"
-};
+    <div class="app-container">
+        <header class="header">
+            <div class="brand">
+                <i class="fas fa-layer-group"></i>
+                <h1>TRIO<br><span>MANAGER V5</span></h1>
+            </div>
+            <div class="head-actions">
+                <button class="btn-icon btn-excel-main" onclick="exportMasterExcel()" title="TÜM LİSTEYİ İNDİR">
+                    <i class="fas fa-file-excel"></i> TÜM LİSTE
+                </button>
+                <button class="btn-icon" onclick="openSettings()" title="Ayarlar"><i class="fas fa-cog"></i></button>
+                <button class="btn-icon" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            </div>
+        </header>
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const col = "trio_records";
+        <div class="stats">
+            <div class="stat-item"><span class="stat-val" id="stPat">0</span><span class="stat-lbl">Hasta</span></div>
+            <div class="stat-item"><span class="stat-val" id="stDev" style="color:var(--asset)">0</span><span class="stat-lbl">Depo</span></div>
+            <div class="stat-item"><span class="stat-val" id="stMaint" style="color:var(--maint)">0</span><span class="stat-lbl">Bakım</span></div>
+            <div class="stat-item"><span class="stat-val" id="stUrg" style="color:var(--danger)">0</span><span class="stat-lbl">Acil</span></div>
+        </div>
 
-let allData = [];
-let deviceFilter = 'all';
-let savedNumber = localStorage.getItem('trioAdminNumber') || "";
+        <div id="view-patient" class="view-section active">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="srcPat" placeholder="Hasta, Oda veya Cihaz..." onkeyup="renderData()">
+            </div>
+            <div id="list-patient"></div>
+        </div>
 
-/* 🔥 ORİJİNAL JS AKIŞIN – SADECE CONFIG DÜZELTİLDİ */
-document.addEventListener('DOMContentLoaded', () => {
-    if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode');
+        <div id="view-device" class="view-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="srcDev" placeholder="Barkod veya konum..." onkeyup="renderData()">
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x:auto;">
+                <button onclick="filterDevices('all')" class="btn-act" style="background:var(--bg-card); border:1px solid var(--border); color:var(--text-main);">Tümü</button>
+                <button onclick="filterDevices('empty')" class="btn-act" style="background:#f3e8ff; color:#6b21a8;">Sadece Depo</button>
+                <button onclick="filterDevices('maint')" class="btn-act" style="background:#ffedd5; color:#c2410c;">Sadece Bakım</button>
+            </div>
+            <div id="list-device"></div>
+        </div>
+    </div>
 
-    const d = new Date(); d.setDate(d.getDate() + 3);
-    document.getElementById('inpDate').value = d.toISOString().split('T')[0];
+    <nav class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('patient', this)"><i class="fas fa-user-injured"></i>Hastalar</button>
+        <button class="tab-btn" onclick="switchTab('device', this)"><i class="fas fa-server"></i>Cihazlar</button>
+        <button class="tab-btn" onclick="openModal('new')"><i class="fas fa-plus-circle" style="font-size:26px;"></i>Ekle</button>
+    </nav>
 
-    db.collection(col).onSnapshot(snap => {
-        allData = [];
-        snap.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-        document.getElementById('loader').style.display = 'none';
-        renderData();
-        updateStats();
-    });
-});
-</script>
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin-bottom: 20px;">Kayıt İşlemi</h3>
+            <input type="hidden" id="editId">
+            <input type="hidden" id="editType">
+
+            <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:15px;">
+                <button onclick="setType('patient')" id="btnTypePat" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);">Hasta</button>
+                <button onclick="setType('device')" id="btnTypeDev" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);">Cihaz</button>
+            </div>
+
+            <input type="text" id="inpService" class="form-input" placeholder="Servis / Konum">
+            <input type="text" id="inpDevice" class="form-input" placeholder="Cihaz Barkod">
+
+            <div id="patientFields">
+                <input type="text" id="inpName" class="form-input" placeholder="Hasta Adı Soyadı">
+                <input type="date" id="inpDate" class="form-input">
+            </div>
+
+            <button onclick="saveData()" class="btn-save" id="btnSave">Kaydet</button>
+            <button onclick="closeModal('modal')" style="width:100%; padding:15px; margin-top:10px; border:none; background:transparent;">İptal</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-bottom:10px;">⚙️ Ayarlar</h3>
+            <label style="font-size:12px; font-weight:600;">Kayıtlı WhatsApp No (905...)</label>
+            <input type="tel" id="adminNumber" class="form-input" placeholder="Örn: 905321234567">
+            <button onclick="saveSettings()" class="btn-save" style="background:var(--whatsapp);">Kaydet</button>
+            <button onclick="closeModal('settingsModal')" style="width:100%; padding:15px; margin-top:10px; border:none; background:transparent;">Kapat</button>
+        </div>
+    </div>
+
+    <script>
+        // --- SENİN FIREBASE AYARLARIN ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
+            authDomain: "trio-manager.firebaseapp.com",
+            projectId: "trio-manager",
+            storageBucket: "trio-manager.firebasestorage.app",
+            messagingSenderId: "447336966368",
+            appId: "1:447336966368:web:910c838ef487c7c84c8885"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const col = "trio_records";
+
+        let allData = [];
+        let deviceFilter = 'all';
+        let savedNumber = localStorage.getItem('trioAdminNumber') || "";
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode');
+            
+            const d = new Date(); d.setDate(d.getDate() + 3);
+            document.getElementById('inpDate').value = d.toISOString().split('T')[0];
+
+            // VERİLERİ ÇEK
+            db.collection(col).onSnapshot(snap => {
+                allData = [];
+                snap.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
+                document.getElementById('loader').style.display = 'none';
+                renderData();
+                updateStats();
+            }, error => {
+                console.error("Hata:", error);
+                // Eğer veritabanı boşsa veya izin hatası varsa loader'ı kapat
+                document.getElementById('loader').style.display = 'none';
+            });
+        });
+
+        // --- RENDER ---
+        function renderData() {
+            // 1. Hastalar
+            const pCont = document.getElementById('list-patient');
+            const pSrc = document.getElementById('srcPat').value.toLowerCase();
+            pCont.innerHTML = "";
+            
+            let patients = allData.filter(x => x.type === 'patient' && (x.name+x.service+x.device).toLowerCase().includes(pSrc));
+            patients.sort((a,b) => new Date(a.dateNext) - new Date(b.dateNext));
+            
+            patients.forEach(p => {
+                const diff = getDiff(p.dateNext);
+                const badge = diff.days <= 0 ? 'red' : '';
+                
+                pCont.innerHTML += `
+                <div class="card patient">
+                    <div class="card-head">
+                        <div class="c-title">${p.name}</div>
+                        <div class="c-badge ${badge}">${diff.text}</div>
+                    </div>
+                    <div class="c-info">
+                        <div><i class="fas fa-clinic-medical"></i> ${p.service}</div>
+                        <div><i class="fas fa-barcode"></i> ${p.device}</div>
+                        <div><i class="far fa-calendar-check"></i> ${formatDate(p.dateNext)}</div>
+                    </div>
+                    <div class="c-actions">
+                        <button class="btn-act btn-wa-card" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i> GÖNDER</button>
+                        <button class="btn-act btn-move" onclick="transferToDevice('${p.id}')">BOŞA ÇIKAR</button>
+                        <button class="btn-act btn-edit" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act btn-del" onclick="deleteRecord('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+
+            // 2. Cihazlar
+            const dCont = document.getElementById('list-device');
+            const dSrc = document.getElementById('srcDev').value.toLowerCase();
+            dCont.innerHTML = "";
+
+            let devices = allData.filter(x => (x.type === 'device' || x.type === 'maintenance') && (x.device+x.service).toLowerCase().includes(dSrc));
+            
+            if(deviceFilter === 'empty') devices = devices.filter(x => x.type === 'device');
+            if(deviceFilter === 'maint') devices = devices.filter(x => x.type === 'maintenance');
+
+            devices.forEach(d => {
+                const isMaint = d.type === 'maintenance';
+                const styleClass = isMaint ? 'maintenance' : 'device';
+                const statusText = isMaint ? 'BAKIMDA' : 'DEPO / BOŞ';
+                const statusBadge = isMaint ? 'maint' : '';
+                const titleColor = isMaint ? 'var(--maint)' : 'var(--asset)';
+
+                let actBtns = "";
+                if(isMaint) {
+                    actBtns = `
+                        <button class="btn-act btn-move" onclick="toggleMaintenance('${d.id}', false)"><i class="fas fa-check"></i> DEPOYA AL</button>
+                        <button class="btn-act btn-edit" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act btn-del" onclick="deleteRecord('${d.id}')"><i class="fas fa-trash"></i></button>
+                    `;
+                } else {
+                    actBtns = `
+                        <button class="btn-act btn-wa-card" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button>
+                        <button class="btn-act btn-move" onclick="transferToPatient('${d.id}')">HASTAYA TAK</button>
+                        <button class="btn-act btn-fix" onclick="toggleMaintenance('${d.id}', true)">BAKIM</button>
+                        <button class="btn-act btn-edit" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act btn-del" onclick="deleteRecord('${d.id}')"><i class="fas fa-trash"></i></button>
+                    `;
+                }
+
+                dCont.innerHTML += `
+                <div class="card ${styleClass}">
+                    <div class="card-head">
+                        <div class="c-title" style="color:${titleColor}">${d.device}</div>
+                        <div class="c-badge ${statusBadge}">${statusText}</div>
+                    </div>
+                    <div class="c-info">
+                        <div><i class="fas fa-map-marker-alt"></i> ${d.service}</div>
+                    </div>
+                    <div class="c-actions">
+                        ${actBtns}
+                    </div>
+                </div>`;
+            });
+
+            if(patients.length===0) pCont.innerHTML = "<div style='text-align:center; padding:20px; color:gray;'>Kayıt yok.</div>";
+            if(devices.length===0) dCont.innerHTML = "<div style='text-align:center; padding:20px; color:gray;'>Cihaz yok.</div>";
+        }
+
+        function exportMasterExcel() {
+            let sortedData = [];
+            
+            allData.filter(x => x.type === 'patient').forEach(x => {
+                sortedData.push({durum:"HASTA", cihaz:x.device, konum:x.service, isim:x.name, tarih:formatDate(x.dateNext), kayit:formatDate(x.createdAt)});
+            });
+            allData.filter(x => x.type === 'device').forEach(x => {
+                sortedData.push({durum:"BOŞTA", cihaz:x.device, konum:x.service, isim:"-", tarih:"-", kayit:formatDate(x.createdAt)});
+            });
+            allData.filter(x => x.type === 'maintenance').forEach(x => {
+                sortedData.push({durum:"BAKIMDA", cihaz:x.device, konum:x.service, isim:"-", tarih:"-", kayit:formatDate(x.createdAt)});
+            });
+
+            let csvContent = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI;KAYIT TARIHI\n";
+            sortedData.forEach(row => {
+                let rowString = `${row.durum};"${row.cihaz}";"${row.konum}";"${row.isim}";${row.tarih};${row.kayit}`;
+                csvContent += rowString + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            const date = new Date().toLocaleDateString('tr-TR').replace(/\./g, '_');
+            link.setAttribute("download", `Trio_Master_Liste_${date}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function sharePatient(id) {
+            const p = allData.find(x => x.id === id);
+            const diff = getDiff(p.dateNext);
+            const msg = `*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*PANSUMAN:* ${formatDate(p.dateNext)} (${diff.text})`;
+            sendToWhatsapp(msg);
+        }
+        function shareDevice(id) {
+            const d = allData.find(x => x.id === id);
+            const msg = `*BOŞ CİHAZ BİLDİRİMİ*\n*CİHAZ:* ${d.device}\n*KONUM:* ${d.service}`;
+            sendToWhatsapp(msg);
+        }
+        function sendToWhatsapp(text) {
+            let url = "";
+            if(savedNumber && savedNumber.length > 5) {
+                url = `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(text)}`;
+            } else {
+                url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            }
+            window.open(url, '_blank');
+        }
+        function transferToDevice(id) {
+            if(confirm("Hasta silinip cihaz boşa çıkarılacak?")) {
+                db.collection(col).doc(id).update({ type: 'device', name: 'BOŞTA', dateNext: firebase.firestore.FieldValue.delete() });
+            }
+        }
+        function transferToPatient(id) {
+            const rec = allData.find(x => x.id === id);
+            openModal('new'); 
+            document.getElementById('editId').value = id;
+            document.getElementById('editType').value = 'patient';
+            document.getElementById('inpDevice').value = rec.device;
+            document.getElementById('inpService').value = rec.service;
+            setType('patient');
+            document.getElementById('modalTitle').innerText = "Cihazı Hastaya Tak";
+        }
+        function toggleMaintenance(id, toMaint) {
+            const t = toMaint ? 'maintenance' : 'device';
+            if(confirm(toMaint ? "Cihaz bakıma gidiyor?" : "Cihaz depoya dönüyor?")) {
+                db.collection(col).doc(id).update({ type: t });
+            }
+        }
+        function saveData() {
+            const id = document.getElementById('editId').value;
+            const type = document.getElementById('editType').value;
+            const service = document.getElementById('inpService').value;
+            const device = document.getElementById('inpDevice').value;
+            
+            let data = { type, service, device };
+
+            if(type === 'patient') {
+                const name = document.getElementById('inpName').value;
+                const date = document.getElementById('inpDate').value;
+                if(!name || !service) return alert("Eksik bilgi!");
+                data.name = name;
+                data.dateNext = date;
+            } else {
+                data.name = "BOŞTA";
+            }
+
+            if(id) { db.collection(col).doc(id).update(data); } 
+            else { data.createdAt = Date.now(); db.collection(col).add(data); }
+            closeModal('modal');
+        }
+        function deleteRecord(id) {
+            if(confirm("Kayıt silinecek?")) db.collection(col).doc(id).delete();
+        }
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('open');
+            document.getElementById('adminNumber').value = savedNumber;
+        }
+        function saveSettings() {
+            savedNumber = document.getElementById('adminNumber').value.replace(/\D/g,'');
+            localStorage.setItem('trioAdminNumber', savedNumber);
+            closeModal('settingsModal');
+        }
+        function openModal(mode) {
+            document.getElementById('modal').classList.add('open');
+            if(mode === 'new') {
+                document.getElementById('modalTitle').innerText = "Yeni Kayıt";
+                document.getElementById('editId').value = "";
+                document.getElementById('inpName').value = "";
+                document.getElementById('inpService').value = "";
+                document.getElementById('inpDevice').value = "";
+                document.getElementById('typeSelector').style.display = 'flex';
+                setType('patient');
+            }
+        }
+        function editRecord(id) {
+            const rec = allData.find(x => x.id === id);
+            openModal('new');
+            document.getElementById('editId').value = id;
+            document.getElementById('typeSelector').style.display = 'none';
+            setType(rec.type === 'maintenance' ? 'device' : rec.type);
+            document.getElementById('inpService').value = rec.service;
+            document.getElementById('inpDevice').value = rec.device;
+            if(rec.type === 'patient') {
+                document.getElementById('inpName').value = rec.name;
+                document.getElementById('inpDate').value = rec.dateNext;
+            }
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function setType(t) {
+            document.getElementById('editType').value = t;
+            const isPat = t === 'patient';
+            document.getElementById('patientFields').style.display = isPat ? 'block' : 'none';
+            document.getElementById('btnTypePat').style.background = isPat ? 'var(--primary)' : 'transparent';
+            document.getElementById('btnTypePat').style.color = isPat ? 'white' : 'var(--text-sub)';
+            document.getElementById('btnTypeDev').style.background = !isPat ? 'var(--asset)' : 'transparent';
+            document.getElementById('btnTypeDev').style.color = !isPat ? 'white' : 'var(--text-sub)';
+        }
+        function switchTab(v, b) {
+            document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('active'));
+            document.getElementById('view-'+v).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+            b.classList.add('active');
+        }
+        function filterDevices(f) { deviceFilter = f; renderData(); }
+        function getDiff(d) {
+            const diff = Math.ceil((new Date(d) - new Date().setHours(0,0,0,0))/86400000);
+            if(diff===0) return {days:0, text:'BUGÜN'};
+            if(diff===1) return {days:1, text:'YARIN'};
+            if(diff<0) return {days:-1, text:'GECİKTİ'};
+            return {days:diff, text: diff+' GÜN'};
+        }
+        function formatDate(d) { if(!d) return "-"; return new Date(d).toLocaleDateString('tr-TR'); }
+        function updateStats() {
+            document.getElementById('stPat').innerText = allData.filter(x=>x.type==='patient').length;
+            document.getElementById('stDev').innerText = allData.filter(x=>x.type==='device').length;
+            document.getElementById('stMaint').innerText = allData.filter(x=>x.type==='maintenance').length;
+            document.getElementById('stUrg').innerText = allData.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length;
+        }
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+        }
+    </script>
 </body>
 </html>
