@@ -1,86 +1,102 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trio Manager v5</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trio Manager v5</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Firebase compat -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #f1f5f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .card {
-      background: white;
-      padding: 24px 28px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      text-align: center;
-      max-width: 320px;
-      width: 100%;
-    }
-    h1 {
-      margin: 0 0 10px;
-      color: #2563eb;
-    }
-    p {
-      margin: 6px 0;
-      color: #334155;
-      font-size: 14px;
-    }
-    .ok {
-      color: #16a34a;
-      font-weight: 600;
-    }
-    .err {
-      color: #dc2626;
-      font-weight: 600;
-    }
-  </style>
+<style>
+*{box-sizing:border-box;font-family:Inter}
+body{margin:0;background:#f1f5f9;color:#111}
+.container{max-width:520px;margin:40px auto;padding:16px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+h1{text-align:center;margin-bottom:6px;color:#2563eb}
+p{text-align:center;color:#64748b;margin-top:0}
+
+form{display:flex;gap:8px;margin:16px 0}
+input,select,button{
+padding:12px;border-radius:10px;border:1px solid #e5e7eb;font-size:14px
+}
+input,select{flex:1}
+button{background:#2563eb;color:#fff;border:none;font-weight:600}
+
+.list{margin-top:16px;display:grid;gap:8px}
+.item{
+display:flex;justify-content:space-between;align-items:center;
+padding:12px;border-radius:10px;background:#f8fafc
+}
+.badge{
+font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;
+background:#e0e7ff;color:#3730a3
+}
+.del{background:#ef4444;color:#fff;border:none;padding:6px 10px;border-radius:8px}
+</style>
 </head>
-<body>
 
+<body>
+<div class="container">
   <div class="card">
     <h1>Trio Manager v5</h1>
-    <p id="status">Kontrol ediliyor…</p>
+    <p>Canlı • Ortak • Senkron</p>
+
+    <form id="form">
+      <input id="title" placeholder="Bir şey yaz…" required>
+      <select id="type">
+        <option>İş</option>
+        <option>Not</option>
+        <option>Cihaz</option>
+        <option>Müşteri</option>
+      </select>
+      <button>Ekle</button>
+    </form>
+
+    <div class="list" id="list"></div>
   </div>
+</div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
-      authDomain: "trio-manager.firebaseapp.com",
-      projectId: "trio-manager",
-      storageBucket: "trio-manager.firebasestorage.app",
-      messagingSenderId: "447336966368",
-      appId: "1:447336966368:web:910c838ef487c7c84c8885"
-    };
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
+  authDomain: "trio-manager.firebaseapp.com",
+  projectId: "trio-manager"
+};
 
-    try {
-      firebase.initializeApp(firebaseConfig);
-      const db = firebase.firestore();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-      document.getElementById("status").innerHTML =
-        "Firebase bağlandı ✅<br>Firestore hazır.";
+const list = document.getElementById("list");
+const form = document.getElementById("form");
 
-      // Test okuma (boş bile olsa hata vermez)
-      db.collection("test").limit(1).get();
+form.onsubmit = e => {
+  e.preventDefault();
+  db.collection("items").add({
+    title: title.value,
+    type: type.value,
+    createdAt: Date.now()
+  });
+  form.reset();
+};
 
-    } catch (e) {
-      document.getElementById("status").innerHTML =
-        "<span class='err'>Firebase hata verdi ❌</span><br>" + e.message;
-    }
-  </script>
-
+db.collection("items").orderBy("createdAt","desc")
+.onSnapshot(snap=>{
+  list.innerHTML="";
+  snap.forEach(doc=>{
+    const d=doc.data();
+    list.innerHTML+=`
+      <div class="item">
+        <div>
+          <strong>${d.title}</strong><br>
+          <span class="badge">${d.type}</span>
+        </div>
+        <button class="del" onclick="db.collection('items').doc('${doc.id}').delete()">Sil</button>
+      </div>`;
+  });
+});
+</script>
 </body>
 </html>
