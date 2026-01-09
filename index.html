@@ -100,7 +100,7 @@
 
     <div class="app-container" id="mainApp">
         <header class="header">
-            <div class="brand"><i class="fas fa-shield-alt"></i><h1>TRIO PRO<br><span>V9 COUNT</span></h1></div>
+            <div class="brand"><i class="fas fa-shield-alt"></i><h1>TRIO PRO<br><span>V10 SMART</span></h1></div>
             <div class="head-actions">
                 <button class="btn-icon" onclick="exportMasterExcel()" style="color:var(--success)" title="Excel Rapor"><i class="fas fa-file-excel"></i></button>
                 <button class="btn-icon" onclick="openSettings()" title="Ayarlar"><i class="fas fa-cog"></i></button>
@@ -253,18 +253,28 @@
                 </div>`;
             });
 
-            // CİHAZLAR VE SAYACLI BUTONLAR
-            // Tüm aktif cihazları al (Depo + Bakım)
+            // CİHAZLAR VE FİLTRE MANTIĞI
             const allDevices = activeData.filter(x => x.type === 'device' || x.type === 'maintenance');
             
-            // Konumları bul ve butonları çiz (Count ile beraber)
-            const uniqueLocs = [...new Set(allDevices.map(x => x.service))].filter(Boolean).sort();
-            renderLocationButtons(uniqueLocs, allDevices); // Cihaz listesini de gönderiyoruz saymak için
+            // KONUMLARI STANDARTLAŞTIR (Trim + Uppercase ile grupla)
+            // { "ASYAMED": count, "DEPO": count }
+            const locGroups = {};
+            allDevices.forEach(d => {
+                if(!d.service) return;
+                const normLoc = d.service.trim().toUpperCase(); // BÜYÜK HARF + BOŞLUK TEMİZLEME
+                if(!locGroups[normLoc]) locGroups[normLoc] = 0;
+                locGroups[normLoc]++;
+            });
 
-            // Listeyi Filtrele
+            // Filtre Butonlarını Çiz
+            renderLocationButtons(locGroups, allDevices.length);
+
+            // Cihazları Listele
             let devices = allDevices.filter(x => (x.device+x.service).toLowerCase().includes(dSrc));
+            
+            // Filtre Seçiliyse Uygula (Standartlaştırılmış isme göre)
             if(currentLocFilter !== 'TÜMÜ') {
-                devices = devices.filter(x => x.service === currentLocFilter);
+                devices = devices.filter(x => x.service && x.service.trim().toUpperCase() === currentLocFilter);
             }
 
             devices.forEach(d => {
@@ -299,17 +309,17 @@
             if(devices.length===0) dCont.innerHTML = "<div style='text-align:center; color:gray; padding:20px;'>Cihaz yok.</div>";
         }
 
-        // --- SAYAÇLI KONUM BUTONLARI ---
-        function renderLocationButtons(locs, allDevs) {
+        // --- SAYAÇLI KONUM BUTONLARI (STANDARTLAŞTIRILMIŞ) ---
+        function renderLocationButtons(groups, totalCount) {
             const container = document.getElementById('locationFilters');
             
-            // Tümü butonu ve toplam sayısı
-            let html = `<button class="filter-chip ${currentLocFilter === 'TÜMÜ' ? 'active' : ''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${allDevs.length})</span></button>`;
+            // Grupları isme göre sırala
+            const sortedLocs = Object.keys(groups).sort();
+
+            let html = `<button class="filter-chip ${currentLocFilter === 'TÜMÜ' ? 'active' : ''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${totalCount})</span></button>`;
             
-            locs.forEach(loc => {
-                // Her konum için adet say
-                const count = allDevs.filter(x => x.service === loc).length;
-                html += `<button class="filter-chip ${currentLocFilter === loc ? 'active' : ''}" onclick="setLocFilter('${loc}')">${loc.toUpperCase()} <span>(${count})</span></button>`;
+            sortedLocs.forEach(locName => {
+                html += `<button class="filter-chip ${currentLocFilter === locName ? 'active' : ''}" onclick="setLocFilter('${locName}')">${locName} <span>(${groups[locName]})</span></button>`;
             });
             container.innerHTML = html;
         }
