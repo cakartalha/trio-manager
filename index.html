@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trio Manager</title>
+    <title>Trio Manager Pro</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,14 +16,12 @@
         body.dark-mode { --primary: #3b82f6; --asset: #a78bfa; --maint: #fdba74; --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9; --text-sub: #94a3b8; --border: #334155; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 90px; padding-top: 15px; transition: 0.3s; }
-        .app-container { max-width: 600px; margin: 0 auto; padding: 0 15px; display: none; } /* BAŞLANGIÇTA GİZLİ */
-
+        .app-container { max-width: 600px; margin: 0 auto; padding: 0 15px; display: none; }
+        
         /* GİRİŞ EKRANI */
         #login-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .login-box { background: var(--bg-card); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-        .login-icon { font-size: 40px; color: var(--primary); margin-bottom: 20px; }
         .pass-input { width: 100%; padding: 15px; font-size: 24px; text-align: center; border: 2px solid var(--border); border-radius: 12px; margin-bottom: 20px; letter-spacing: 5px; outline: none; background: var(--bg-body); color: var(--text-main); }
-        .pass-input:focus { border-color: var(--primary); }
         .btn-login { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
         /* HEADER & GENEL */
@@ -34,8 +32,8 @@
         .brand h1 span { font-size: 11px; font-weight: 500; color: var(--text-sub); display: block; }
         .head-actions { display: flex; gap: 8px; }
         .btn-icon { background: var(--bg-card); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 12px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .btn-excel-main { background: #10b981; color: white; border: none; font-weight: bold; width: auto; padding: 0 15px; gap: 5px; }
 
+        /* İSTATİSTİK */
         .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .stat-item { background: var(--bg-card); padding: 10px 5px; border-radius: var(--radius); text-align: center; border: 1px solid var(--border); }
         .stat-val { font-size: 18px; font-weight: 800; color: var(--primary); display: block; }
@@ -45,71 +43,66 @@
         .view-section { display: none; animation: fadeIn 0.3s; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .search-box { position: relative; margin-bottom: 15px; }
-        .search-box input { width: 100%; padding: 14px 14px 14px 45px; border-radius: 14px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-main); outline: none; }
-        .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
         .card { background: var(--bg-card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); position: relative; }
         .card.patient { border-left: 5px solid var(--primary); }
         .card.device { border-left: 5px solid var(--asset); }
-        .card.maintenance { border-left: 5px solid var(--maint); background: linear-gradient(to right, #fff7ed, transparent); }
-        .card-head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
-        .c-title { font-weight: 700; font-size: 16px; }
-        .c-badge { font-size: 10px; padding: 4px 8px; border-radius: 6px; font-weight: 700; color: white; background: var(--success); }
-        .c-badge.red { background: var(--danger); }
-        .c-badge.maint { background: var(--maint); }
-        .c-info { font-size: 13px; color: var(--text-sub); display: grid; gap: 4px; margin-bottom: 12px; }
-        .c-info div { display: flex; align-items: center; gap: 6px; }
-        .c-info i { width: 16px; text-align: center; color: var(--primary); }
-        .card.device .c-info i { color: var(--asset); }
-        .card.maintenance .c-info i { color: var(--maint); }
-        .c-actions { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; overflow-x: auto;}
-        .btn-act { flex: 1; white-space: nowrap; height: 38px; border-radius: 10px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; }
-        .btn-wa-card { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-        .btn-edit { background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border); }
-        .btn-move { background: #f3e8ff; color: #6b21a8; }
-        .btn-fix { background: #ffedd5; color: #c2410c; }
-        .btn-del { width: 38px; flex: none; background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-
+        .card.maintenance { border-left: 5px solid var(--maint); }
+        .c-actions { display: flex; gap: 8px; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; overflow-x: auto; }
+        .btn-act { flex: 1; height: 38px; border-radius: 10px; border: none; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 10px; white-space: nowrap; }
+        
         /* MODALLER */
         .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); z-index: 200; display: none; align-items: flex-end; justify-content: center; }
         .modal-overlay.open { display: flex; }
-        .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; padding: 25px; border-radius: 24px 24px 0 0; animation: slideUp 0.3s; max-height: 85vh; overflow-y: auto; }
+        .modal-content { background: var(--bg-card); width: 100%; max-width: 600px; padding: 25px; border-radius: 24px 24px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .form-input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); margin-bottom: 15px; outline: none; }
-        .btn-save { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; }
+        
+        /* TAB BAR */
         .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 0; z-index: 100; }
         .tab-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: var(--text-sub); font-size: 10px; font-weight: 600; cursor: pointer; }
-        .tab-btn i { font-size: 22px; margin-bottom: 4px; }
         .tab-btn.active { color: var(--primary); }
-        #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 999; display: flex; justify-content: center; align-items: center; display:none; }
+
+        /* LOADER */
+        #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 2100; display: none; justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* FİLTRE BUTONLARI */
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: none; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-chip { 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            background: var(--bg-card); 
+            color: var(--text-sub); 
+            font-size: 12px; 
+            font-weight: 600; 
+            white-space: nowrap; 
+            cursor: pointer; 
+            transition: 0.2s;
+        }
+        .filter-chip.active { background: var(--asset); color: white; border-color: var(--asset); }
+        .filter-chip span { opacity: 0.7; font-size: 10px; margin-left: 4px; }
     </style>
 </head>
 <body>
 
+    <div id="loader"><div class="spinner"></div></div>
+
     <div id="login-screen">
         <div class="login-box">
-            <div class="login-icon"><i class="fas fa-lock"></i></div>
-            <h2 style="margin-bottom:10px;">Giriş Yap</h2>
-            <p style="color:var(--text-sub); font-size:13px; margin-bottom:20px;">Trio Medikal Takip Sistemi</p>
+            <h2 style="margin-bottom:20px;">TRIO GİRİŞ</h2>
             <input type="tel" id="passwordInput" class="pass-input" placeholder="****" maxlength="4">
             <button class="btn-login" onclick="checkLogin()">GİRİŞ</button>
         </div>
     </div>
 
-    <div id="loader"><div class="spinner"></div></div>
-
     <div class="app-container" id="mainApp">
         <header class="header">
-            <div class="brand">
-                <i class="fas fa-layer-group"></i>
-                <h1>TRIO<br><span>MANAGER</span></h1>
-            </div>
+            <div class="brand"><i class="fas fa-shield-alt"></i><h1>TRIO PRO<br><span>V9 COUNT</span></h1></div>
             <div class="head-actions">
-                <button class="btn-icon btn-excel-main" onclick="exportMasterExcel()" title="TÜM LİSTEYİ İNDİR">
-                    <i class="fas fa-file-excel"></i>
-                </button>
+                <button class="btn-icon" onclick="exportMasterExcel()" style="color:var(--success)" title="Excel Rapor"><i class="fas fa-file-excel"></i></button>
                 <button class="btn-icon" onclick="openSettings()" title="Ayarlar"><i class="fas fa-cog"></i></button>
                 <button class="btn-icon" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
             </div>
@@ -123,65 +116,69 @@
         </div>
 
         <div id="view-patient" class="view-section active">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="srcPat" placeholder="Hasta, Oda veya Cihaz..." onkeyup="renderData()">
-            </div>
+            <input type="text" id="srcPat" class="form-input" placeholder="Hasta, Oda veya Cihaz Ara..." onkeyup="renderData()">
             <div id="list-patient"></div>
         </div>
 
         <div id="view-device" class="view-section">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="srcDev" placeholder="Barkod veya konum..." onkeyup="renderData()">
-            </div>
-            <div style="display:flex; gap:10px; margin-bottom:15px; overflow-x:auto;">
-                <button onclick="filterDevices('all')" class="btn-act" style="background:var(--bg-card); border:1px solid var(--border); color:var(--text-main);">Tümü</button>
-                <button onclick="filterDevices('empty')" class="btn-act" style="background:#f3e8ff; color:#6b21a8;">Sadece Depo</button>
-                <button onclick="filterDevices('maint')" class="btn-act" style="background:#ffedd5; color:#c2410c;">Sadece Bakım</button>
-            </div>
+            <input type="text" id="srcDev" class="form-input" placeholder="Barkod veya Konum Ara..." onkeyup="renderData()">
+            
+            <div id="locationFilters" class="filter-scroll"></div>
+
             <div id="list-device"></div>
         </div>
 
         <nav class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('patient', this)"><i class="fas fa-user-injured"></i>Hastalar</button>
-            <button class="tab-btn" onclick="switchTab('device', this)"><i class="fas fa-server"></i>Cihazlar</button>
-            <button class="tab-btn" onclick="openModal('new')"><i class="fas fa-plus-circle" style="font-size:26px;"></i>Ekle</button>
+            <button class="tab-btn active" onclick="switchTab('patient', this)"><i class="fas fa-user-injured"></i><br>Hastalar</button>
+            <button class="tab-btn" onclick="switchTab('device', this)"><i class="fas fa-server"></i><br>Cihazlar</button>
+            <button class="tab-btn" onclick="openModal('new')"><i class="fas fa-plus-circle" style="font-size:22px"></i><br>Ekle</button>
         </nav>
     </div>
 
     <div id="modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 id="modalTitle" style="margin-bottom: 20px;">Kayıt İşlemi</h3>
-            <input type="hidden" id="editId">
-            <input type="hidden" id="editType">
+            <h3 id="modalTitle">Kayıt İşlemi</h3><br>
+            <input type="hidden" id="editId"><input type="hidden" id="editType">
+            
             <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="setType('patient')" id="btnTypePat" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);">Hasta</button>
-                <button onclick="setType('device')" id="btnTypeDev" style="flex:1; padding:10px; border-radius:10px; border:1px solid var(--border);">Cihaz</button>
+                <button onclick="setType('patient')" id="btnTypePat" class="btn-act" style="background:var(--primary); color:white;">Hasta</button>
+                <button onclick="setType('device')" id="btnTypeDev" class="btn-act" style="background:var(--bg-body); color:var(--text-sub);">Cihaz</button>
             </div>
+
             <input type="text" id="inpService" class="form-input" placeholder="Servis / Konum">
             <input type="text" id="inpDevice" class="form-input" placeholder="Cihaz Barkod">
             <div id="patientFields">
                 <input type="text" id="inpName" class="form-input" placeholder="Hasta Adı Soyadı">
                 <input type="date" id="inpDate" class="form-input">
             </div>
-            <button onclick="saveData()" class="btn-save" id="btnSave">Kaydet</button>
-            <button onclick="closeModal('modal')" style="width:100%; padding:15px; margin-top:10px; border:none; background:transparent;">İptal</button>
+            <button onclick="saveData()" class="btn-login">Kaydet</button>
+            <button onclick="closeModal('modal')" style="width:100%; margin-top:15px; background:none; border:none; color:var(--text-sub)">İptal</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-bottom:10px;">⚙️ Ayarlar</h3>
-            <label style="font-size:12px; font-weight:600;">Kayıtlı WhatsApp No (905...)</label>
-            <input type="tel" id="adminNumber" class="form-input" placeholder="Örn: 905321234567">
-            <button onclick="saveSettings()" class="btn-save" style="background:var(--whatsapp);">Kaydet</button>
-            <button onclick="closeModal('settingsModal')" style="width:100%; padding:15px; margin-top:10px; border:none; background:transparent;">Kapat</button>
+            <h3>⚙️ Ayarlar</h3><hr style="border:0; border-top:1px solid var(--border); margin:15px 0;"><br>
+            <button onclick="openTrash()" class="btn-login" style="background:var(--danger); margin-bottom:20px;">
+                <i class="fas fa-trash-alt"></i> Çöp Kutusunu Aç
+            </button>
+            <label style="font-size:12px; font-weight:bold;">WhatsApp Rapor Numarası (905...)</label>
+            <input type="tel" id="adminNumber" class="form-input" placeholder="90532XXXXXXX">
+            <button onclick="saveSettings()" class="btn-login">Kaydet</button>
+            <button onclick="closeModal('settingsModal')" style="width:100%; margin-top:15px; background:none; border:none; color:var(--text-sub)">Kapat</button>
+        </div>
+    </div>
+
+    <div id="trashModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>🗑️ Geri Dönüşüm Kutusu</h3>
+            <p style="font-size:12px; color:var(--text-sub); margin-bottom:15px;">Buradaki kayıtlar ana listede görünmez.</p>
+            <div id="trashList" style="max-height:50vh; overflow-y:auto; margin-bottom:15px;"></div>
+            <button onclick="closeModal('trashModal')" class="btn-login" style="background:var(--text-sub)">Kapat</button>
         </div>
     </div>
 
     <script>
-        // --- SENİN BİLGİLERİN GÖMÜLDÜ ---
         const firebaseConfig = {
             apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
             authDomain: "trio-manager.firebaseapp.com",
@@ -190,18 +187,16 @@
             messagingSenderId: "447336966368",
             appId: "1:447336966368:web:910c838ef487c7c84c8885"
         };
-
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const col = "trio_records";
         let allData = [];
-        let deviceFilter = 'all';
+        let currentLocFilter = 'TÜMÜ';
         let savedNumber = localStorage.getItem('trioAdminNumber') || "";
 
-        // ŞİFRE KONTROLÜ
         function checkLogin() {
-            const pass = document.getElementById('passwordInput').value;
-            if (pass === "0000") {
+            if(document.getElementById('passwordInput').value === "0000") {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 startApp();
@@ -223,108 +218,199 @@
                 document.getElementById('loader').style.display = 'none';
                 renderData();
                 updateStats();
-            }, err => {
-                console.error("Hata:", err);
-                document.getElementById('loader').style.display = 'none';
-            });
+            }, err => { console.error(err); document.getElementById('loader').style.display = 'none'; });
         }
 
-        // RENDER
         function renderData() {
             const pCont = document.getElementById('list-patient');
+            const dCont = document.getElementById('list-device');
             const pSrc = document.getElementById('srcPat').value.toLowerCase();
-            pCont.innerHTML = "";
-            let patients = allData.filter(x => x.type === 'patient' && (x.name+x.service+x.device).toLowerCase().includes(pSrc));
+            const dSrc = document.getElementById('srcDev').value.toLowerCase();
+            
+            pCont.innerHTML = ""; dCont.innerHTML = "";
+            const activeData = allData.filter(x => !x.isDeleted); 
+
+            // HASTALAR
+            let patients = activeData.filter(x => x.type === 'patient' && (x.name+x.service+x.device).toLowerCase().includes(pSrc));
             patients.sort((a,b) => new Date(a.dateNext) - new Date(b.dateNext));
             patients.forEach(p => {
                 const diff = getDiff(p.dateNext);
-                const badge = diff.days <= 0 ? 'red' : '';
                 pCont.innerHTML += `
                 <div class="card patient">
-                    <div class="card-head"><div class="c-title">${p.name}</div><div class="c-badge ${badge}">${diff.text}</div></div>
-                    <div class="c-info"><div><i class="fas fa-clinic-medical"></i> ${p.service}</div><div><i class="fas fa-barcode"></i> ${p.device}</div><div><i class="far fa-calendar-check"></i> ${formatDate(p.dateNext)}</div></div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${p.name}</b>
+                        <span style="font-size:10px; background:${diff.days<=0?'var(--danger)':'var(--success)'}; color:white; padding:2px 6px; border-radius:4px;">${diff.text}</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-sub); margin:5px 0;">
+                        <i class="fas fa-map-marker-alt"></i> ${p.service} &nbsp;|&nbsp; <i class="fas fa-barcode"></i> ${p.device}
+                    </div>
                     <div class="c-actions">
-                        <button class="btn-act btn-wa-card" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i></button>
-                        <button class="btn-act btn-move" onclick="transferToDevice('${p.id}')">BOŞA ÇIKAR</button>
-                        <button class="btn-act btn-edit" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button>
-                        <button class="btn-act btn-del" onclick="deleteRecord('${p.id}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn-act" style="background:#dcfce7; color:#15803d" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i></button>
+                        <button class="btn-act" style="background:#f3e8ff; color:#6b21a8" onclick="transferToDevice('${p.id}')">BOŞA ÇIKAR</button>
+                        <button class="btn-act" style="background:var(--bg-body); color:var(--text-sub)" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act" style="background:#fee2e2; color:#b91c1c" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>`;
             });
 
-            const dCont = document.getElementById('list-device');
-            const dSrc = document.getElementById('srcDev').value.toLowerCase();
-            dCont.innerHTML = "";
-            let devices = allData.filter(x => (x.type === 'device' || x.type === 'maintenance') && (x.device+x.service).toLowerCase().includes(dSrc));
-            if(deviceFilter === 'empty') devices = devices.filter(x => x.type === 'device');
-            if(deviceFilter === 'maint') devices = devices.filter(x => x.type === 'maintenance');
+            // CİHAZLAR VE SAYACLI BUTONLAR
+            // Tüm aktif cihazları al (Depo + Bakım)
+            const allDevices = activeData.filter(x => x.type === 'device' || x.type === 'maintenance');
+            
+            // Konumları bul ve butonları çiz (Count ile beraber)
+            const uniqueLocs = [...new Set(allDevices.map(x => x.service))].filter(Boolean).sort();
+            renderLocationButtons(uniqueLocs, allDevices); // Cihaz listesini de gönderiyoruz saymak için
+
+            // Listeyi Filtrele
+            let devices = allDevices.filter(x => (x.device+x.service).toLowerCase().includes(dSrc));
+            if(currentLocFilter !== 'TÜMÜ') {
+                devices = devices.filter(x => x.service === currentLocFilter);
+            }
+
             devices.forEach(d => {
                 const isMaint = d.type === 'maintenance';
                 const styleClass = isMaint ? 'maintenance' : 'device';
                 const statusText = isMaint ? 'BAKIMDA' : 'DEPO / BOŞ';
-                const statusBadge = isMaint ? 'maint' : '';
-                const titleColor = isMaint ? 'var(--maint)' : 'var(--asset)';
-                let actBtns = isMaint ? 
-                    `<button class="btn-act btn-move" onclick="toggleMaintenance('${d.id}', false)"><i class="fas fa-check"></i> DEPOYA</button>
-                     <button class="btn-act btn-edit" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
-                     <button class="btn-act btn-del" onclick="deleteRecord('${d.id}')"><i class="fas fa-trash"></i></button>` : 
-                    `<button class="btn-act btn-wa-card" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button>
-                     <button class="btn-act btn-move" onclick="transferToPatient('${d.id}')">HASTAYA</button>
-                     <button class="btn-act btn-fix" onclick="toggleMaintenance('${d.id}', true)">BAKIM</button>
-                     <button class="btn-act btn-edit" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
-                     <button class="btn-act btn-del" onclick="deleteRecord('${d.id}')"><i class="fas fa-trash"></i></button>`;
                 
+                let btns = isMaint ? 
+                    `<button class="btn-act" style="background:#f3e8ff; color:#6b21a8" onclick="toggleMaintenance('${d.id}', false)">DEPOYA AL</button>` :
+                    `<button class="btn-act" style="background:#dcfce7; color:#15803d" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button>
+                     <button class="btn-act" style="background:#f3e8ff; color:#6b21a8" onclick="transferToPatient('${d.id}')">HASTAYA</button>
+                     <button class="btn-act" style="background:#ffedd5; color:#c2410c" onclick="toggleMaintenance('${d.id}', true)">BAKIM</button>`;
+
                 dCont.innerHTML += `
                 <div class="card ${styleClass}">
-                    <div class="card-head"><div class="c-title" style="color:${titleColor}">${d.device}</div><div class="c-badge ${statusBadge}">${statusText}</div></div>
-                    <div class="c-info"><div><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div>
-                    <div class="c-actions">${actBtns}</div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <b style="color:${isMaint?'var(--maint)':'var(--asset)'}">${d.device}</b>
+                        <span style="font-size:10px; background:${isMaint?'var(--maint)':'var(--asset)'}; color:white; padding:2px 6px; border-radius:4px;">${statusText}</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--text-sub); margin:5px 0;">
+                        <i class="fas fa-map-marker-alt"></i> ${d.service}
+                    </div>
+                    <div class="c-actions">
+                        ${btns}
+                        <button class="btn-act" style="background:var(--bg-body); color:var(--text-sub)" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn-act" style="background:#fee2e2; color:#b91c1c" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>`;
             });
-            if(patients.length===0) pCont.innerHTML = "<div style='text-align:center; padding:20px; color:gray;'>Kayıt yok.</div>";
-            if(devices.length===0) dCont.innerHTML = "<div style='text-align:center; padding:20px; color:gray;'>Cihaz yok.</div>";
+            
+            if(patients.length===0) pCont.innerHTML = "<div style='text-align:center; color:gray; padding:20px;'>Kayıt yok.</div>";
+            if(devices.length===0) dCont.innerHTML = "<div style='text-align:center; color:gray; padding:20px;'>Cihaz yok.</div>";
         }
 
-        // --- İŞLEMLER ---
+        // --- SAYAÇLI KONUM BUTONLARI ---
+        function renderLocationButtons(locs, allDevs) {
+            const container = document.getElementById('locationFilters');
+            
+            // Tümü butonu ve toplam sayısı
+            let html = `<button class="filter-chip ${currentLocFilter === 'TÜMÜ' ? 'active' : ''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${allDevs.length})</span></button>`;
+            
+            locs.forEach(loc => {
+                // Her konum için adet say
+                const count = allDevs.filter(x => x.service === loc).length;
+                html += `<button class="filter-chip ${currentLocFilter === loc ? 'active' : ''}" onclick="setLocFilter('${loc}')">${loc.toUpperCase()} <span>(${count})</span></button>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function setLocFilter(loc) {
+            currentLocFilter = loc;
+            renderData();
+        }
+
+        function transferToDevice(id) {
+            const newLoc = prompt("Cihaz hangi servise/konuma bırakılıyor?", "Depo");
+            if(newLoc === null) return;
+            db.collection(col).doc(id).update({ type: 'device', name: 'BOŞTA', service: newLoc, dateNext: firebase.firestore.FieldValue.delete() });
+        }
+        function transferToPatient(id) {
+            const r = allData.find(x => x.id === id);
+            openModal('new');
+            document.getElementById('editId').value = id;
+            document.getElementById('editType').value = 'patient';
+            document.getElementById('inpDevice').value = r.device;
+            document.getElementById('inpService').value = r.service;
+            setType('patient');
+            document.getElementById('modalTitle').innerText = "Cihazı Hastaya Tak";
+        }
+        function toggleMaintenance(id, toMaint) {
+            if(confirm(toMaint ? "Cihaz bakıma gidiyor?" : "Cihaz depoya dönüyor?")) {
+                db.collection(col).doc(id).update({ type: toMaint ? 'maintenance' : 'device' });
+            }
+        }
+        function softDelete(id) { if(confirm("Bu kayıt çöp kutusuna taşınsın mı?")) db.collection(col).doc(id).update({ isDeleted: true }); }
+        function openTrash() {
+            closeModal('settingsModal');
+            document.getElementById('trashModal').classList.add('open');
+            const list = document.getElementById('trashList');
+            list.innerHTML = "";
+            const deleted = allData.filter(x => x.isDeleted);
+            if(deleted.length === 0) list.innerHTML = "<div style='text-align:center; padding:20px;'>Çöp kutusu boş.</div>";
+            deleted.forEach(x => {
+                let info = x.type === 'patient' ? `${x.name} (${x.device})` : `${x.device} (Depo/Bakım)`;
+                list.innerHTML += `
+                <div class="card" style="border-left:3px solid var(--text-sub);">
+                    <div style="font-size:13px; font-weight:bold;">${info}</div>
+                    <div class="c-actions">
+                        <button class="btn-act" style="background:var(--success); color:white" onclick="restore('${x.id}')">GERİ YÜKLE</button>
+                        <button class="btn-act" style="background:var(--danger); color:white" onclick="hardDelete('${x.id}')">KALICI SİL</button>
+                    </div>
+                </div>`;
+            });
+        }
+        function restore(id) { db.collection(col).doc(id).update({ isDeleted: false }); openTrash(); }
+        function hardDelete(id) { if(confirm("GERİ DÖNÜŞÜ YOK! Tamamen silinsin mi?")) { db.collection(col).doc(id).delete(); openTrash(); } }
         function exportMasterExcel() {
+            const activeData = allData.filter(x => !x.isDeleted);
             let sortedData = [];
-            allData.filter(x => x.type === 'patient').forEach(x => sortedData.push({durum:"HASTA", cihaz:x.device, konum:x.service, isim:x.name, tarih:formatDate(x.dateNext), kayit:formatDate(x.createdAt)}));
-            allData.filter(x => x.type === 'device').forEach(x => sortedData.push({durum:"BOŞTA", cihaz:x.device, konum:x.service, isim:"-", tarih:"-", kayit:formatDate(x.createdAt)}));
-            allData.filter(x => x.type === 'maintenance').forEach(x => sortedData.push({durum:"BAKIMDA", cihaz:x.device, konum:x.service, isim:"-", tarih:"-", kayit:formatDate(x.createdAt)}));
-            let csv = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI;KAYIT TARIHI\n";
-            sortedData.forEach(r => csv += `${r.durum};"${r.cihaz}";"${r.konum}";"${r.isim}";${r.tarih};${r.kayit}\n`);
+            activeData.filter(x => x.type === 'patient').forEach(x => sortedData.push({d:"HASTA", c:x.device, k:x.service, i:x.name, t:formatDate(x.dateNext)}));
+            activeData.filter(x => x.type === 'device').forEach(x => sortedData.push({d:"BOŞTA", c:x.device, k:x.service, i:"-", t:"-"}));
+            activeData.filter(x => x.type === 'maintenance').forEach(x => sortedData.push({d:"BAKIMDA", c:x.device, k:x.service, i:"-", t:"-"}));
+            let csv = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n";
+            sortedData.forEach(r => csv += `${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`);
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = `Trio_Liste_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'_')}.csv`;
+            link.download = `Trio_Rapor_${new Date().toLocaleDateString('tr-TR').replace(/\./g,'_')}.csv`;
             link.click();
         }
-
-        function sharePatient(id) { const p=allData.find(x=>x.id===id); sendToWhatsapp(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*PANSUMAN:* ${formatDate(p.dateNext)}`); }
-        function shareDevice(id) { const d=allData.find(x=>x.id===id); sendToWhatsapp(`*BOŞ CİHAZ*\n*CİHAZ:* ${d.device}\n*KONUM:* ${d.service}`); }
-        function sendToWhatsapp(txt) { window.open(savedNumber.length>5 ? `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(txt)}` : `https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank'); }
-        function transferToDevice(id) { if(confirm("Hasta silinip cihaz boşa çıkacak?")) db.collection(col).doc(id).update({ type:'device', name:'BOŞTA', dateNext: firebase.firestore.FieldValue.delete() }); }
-        function transferToPatient(id) { const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; document.getElementById('editType').value='patient'; document.getElementById('inpDevice').value=r.device; document.getElementById('inpService').value=r.service; setType('patient'); document.getElementById('modalTitle').innerText="Cihazı Hastaya Tak"; }
-        function toggleMaintenance(id, tm) { if(confirm(tm?"Bakıma gidiyor?":"Depoya dönüyor?")) db.collection(col).doc(id).update({ type: tm?'maintenance':'device' }); }
         function saveData() {
-            const id=document.getElementById('editId').value, type=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value;
-            let data = { type, service:s, device:d };
-            if(type==='patient') { const n=document.getElementById('inpName').value, dt=document.getElementById('inpDate').value; if(!n||!s) return alert("Eksik!"); data.name=n; data.dateNext=dt; } else { data.name="BOŞTA"; }
-            if(id) db.collection(col).doc(id).update(data); else { data.createdAt=Date.now(); db.collection(col).add(data); }
+            const id = document.getElementById('editId').value;
+            const type = document.getElementById('editType').value;
+            const s = document.getElementById('inpService').value;
+            const d = document.getElementById('inpDevice').value;
+            let data = { type, service:s, device:d, isDeleted: false };
+            if(type === 'patient') {
+                data.name = document.getElementById('inpName').value;
+                data.dateNext = document.getElementById('inpDate').value;
+                if(!data.name || !s) return alert("İsim ve Servis zorunludur!");
+            } else data.name = "BOŞTA";
+            if(id) db.collection(col).doc(id).update(data); else { data.createdAt = Date.now(); db.collection(col).add(data); }
             closeModal('modal');
         }
-        function deleteRecord(id) { if(confirm("Silinecek?")) db.collection(col).doc(id).delete(); }
-        function openSettings() { document.getElementById('settingsModal').classList.add('open'); document.getElementById('adminNumber').value=savedNumber; }
-        function saveSettings() { savedNumber=document.getElementById('adminNumber').value.replace(/\D/g,''); localStorage.setItem('trioAdminNumber',savedNumber); closeModal('settingsModal'); }
-        function openModal(mode) { document.getElementById('modal').classList.add('open'); if(mode==='new'){ document.getElementById('modalTitle').innerText="Yeni Kayıt"; document.getElementById('editId').value=""; document.getElementById('inpName').value=""; document.getElementById('inpService').value=""; document.getElementById('inpDevice').value=""; document.getElementById('typeSelector').style.display='flex'; setType('patient'); } }
-        function editRecord(id) { const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; document.getElementById('typeSelector').style.display='none'; setType(r.type==='maintenance'?'device':r.type); document.getElementById('inpService').value=r.service; document.getElementById('inpDevice').value=r.device; if(r.type==='patient'){ document.getElementById('inpName').value=r.name; document.getElementById('inpDate').value=r.dateNext; } }
+        function editRecord(id) {
+            const r = allData.find(x => x.id === id);
+            openModal('new');
+            document.getElementById('editId').value = id;
+            document.getElementById('modalTitle').innerText = "Düzenle";
+            setType(r.type === 'maintenance' ? 'device' : r.type);
+            document.getElementById('inpService').value = r.service;
+            document.getElementById('inpDevice').value = r.device;
+            if(r.type === 'patient') { document.getElementById('inpName').value = r.name; document.getElementById('inpDate').value = r.dateNext; }
+        }
+        function sharePatient(id) { const p=allData.find(x=>x.id===id); sendWP(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`); }
+        function shareDevice(id) { const d=allData.find(x=>x.id===id); sendWP(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`); }
+        function sendWP(txt) { window.open(savedNumber.length>5 ? `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(txt)}` : `https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank'); }
+        function setType(t) { document.getElementById('editType').value=t; const isP=t==='patient'; document.getElementById('patientFields').style.display=isP?'block':'none'; document.getElementById('btnTypePat').style.background=isP?'var(--primary)':'var(--bg-body)'; document.getElementById('btnTypePat').style.color=isP?'white':'var(--text-sub)'; document.getElementById('btnTypeDev').style.background=!isP?'var(--asset)':'var(--bg-body)'; document.getElementById('btnTypeDev').style.color=!isP?'white':'var(--text-sub)'; }
+        function openModal(mode) { document.getElementById('modal').classList.add('open'); if(mode==='new') { document.getElementById('modalTitle').innerText="Yeni Kayıt"; document.getElementById('editId').value=""; document.getElementById('inpName').value=""; document.getElementById('inpService').value=""; document.getElementById('inpDevice').value=""; setType('patient'); } }
         function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-        function setType(t) { document.getElementById('editType').value=t; const isP=t==='patient'; document.getElementById('patientFields').style.display=isP?'block':'none'; document.getElementById('btnTypePat').style.background=isP?'var(--primary)':'transparent'; document.getElementById('btnTypePat').style.color=isP?'white':'var(--text-sub)'; document.getElementById('btnTypeDev').style.background=!isP?'var(--asset)':'transparent'; document.getElementById('btnTypeDev').style.color=!isP?'white':'var(--text-sub)'; }
+        function openSettings() { document.getElementById('settingsModal').classList.add('open'); document.getElementById('adminNumber').value = savedNumber; }
+        function saveSettings() { savedNumber = document.getElementById('adminNumber').value.replace(/\D/g,''); localStorage.setItem('trioAdminNumber', savedNumber); closeModal('settingsModal'); }
         function switchTab(v, b) { document.querySelectorAll('.view-section').forEach(x=>x.classList.remove('active')); document.getElementById('view-'+v).classList.add('active'); document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); }
-        function filterDevices(f) { deviceFilter=f; renderData(); }
         function getDiff(d) { const df=Math.ceil((new Date(d)-new Date().setHours(0,0,0,0))/86400000); if(df===0)return{days:0,text:'BUGÜN'}; if(df===1)return{days:1,text:'YARIN'}; if(df<0)return{days:-1,text:'GECİKTİ'}; return{days:df,text:df+' GÜN'}; }
         function formatDate(d) { return d ? new Date(d).toLocaleDateString('tr-TR') : "-"; }
-        function updateStats() { document.getElementById('stPat').innerText=allData.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=allData.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=allData.filter(x=>x.type==='maintenance').length; document.getElementById('stUrg').innerText=allData.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length; }
+        function updateStats() { const active = allData.filter(x => !x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length; document.getElementById('stUrg').innerText=active.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length; }
         function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
     </script>
 </body>
