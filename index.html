@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Trio Manager Ultimate</title>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <title>Trio Manager Elite</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,37 +17,34 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* --- PREMIUM DEĞİŞKENLER --- */
+        /* --- DESIGN SYSTEM (ULTRA LUXE) --- */
         :root {
-            --primary: #4f46e5; /* İndigo Mavisi */
-            --primary-dark: #4338ca;
-            --secondary: #ec4899; /* Modern Pembe */
-            --bg-body: #F3F4F6; /* Çok açık gri (Apple stili) */
-            --surface: #ffffff;
-            --text-main: #1f2937;
-            --text-sub: #6b7280;
-            --border: #e5e7eb;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --radius-L: 24px;
-            --radius-M: 16px;
-            --radius-S: 12px;
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.08);
-            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            --glass: rgba(255, 255, 255, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+            --primary: #4338ca; /* Derin İndigo */
+            --primary-glow: rgba(67, 56, 202, 0.3);
+            --accent: #f43f5e; /* Rose */
+            --bg-body: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.85);
+            --surface-solid: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: rgba(255, 255, 255, 0.6);
+            --border-solid: #e2e8f0;
+            --glass-blur: 20px;
+            --shadow-float: 0 20px 40px -10px rgba(0,0,0,0.08);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            --radius-XL: 28px;
+            --radius-L: 20px;
         }
 
         body.dark-mode {
-            --bg-body: #0f172a;
-            --surface: #1e293b;
-            --text-main: #f8fafc;
+            --bg-body: #020617;
+            --surface: rgba(30, 41, 59, 0.7);
+            --surface-solid: #1e293b;
+            --text-main: #f1f5f9;
             --text-sub: #94a3b8;
-            --border: #334155;
-            --glass: rgba(30, 41, 59, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.05);
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.3);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-solid: #334155;
+            --primary-glow: rgba(99, 102, 241, 0.2);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -50,212 +52,178 @@
         body { 
             background-color: var(--bg-body); 
             color: var(--text-main); 
-            padding-bottom: 110px; 
+            padding-bottom: 120px; 
             padding-top: env(safe-area-inset-top);
-            transition: background-color 0.4s ease;
+            background-image: radial-gradient(circle at 0% 0%, rgba(67, 56, 202, 0.08) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            transition: 0.3s;
         }
 
-        .app-container { max-width: 600px; margin: 0 auto; padding: 20px; display: none; }
-
-        /* --- LOGO & HEADER (Glassmorphism) --- */
-        .header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
-            padding: 15px 0;
+        .app-container { 
+            max-width: 600px; margin: 0 auto; padding: 20px; display: none; 
+            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            position: relative; z-index: 1; /* İçerik katmanı */
         }
-        .brand { display: flex; align-items: center; gap: 12px; }
-        .logo-box {
-            width: 48px; height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 22px;
-            box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.4);
-        }
-        .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
-        .brand h1 span { font-size: 11px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-icon-glass {
-            width: 44px; height: 44px;
-            border-radius: 14px;
+        /* HEADER - Z-INDEX DÜZELTİLDİ */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-top: 10px;
+            position: relative; z-index: 100; /* Butonların tıklanabilir olması için */
+        }
+        .brand { display: flex; align-items: center; gap: 14px; }
+        .logo-box { 
+            width: 52px; height: 52px; 
+            background: linear-gradient(135deg, var(--primary), #6366f1); 
+            border-radius: 18px; 
+            display: flex; align-items: center; justify-content: center; 
+            color: white; font-size: 24px; 
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+        .brand span { font-size: 11px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; display: block; }
+
+        .btn-glass {
+            width: 46px; height: 46px;
+            border-radius: 16px;
             background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
             border: 1px solid var(--border);
             color: var(--text-main);
             display: flex; align-items: center; justify-content: center;
             font-size: 18px; cursor: pointer;
-            transition: all 0.2s;
             box-shadow: var(--shadow-card);
-        }
-        .btn-icon-glass:active { transform: scale(0.92); }
-
-        /* --- DASHBOARD WIDGETS --- */
-        .stats { 
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; 
-        }
-        .stat-item { 
-            background: var(--surface); 
-            padding: 15px 5px; 
-            border-radius: 20px; 
-            text-align: center; 
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-card);
-            transition: transform 0.2s;
-        }
-        .stat-item:active { transform: scale(0.95); }
-        .stat-val { font-size: 22px; font-weight: 800; display: block; margin-bottom: 4px; background: linear-gradient(to right, var(--text-main), var(--text-sub)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .stat-lbl { font-size: 9px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-
-        /* --- ARAMA & FİLTRE --- */
-        .search-wrapper { 
-            background: var(--surface); 
-            padding: 8px 8px 8px 16px; 
-            border-radius: 18px; 
-            display: flex; align-items: center; 
-            box-shadow: var(--shadow-card);
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-        }
-        .search-wrapper i { color: var(--text-sub); margin-right: 10px; }
-        .form-input-clean { border: none; background: transparent; width: 100%; height: 100%; outline: none; font-size: 15px; font-weight: 500; color: var(--text-main); }
-        
-        .filter-scroll { 
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; 
-            scrollbar-width: none; -webkit-overflow-scrolling: touch;
-        }
-        .filter-scroll::-webkit-scrollbar { display: none; }
-        
-        .filter-chip { 
-            padding: 10px 20px; 
-            border-radius: 30px; 
-            border: 1px solid var(--border); 
-            background: var(--surface); 
-            color: var(--text-sub); 
-            font-size: 13px; font-weight: 600; 
-            white-space: nowrap; cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
-        .filter-chip span { font-weight: 800; margin-left: 5px; opacity: 0.6; font-size: 11px; }
-        .filter-chip.active { 
-            background: var(--text-main); 
-            color: var(--surface); 
-            border-color: var(--text-main); 
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* --- MODERN KARTLAR --- */
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-L);
-            padding: 20px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-card);
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
-            overflow: hidden;
-            animation: slideIn 0.4s ease forwards;
+            z-index: 101; /* En üstte */
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-glass:active { transform: scale(0.92); }
+        .badge-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px var(--surface-solid); display: none; }
 
-        /* Kart Kenar Çizgisi Yerine Pill Badge */
-        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-        .card-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
-        .card-sub { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
-        
-        .status-pill { 
-            font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 20px; letter-spacing: 0.5px;
-        }
-        .sp-green { background: rgba(16, 185, 129, 0.1); color: #059669; }
-        .sp-red { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-        .sp-orange { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-        .sp-blue { background: rgba(79, 70, 229, 0.1); color: #4f46e5; }
-        
-        .c-actions { 
-            display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; 
-            border-top: 1px dashed var(--border);
-            overflow-x: auto;
-        }
-        
-        .btn-act { 
-            flex: 1; min-width: max-content; height: 42px; 
-            border-radius: 12px; border: none; 
-            font-size: 12px; font-weight: 700; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; gap: 6px; 
-            padding: 0 16px; transition: 0.2s;
-        }
-        .btn-act:active { transform: scale(0.96); }
-        .btn-act.primary { background: var(--text-main); color: var(--surface); }
-        .btn-act.soft { background: var(--bg-body); color: var(--text-main); }
-        .btn-act.danger { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-        .btn-act.whatsapp { background: #dcfce7; color: #15803d; }
-
-        /* --- TAB BAR (FLOATING) --- */
-        .tab-bar { 
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: var(--glass); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: var(--glass-border);
-            border-radius: 30px; 
-            display: flex; justify-content: space-around; padding: 12px; 
-            z-index: 100; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-            max-width: 560px; margin: 0 auto;
-        }
-        .tab-btn { 
-            background: none; border: none; 
-            display: flex; flex-direction: column; align-items: center; 
-            color: var(--text-sub); font-size: 10px; font-weight: 600; cursor: pointer; 
-            opacity: 0.6; transition: 0.3s;
-        }
-        .tab-btn.active { color: var(--primary); opacity: 1; transform: translateY(-2px); }
-        .tab-btn i { font-size: 22px; margin-bottom: 4px; }
-
-        /* Orta Ekle Butonu (Floating Action Button) */
-        .tab-fab {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            width: 56px; height: 56px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 24px;
-            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.4);
-            margin-top: -35px; border: 4px solid var(--bg-body);
+        /* WIDGETS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 35px; }
+        .stat-card { 
+            background: var(--surface); 
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            padding: 16px 8px; 
+            border-radius: var(--radius-L); 
+            text-align: center; 
+            box-shadow: var(--shadow-card);
             transition: 0.3s;
         }
-        .tab-fab:active { transform: scale(0.9) rotate(90deg); }
+        .stat-num { font-size: 24px; font-weight: 800; display: block; margin-bottom: 6px; color: var(--text-main); letter-spacing: -0.05em; }
+        .stat-name { font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* --- MODALLER --- */
-        .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
-        .modal-overlay.open { display: flex; }
-        .modal-content { 
-            background: var(--surface); width: 100%; max-width: 600px; 
-            padding: 30px 25px 40px; 
-            border-radius: 30px 30px 0 0; 
+        /* INPUTS & FILTERS */
+        .search-bar { 
+            background: var(--surface-solid); 
+            padding: 4px 6px 4px 18px; 
+            border-radius: 20px; 
+            display: flex; align-items: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
+            border: 1px solid var(--border-solid);
+            margin-bottom: 25px; transition: 0.3s;
+        }
+        .search-input { border: none; background: transparent; width: 100%; height: 48px; outline: none; font-size: 15px; font-weight: 600; color: var(--text-main); }
+        
+        .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 5px 5px 15px 5px; scrollbar-width: none; margin-bottom: 10px; }
+        .filter-chip { 
+            padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-solid); background: var(--surface-solid); 
+            color: var(--text-sub); font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        .filter-chip.active { background: var(--text-main); color: var(--bg-body); border-color: var(--text-main); transform: scale(1.05); }
+        .filter-chip span { opacity: 0.6; font-size: 11px; margin-left: 6px; font-weight: 500; }
+
+        /* CARDS */
+        .item-card { 
+            background: var(--surface-solid); 
+            border-radius: var(--radius-XL); 
+            padding: 24px; margin-bottom: 18px; 
+            border: 1px solid var(--border-solid); 
+            box-shadow: var(--shadow-card); 
+            position: relative; overflow: hidden;
+            animation: slideUp 0.4s ease forwards;
+        }
+        .item-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
+        .item-title { font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.02em; }
+        .item-sub { font-size: 13px; font-weight: 500; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
+        .tag { padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .tag.blue { background: #eff6ff; color: #3b82f6; }
+        .tag.green { background: #f0fdfa; color: #14b8a6; }
+        .tag.orange { background: #fff7ed; color: #f97316; }
+        
+        .action-row { display: flex; gap: 8px; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-solid); overflow-x: auto; }
+        .act-btn { 
+            flex: 1; min-width: max-content; height: 44px; padding: 0 18px; 
+            border-radius: 14px; border: none; font-size: 13px; font-weight: 700; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            cursor: pointer; transition: 0.2s;
+        }
+        .act-btn:active { transform: scale(0.95); }
+        .btn-soft { background: var(--bg-body); color: var(--text-main); }
+        .btn-accent { background: rgba(244, 63, 94, 0.1); color: var(--accent); }
+        .btn-brand { background: var(--text-main); color: white; }
+
+        /* DOCK NAV */
+        .dock { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 8px; border-radius: 40px; 
+            display: flex; gap: 5px; 
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.3);
+            z-index: 500; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .dock-btn { 
+            width: 50px; height: 50px; border-radius: 25px; border: none; background: transparent; 
+            color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .dock-btn.active { background: rgba(255,255,255,0.15); color: white; }
+        .dock-fab { 
+            width: 56px; height: 56px; border-radius: 28px; 
+            background: linear-gradient(135deg, var(--primary), #818cf8); 
+            color: white; font-size: 24px; border: none; 
+            box-shadow: 0 10px 20px rgba(67, 56, 202, 0.4); 
+            cursor: pointer; margin: -25px 10px 0; transition: 0.3s;
+        }
+        .dock-fab:active { transform: scale(0.9) rotate(90deg); }
+
+        /* MODALS */
+        .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; } /* Tıklanınca açılması için bu class şart */
+        
+        .modal-card { 
+            background: var(--surface-solid); width: 100%; max-width: 600px; 
+            padding: 35px 30px 50px; border-radius: 40px 40px 0 0; 
             max-height: 90vh; overflow-y: auto; 
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+            box-shadow: 0 -20px 60px rgba(0,0,0,0.15);
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-handle { width: 50px; height: 6px; background: var(--border-solid); border-radius: 10px; margin: 0 auto 25px; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; display: block; text-transform: uppercase; }
-        .modern-input { width: 100%; padding: 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); font-size: 16px; outline: none; transition: 0.3s; }
-        .modern-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); background: var(--surface); }
-
-        .btn-primary { width: 100%; padding: 18px; background: var(--text-main); color: var(--surface); border: none; border-radius: 18px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px -5px rgba(0,0,0,0.2); }
-
-        /* --- GİRİŞ EKRANI --- */
-        #login-screen { 
-            position: fixed; inset: 0; 
-            background: var(--surface); z-index: 5000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; 
-            background-image: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent 40%), radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.1), transparent 40%);
+        .lux-input { 
+            width: 100%; padding: 18px; border-radius: 20px; border: 2px solid var(--bg-body); 
+            background: var(--bg-body); color: var(--text-main); font-size: 16px; font-weight: 600; 
+            margin-bottom: 16px; outline: none; transition: 0.3s;
         }
-        .login-card { width: 100%; max-width: 350px; text-align: center; }
-        .login-logo { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 24px; margin: 0 auto 30px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white; box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.4); }
+        .lux-input:focus { background: var(--surface-solid); border-color: var(--primary); }
+        .lux-btn { width: 100%; padding: 20px; border-radius: 22px; border: none; background: var(--text-main); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
 
+        /* LOGIN SCREEN */
+        #login-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+        
+        /* NOTIFICATIONS */
+        .notif-item { padding: 18px 0; border-bottom: 1px solid var(--border-solid); display: flex; gap: 15px; }
+        .notif-icon { width: 44px; height: 44px; background: var(--bg-body); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; flex-shrink: 0; }
+
+        /* LOADER */
         #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 6000; display: none; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 5px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s infinite cubic-bezier(0.6, 0.2, 0.4, 0.8); }
+        .spinner { width: 50px; height: 50px; border: 4px solid var(--border-solid); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s infinite cubic-bezier(0.6, 0.2, 0.4, 0.8); }
         @keyframes spin { to { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -263,398 +231,285 @@
     <div id="loader"><div class="spinner"></div></div>
 
     <div id="login-screen">
-        <div class="login-card">
-            <div class="login-logo"><i class="fas fa-layer-group"></i></div>
-            <h2 style="font-size:28px; font-weight:800; margin-bottom:10px;">Hoşgeldin.</h2>
-            <p style="color:var(--text-sub); margin-bottom:40px;">Trio Operasyon Sistemi v11</p>
-            <div style="position:relative; margin-bottom:20px;">
-                <input type="tel" id="passwordInput" class="modern-input" placeholder="Giriş Şifresi" maxlength="4" style="text-align:center; letter-spacing:8px; font-size:24px; font-weight:800;">
-            </div>
-            <button class="btn-primary" onclick="checkLogin()">Sisteme Gir <i class="fas fa-arrow-right" style="margin-left:10px;"></i></button>
-        </div>
+        <div class="logo-box" style="width:100px; height:100px; font-size:40px; margin-bottom:40px; border-radius:30px;"><i class="fas fa-fingerprint"></i></div>
+        <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Trio Manager</h2>
+        <p style="color:var(--text-sub); margin-bottom:40px;">Güvenli Yönetim Paneli</p>
+        <input type="tel" id="passwordInput" class="lux-input" placeholder="PASSCODE" maxlength="4" style="text-align:center; letter-spacing:10px; font-size:24px;">
+        <button class="lux-btn" onclick="checkLogin()">GİRİŞ YAP</button>
     </div>
 
     <div class="app-container" id="mainApp">
         <header class="header">
             <div class="brand">
-                <div class="logo-box"><i class="fas fa-shield-alt"></i></div>
-                <div>
-                    <h1>TRIO<br><span>MANAGER PRO</span></h1>
-                </div>
+                <div class="logo-box"><i class="fas fa-layer-group"></i></div>
+                <div><h1>TRIO<br><span>MANAGER ELITE</span></h1></div>
             </div>
             <div style="display:flex; gap:10px;">
-                <button class="btn-icon-glass" onclick="exportMasterExcel()"><i class="fas fa-file-excel" style="color:var(--success)"></i></button>
-                <button class="btn-icon-glass" onclick="openSettings()"><i class="fas fa-cog"></i></button>
-                <button class="btn-icon-glass" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+                <button class="btn-glass" onclick="openNotifications()">
+                    <i class="fas fa-bell"></i>
+                    <div id="notifBadge" class="badge-dot"></div>
+                </button>
+                <button class="btn-glass" onclick="openSettings()"><i class="fas fa-cog"></i></button>
             </div>
         </header>
 
-        <div class="stats">
-            <div class="stat-item"><span class="stat-val" style="color:var(--primary)" id="stPat">0</span><span class="stat-lbl">Hasta</span></div>
-            <div class="stat-item"><span class="stat-val" style="color:var(--text-sub)" id="stDev">0</span><span class="stat-lbl">Depo</span></div>
-            <div class="stat-item"><span class="stat-val" style="color:var(--warning)" id="stMaint">0</span><span class="stat-lbl">Bakım</span></div>
-            <div class="stat-item"><span class="stat-val" style="color:var(--danger)" id="stUrg">0</span><span class="stat-lbl">Acil</span></div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-num" style="color:var(--primary)" id="stPat">0</span>
+                <span class="stat-name">HASTA</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num" style="color:#64748b" id="stDev">0</span>
+                <span class="stat-name">DEPO</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num" style="color:#f59e0b" id="stMaint">0</span>
+                <span class="stat-name">BAKIM</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num" style="color:#ef4444" id="stUrg">0</span>
+                <span class="stat-name">ACİL</span>
+            </div>
         </div>
 
         <div id="view-patient" class="view-section active">
-            <div class="search-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="srcPat" class="form-input-clean" placeholder="Hasta veya cihaz ara..." onkeyup="renderData()">
+            <div class="search-bar">
+                <i class="fas fa-search" style="color:var(--text-sub); margin-right:10px;"></i>
+                <input type="text" id="srcPat" class="search-input" placeholder="Hasta, Oda veya Cihaz Ara..." onkeyup="renderData()">
             </div>
             <div id="list-patient"></div>
         </div>
 
         <div id="view-device" class="view-section" style="display:none;">
-            <div class="search-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="srcDev" class="form-input-clean" placeholder="Barkod veya konum ara..." onkeyup="renderData()">
+            <div class="search-bar">
+                <i class="fas fa-search" style="color:var(--text-sub); margin-right:10px;"></i>
+                <input type="text" id="srcDev" class="search-input" placeholder="Barkod veya Konum Ara..." onkeyup="renderData()">
             </div>
-            
             <div id="locationFilters" class="filter-scroll"></div>
-
             <div id="list-device"></div>
         </div>
 
-        <nav class="tab-bar">
-            <button class="tab-btn active" onclick="switchTab('patient', this)">
-                <i class="fas fa-user-injured"></i>Hastalar
-            </button>
-            
-            <button class="tab-btn" onclick="openModal('new')">
-                <div class="tab-fab"><i class="fas fa-plus"></i></div>
-            </button>
-            
-            <button class="tab-btn" onclick="switchTab('device', this)">
-                <i class="fas fa-server"></i>Cihazlar
-            </button>
-        </nav>
+        <div class="dock">
+            <button class="dock-btn active" onclick="switchTab('patient', this)"><i class="fas fa-user-injured"></i></button>
+            <button class="dock-fab" onclick="openModal('new')"><i class="fas fa-plus"></i></button>
+            <button class="dock-btn" onclick="switchTab('device', this)"><i class="fas fa-server"></i></button>
+        </div>
     </div>
 
     <div id="modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="width:40px; height:4px; background:var(--border); border-radius:10px; margin:0 auto 20px;"></div>
-            <h3 id="modalTitle" style="font-size:22px; font-weight:800; margin-bottom:20px;">Kayıt İşlemi</h3>
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <h3 id="modalTitle" style="font-size:24px; font-weight:800; margin-bottom:25px;">Kayıt İşlemi</h3>
             <input type="hidden" id="editId"><input type="hidden" id="editType">
             
-            <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:25px; background:var(--bg-body); padding:5px; border-radius:16px;">
-                <button onclick="setType('patient')" id="btnTypePat" class="btn-act primary" style="border-radius:12px; height:45px;">Hasta</button>
-                <button onclick="setType('device')" id="btnTypeDev" class="btn-act soft" style="border-radius:12px; height:45px;">Cihaz</button>
+            <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:20px; background:var(--bg-body); padding:6px; border-radius:18px;">
+                <button onclick="setType('patient')" id="btnTypePat" class="act-btn btn-brand" style="flex:1; height:48px;">HASTA</button>
+                <button onclick="setType('device')" id="btnTypeDev" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ</button>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Servis / Konum</label>
-                <input type="text" id="inpService" class="modern-input" placeholder="Örn: Plastik 1">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Cihaz Barkod</label>
-                <input type="text" id="inpDevice" class="modern-input" placeholder="Barkod Okutun">
-            </div>
+            <input type="text" id="inpService" class="lux-input" placeholder="Servis / Konum">
+            <input type="text" id="inpDevice" class="lux-input" placeholder="Cihaz Barkod">
             <div id="patientFields">
-                <div class="form-group">
-                    <label class="form-label">Hasta Adı Soyadı</label>
-                    <input type="text" id="inpName" class="modern-input" placeholder="Ad Soyad">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Pansuman Tarihi</label>
-                    <input type="date" id="inpDate" class="modern-input">
-                </div>
+                <input type="text" id="inpName" class="lux-input" placeholder="Hasta Adı Soyadı">
+                <input type="date" id="inpDate" class="lux-input">
             </div>
-            
-            <div style="display:flex; gap:10px; margin-top:30px;">
-                <button onclick="closeModal('modal')" class="btn-act soft" style="flex:1; height:55px; font-size:14px;">İptal</button>
-                <button onclick="saveData()" class="btn-act primary" style="flex:2; height:55px; font-size:14px;">Kaydet</button>
+            <div style="display:flex; gap:15px; margin-top:20px;">
+                <button onclick="closeModal('modal')" class="lux-btn" style="background:var(--bg-body); color:var(--text-main); flex:1">İptal</button>
+                <button onclick="saveData()" class="lux-btn" style="flex:2">KAYDET</button>
             </div>
+        </div>
+    </div>
+
+    <div id="notifModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="font-size:22px; font-weight:800;">Bildirimler</h3>
+                <button onclick="clearNotifications()" style="background:none; border:none; color:var(--accent); font-weight:700; font-size:13px;">Tümünü Sil</button>
+            </div>
+            <div id="notifList" style="max-height:60vh; overflow-y:auto;"></div>
+            <button onclick="closeModal('notifModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="width:40px; height:4px; background:var(--border); border-radius:10px; margin:0 auto 20px;"></div>
-            <h3>Ayarlar</h3><br>
-            <button onclick="openTrash()" class="btn-primary" style="background:var(--danger); margin-bottom:20px;">
-                <i class="fas fa-trash-alt"></i> Çöp Kutusu
-            </button>
-            <div class="form-group">
-                <label class="form-label">Rapor Numarası</label>
-                <input type="tel" id="adminNumber" class="modern-input" placeholder="905xxxxxxxxx">
-            </div>
-            <button onclick="saveSettings()" class="btn-primary">Kaydet ve Kapat</button>
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <h3 style="font-size:22px; font-weight:800; margin-bottom:20px;">Sistem Ayarları</h3>
+            <button onclick="window.location.reload(true)" class="lux-btn" style="background:var(--primary); margin-bottom:15px;"><i class="fas fa-sync"></i> SİSTEMİ YENİLE</button>
+            <button onclick="openTrash()" class="lux-btn" style="background:var(--accent); margin-bottom:25px;"><i class="fas fa-trash-alt"></i> ÇÖP KUTUSU</button>
+            <button onclick="toggleTheme()" class="lux-btn" style="background:var(--text-main); margin-bottom:25px;"><i class="fas fa-moon"></i> GECE MODU</button>
+            
+            <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">RAPOR NUMARASI</label>
+            <input type="tel" id="adminNumber" class="lux-input" placeholder="905xxxxxxxxx">
+            
+            <button onclick="exportMasterExcel()" class="lux-btn" style="background:#10b981; margin-bottom:15px;"><i class="fas fa-file-excel"></i> Excel İndir</button>
+            <button onclick="saveSettings()" class="lux-btn" style="background:var(--text-main)">KAYDET</button>
+            <button onclick="closeModal('settingsModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
         </div>
     </div>
 
     <div id="trashModal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="width:40px; height:4px; background:var(--border); border-radius:10px; margin:0 auto 20px;"></div>
+        <div class="modal-card">
+            <div class="modal-handle"></div>
             <h3>Geri Dönüşüm</h3>
             <div id="trashList" style="margin-top:20px;"></div>
-            <button onclick="closeModal('trashModal')" class="btn-primary" style="background:var(--bg-body); color:var(--text-main); margin-top:20px;">Kapat</button>
+            <button onclick="closeModal('trashModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
         </div>
     </div>
 
     <script>
-        // --- JS KODLARI (AYNI MANTIK, SADECE AKILLI GRUPLAMA VAR) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
-            authDomain: "trio-manager.firebaseapp.com",
-            projectId: "trio-manager",
-            storageBucket: "trio-manager.firebasestorage.app",
-            messagingSenderId: "447336966368",
-            appId: "1:447336966368:web:910c838ef487c7c84c8885"
-        };
-        
+        const firebaseConfig = { apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs", authDomain: "trio-manager.firebaseapp.com", projectId: "trio-manager", storageBucket: "trio-manager.firebasestorage.app", messagingSenderId: "447336966368", appId: "1:447336966368:web:910c838ef487c7c84c8885" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const col = "trio_records";
-        let allData = [];
-        let currentLocFilter = 'TÜMÜ';
-        let savedNumber = localStorage.getItem('trioAdminNumber') || "";
+        let allData = [], notifications = [], currentLocFilter = 'TÜMÜ', savedNumber = localStorage.getItem('trioAdminNumber') || "";
 
-        function checkLogin() {
-            if(document.getElementById('passwordInput').value === "0000") {
-                document.getElementById('login-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('mainApp').style.display = 'block';
-                    startApp();
-                }, 400);
-            } else {
-                alert("Şifre Yanlış!");
-                document.getElementById('passwordInput').value = "";
-            }
-        }
-
-        function startApp() {
-            document.getElementById('loader').style.display = 'flex';
-            if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode');
-            const d = new Date(); d.setDate(d.getDate() + 3);
-            document.getElementById('inpDate').value = d.toISOString().split('T')[0];
-
-            db.collection(col).onSnapshot(snap => {
-                allData = [];
-                snap.forEach(doc => allData.push({ id: doc.id, ...doc.data() }));
-                document.getElementById('loader').style.display = 'none';
-                renderData();
-                updateStats();
-            });
-        }
-
-        function renderData() {
-            const pCont = document.getElementById('list-patient');
-            const dCont = document.getElementById('list-device');
-            const pSrc = document.getElementById('srcPat').value.toLowerCase();
-            const dSrc = document.getElementById('srcDev').value.toLowerCase();
-            
-            pCont.innerHTML = ""; dCont.innerHTML = "";
-            const activeData = allData.filter(x => !x.isDeleted); 
-
-            // HASTALAR
-            let patients = activeData.filter(x => x.type === 'patient' && (x.name+x.service+x.device).toLowerCase().includes(pSrc));
-            patients.sort((a,b) => new Date(a.dateNext) - new Date(b.dateNext));
-            patients.forEach(p => {
-                const diff = getDiff(p.dateNext);
-                const badgeClass = diff.days <= 0 ? 'sp-red' : 'sp-green';
-                
-                pCont.innerHTML += `
-                <div class="card">
-                    <div class="card-top">
-                        <div>
-                            <div class="card-title">${p.name}</div>
-                            <div class="card-sub"><i class="fas fa-map-marker-alt"></i> ${p.service}</div>
-                        </div>
-                        <span class="status-pill ${badgeClass}">${diff.text}</span>
-                    </div>
-                    <div class="card-sub" style="margin-bottom:10px; font-weight:600; color:var(--text-main)">
-                        <i class="fas fa-barcode"></i> ${p.device}
-                    </div>
-                    <div class="c-actions">
-                        <button class="btn-act whatsapp" onclick="sharePatient('${p.id}')">Raporla</button>
-                        <button class="btn-act soft" onclick="transferToDevice('${p.id}')">Boşa Çıkar</button>
-                        <button class="btn-act soft" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button>
-                        <button class="btn-act danger" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            });
-
-            // CİHAZLAR & AKILLI GRUPLAMA (TRIM + UPPERCASE)
-            const allDevices = activeData.filter(x => x.type === 'device' || x.type === 'maintenance');
-            const locGroups = {};
-            
-            allDevices.forEach(d => {
-                if(!d.service) return;
-                const normLoc = d.service.trim().toUpperCase(); // BURASI ÖNEMLİ: BOŞLUKLARI SİLİP BÜYÜTÜR
-                if(!locGroups[normLoc]) locGroups[normLoc] = 0;
-                locGroups[normLoc]++;
-            });
-
-            renderLocationButtons(locGroups, allDevices.length);
-
-            let devices = allDevices.filter(x => (x.device+x.service).toLowerCase().includes(dSrc));
-            if(currentLocFilter !== 'TÜMÜ') {
-                devices = devices.filter(x => x.service && x.service.trim().toUpperCase() === currentLocFilter);
-            }
-
-            devices.forEach(d => {
-                const isMaint = d.type === 'maintenance';
-                const statusText = isMaint ? 'BAKIMDA' : 'DEPO / BOŞ';
-                const pillClass = isMaint ? 'sp-orange' : 'sp-blue';
-                
-                let btns = isMaint ? 
-                    `<button class="btn-act soft" onclick="toggleMaintenance('${d.id}', false)">Depoya Al</button>` :
-                    `<button class="btn-act whatsapp" onclick="shareDevice('${d.id}')">Paylaş</button>
-                     <button class="btn-act soft" onclick="transferToPatient('${d.id}')">Hastaya</button>
-                     <button class="btn-act soft" onclick="toggleMaintenance('${d.id}', true)">Bakım</button>`;
-
-                dCont.innerHTML += `
-                <div class="card">
-                    <div class="card-top">
-                        <div>
-                            <div class="card-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div>
-                            <div class="card-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div>
-                        </div>
-                        <span class="status-pill ${pillClass}">${statusText}</span>
-                    </div>
-                    <div class="c-actions">
-                        ${btns}
-                        <button class="btn-act soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button>
-                        <button class="btn-act danger" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
-            });
-
-            if(patients.length===0) pCont.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-sub);'>Kayıt bulunamadı.</div>";
-            if(devices.length===0) dCont.innerHTML = "<div style='text-align:center; padding:40px; color:var(--text-sub);'>Cihaz bulunamadı.</div>";
-        }
-
-        function renderLocationButtons(groups, total) {
-            const container = document.getElementById('locationFilters');
-            const sortedLocs = Object.keys(groups).sort();
-
-            let html = `<div class="filter-chip ${currentLocFilter === 'TÜMÜ' ? 'active' : ''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${total})</span></div>`;
-            
-            sortedLocs.forEach(loc => {
-                html += `<div class="filter-chip ${currentLocFilter === loc ? 'active' : ''}" onclick="setLocFilter('${loc}')">${loc} <span>(${groups[loc]})</span></div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function setLocFilter(loc) {
-            currentLocFilter = loc;
-            renderData();
-        }
-
-        // --- ORTAK FONKSİYONLAR (DEĞİŞMEDİ) ---
-        function transferToDevice(id) {
-            const newLoc = prompt("Yeni konum neresi?", "Depo");
-            if(newLoc === null) return;
-            db.collection(col).doc(id).update({ type: 'device', name: 'BOŞTA', service: newLoc, dateNext: firebase.firestore.FieldValue.delete() });
-        }
-        function transferToPatient(id) {
-            const r = allData.find(x => x.id === id);
-            openModal('new');
-            document.getElementById('editId').value = id;
-            document.getElementById('editType').value = 'patient';
-            document.getElementById('inpDevice').value = r.device;
-            document.getElementById('inpService').value = r.service;
-            setType('patient');
-            document.getElementById('modalTitle').innerText = "Cihazı Hastaya Tak";
-        }
-        function toggleMaintenance(id, toMaint) {
-            if(confirm(toMaint ? "Cihaz bakıma gidiyor?" : "Cihaz depoya dönüyor?")) {
-                db.collection(col).doc(id).update({ type: toMaint ? 'maintenance' : 'device' });
-            }
-        }
-        function softDelete(id) { if(confirm("Çöp kutusuna taşınsın mı?")) db.collection(col).doc(id).update({ isDeleted: true }); }
-        function openTrash() {
-            closeModal('settingsModal');
-            document.getElementById('trashModal').classList.add('open');
-            const list = document.getElementById('trashList');
-            list.innerHTML = "";
-            const deleted = allData.filter(x => x.isDeleted);
-            if(deleted.length === 0) list.innerHTML = "<p style='text-align:center; color:var(--text-sub)'>Boş.</p>";
-            deleted.forEach(x => {
-                list.innerHTML += `<div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                    <div><b>${x.name || x.device}</b><br><small>${x.service}</small></div>
-                    <button class="btn-act whatsapp" style="width:auto" onclick="restore('${x.id}')">Geri Al</button>
-                </div>`;
-            });
-        }
-        function restore(id) { db.collection(col).doc(id).update({ isDeleted: false }); openTrash(); }
-        function exportMasterExcel() {
-            const activeData = allData.filter(x => !x.isDeleted);
-            let sortedData = [];
-            activeData.filter(x => x.type === 'patient').forEach(x => sortedData.push({d:"HASTA", c:x.device, k:x.service, i:x.name, t:formatDate(x.dateNext)}));
-            activeData.filter(x => x.type === 'device').forEach(x => sortedData.push({d:"BOŞTA", c:x.device, k:x.service, i:"-", t:"-"}));
-            activeData.filter(x => x.type === 'maintenance').forEach(x => sortedData.push({d:"BAKIMDA", c:x.device, k:x.service, i:"-", t:"-"}));
-            let csv = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n";
-            sortedData.forEach(r => csv += `${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Trio_Rapor.csv`;
-            link.click();
-        }
-        function saveData() {
-            const id = document.getElementById('editId').value;
-            const type = document.getElementById('editType').value;
-            const s = document.getElementById('inpService').value;
-            const d = document.getElementById('inpDevice').value;
-            let data = { type, service:s, device:d, isDeleted: false };
-            if(type === 'patient') {
-                data.name = document.getElementById('inpName').value;
-                data.dateNext = document.getElementById('inpDate').value;
-                if(!data.name || !s) return alert("Eksik bilgi!");
-            } else data.name = "BOŞTA";
-            if(id) db.collection(col).doc(id).update(data); else { data.createdAt = Date.now(); db.collection(col).add(data); }
-            closeModal('modal');
-        }
-        function editRecord(id) {
-            const r = allData.find(x => x.id === id);
-            openModal('new');
-            document.getElementById('editId').value = id;
-            document.getElementById('modalTitle').innerText = "Düzenle";
-            setType(r.type === 'maintenance' ? 'device' : r.type);
-            document.getElementById('inpService').value = r.service;
-            document.getElementById('inpDevice').value = r.device;
-            if(r.type === 'patient') { document.getElementById('inpName').value = r.name; document.getElementById('inpDate').value = r.dateNext; }
-        }
-        function sharePatient(id) { const p=allData.find(x=>x.id===id); sendWP(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`); }
-        function shareDevice(id) { const d=allData.find(x=>x.id===id); sendWP(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`); }
-        function sendWP(txt) { window.open(savedNumber.length>5 ? `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(txt)}` : `https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank'); }
-        function setType(t) { 
-            document.getElementById('editType').value=t; 
-            const isP = t==='patient'; 
-            document.getElementById('patientFields').style.display = isP ? 'block' : 'none';
-            
-            const btnP = document.getElementById('btnTypePat');
-            const btnD = document.getElementById('btnTypeDev');
-            
-            if(isP) { btnP.className="btn-act primary"; btnD.className="btn-act soft"; }
-            else { btnP.className="btn-act soft"; btnD.className="btn-act primary"; }
-        }
-        function openModal(mode) { 
-            document.getElementById('modal').classList.add('open'); 
-            if(mode==='new') { 
-                document.getElementById('modalTitle').innerText="Yeni Kayıt"; 
-                document.getElementById('editId').value=""; 
-                document.getElementById('inpName').value=""; 
-                document.getElementById('inpService').value=""; 
-                document.getElementById('inpDevice').value=""; 
-                setType('patient'); 
+        // GİRİŞ KONTROLÜ
+        function checkLogin() { 
+            if(document.getElementById('passwordInput').value === "0000") { 
+                document.getElementById('login-screen').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block'; 
+                startApp(); 
+            } else { 
+                alert("Hatalı Şifre!"); 
             } 
         }
-        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-        function openSettings() { document.getElementById('settingsModal').classList.add('open'); document.getElementById('adminNumber').value = savedNumber; }
-        function saveSettings() { savedNumber = document.getElementById('adminNumber').value.replace(/\D/g,''); localStorage.setItem('trioAdminNumber', savedNumber); closeModal('settingsModal'); }
-        function switchTab(v, b) { 
-            document.querySelectorAll('.view-section').forEach(x=>x.style.display='none'); 
-            document.getElementById('view-'+v).style.display='block'; 
-            document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); 
-            if(b) b.classList.add('active'); 
+
+        // UYGULAMA BAŞLATMA
+        function startApp() { 
+            document.getElementById('loader').style.display='flex'; 
+            if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); 
+            
+            const d=new Date(); d.setDate(d.getDate()+3); 
+            document.getElementById('inpDate').value=d.toISOString().split('T')[0]; 
+            
+            db.collection(col).onSnapshot(snap=>{ 
+                allData=[]; 
+                snap.forEach(doc=>allData.push({id:doc.id, ...doc.data()})); 
+                document.getElementById('loader').style.display='none'; 
+                renderData(); 
+                updateStats(); 
+            }); 
+            
+            db.collection("trio_notifications").orderBy("timestamp","desc").onSnapshot(snap=>{ 
+                notifications=[]; 
+                snap.forEach(doc=>notifications.push({id:doc.id, ...doc.data()})); 
+                updateBadge(); 
+            }); 
         }
-        function getDiff(d) { const df=Math.ceil((new Date(d)-new Date().setHours(0,0,0,0))/86400000); if(df===0)return{days:0,text:'BUGÜN'}; if(df===1)return{days:1,text:'YARIN'}; if(df<0)return{days:-1,text:'GECİKTİ'}; return{days:df,text:df+' GÜN'}; }
-        function formatDate(d) { return d ? new Date(d).toLocaleDateString('tr-TR') : "-"; }
-        function updateStats() { const active = allData.filter(x => !x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length; document.getElementById('stUrg').innerText=active.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length; }
-        function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode')?'dark':'light'); }
+        
+        // EKRAN RENDERING
+        function renderData() {
+            const pCont=document.getElementById('list-patient'), dCont=document.getElementById('list-device'), pSrc=document.getElementById('srcPat').value.toLowerCase(), dSrc=document.getElementById('srcDev').value.toLowerCase();
+            pCont.innerHTML=""; dCont.innerHTML="";
+            const activeData=allData.filter(x=>!x.isDeleted);
+            
+            // HASTALAR
+            let patients=activeData.filter(x=>x.type==='patient'&&(x.name+x.service+x.device).toLowerCase().includes(pSrc));
+            patients.sort((a,b)=>new Date(a.dateNext)-new Date(b.dateNext));
+            patients.forEach(p=>{
+                const diff=getDiff(p.dateNext);
+                const tagColor=diff.days<=0?'#ef4444':'#10b981';
+                pCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title">${p.name}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${p.service} &nbsp;•&nbsp; ${p.device}</div></div><span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span></div><div class="action-row"><button class="act-btn btn-brand" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i> Rapor</button><button class="act-btn btn-soft" onclick="transferToDevice('${p.id}')">Boşa Çıkar</button><button class="act-btn btn-soft" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+            });
+
+            // CİHAZLAR & FİLTRELER
+            const allDevices=activeData.filter(x=>x.type==='device'||x.type==='maintenance');
+            const locGroups={}; 
+            allDevices.forEach(d=>{ 
+                if(!d.service)return; 
+                const n=d.service.trim().toUpperCase(); 
+                if(!locGroups[n])locGroups[n]=0; 
+                locGroups[n]++; 
+            });
+            renderLocationButtons(locGroups, allDevices.length);
+            
+            let devices=allDevices.filter(x=>(x.device+x.service).toLowerCase().includes(dSrc));
+            if(currentLocFilter!=='TÜMÜ') devices=devices.filter(x=>x.service&&x.service.trim().toUpperCase()===currentLocFilter);
+            
+            devices.forEach(d=>{
+                const isMaint=d.type==='maintenance';
+                const tagClass=isMaint?'orange':'blue';
+                const status=isMaint?'BAKIMDA':'DEPO / BOŞ';
+                const btns=isMaint?`<button class="act-btn btn-brand" onclick="toggleMaintenance('${d.id}',false)">Depoya Al</button>`:`<button class="act-btn btn-brand" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button><button class="act-btn btn-soft" onclick="transferToPatient('${d.id}')">Hastaya</button><button class="act-btn btn-soft" onclick="toggleMaintenance('${d.id}',true)">Bakım</button>`;
+                
+                dCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div><span class="tag ${tagClass}">${status}</span></div><div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+            });
+            if(patients.length===0) pCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Kayıt yok.</div>";
+            if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Cihaz yok.</div>";
+        }
+
+        // YARDIMCI FONKSİYONLAR
+        function renderLocationButtons(groups, total) {
+            const container=document.getElementById('locationFilters');
+            const sorted=Object.keys(groups).sort();
+            let html=`<button class="filter-chip ${currentLocFilter==='TÜMÜ'?'active':''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${total})</span></button>`;
+            sorted.forEach(l=>{ html+=`<button class="filter-chip ${currentLocFilter===l?'active':''}" onclick="setLocFilter('${l}')">${l} <span>(${groups[l]})</span></button>`; });
+            container.innerHTML=html;
+        }
+
+        function updateBadge(){
+            const n=notifications.filter(x=>!x.isRead).length; 
+            const b=document.getElementById('notifBadge'); 
+            b.style.display=n>0?'block':'none';
+        }
+
+        // BUTON VE MODAL İŞLEVLERİ (DÜZELTİLDİ)
+        function openNotifications(){
+            const l=document.getElementById('notifList'); 
+            l.innerHTML=""; 
+            if(notifications.length===0) l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Yok.</p>"; 
+            
+            notifications.forEach(n=>{ 
+                let i="info-circle",t="Bilgi"; 
+                if(n.type==='transfer'){i="exchange-alt";t="Devir";}
+                if(n.type==='return'){i="box";t="İade";}
+                if(n.type==='problem'){i="exclamation-triangle";t="Arıza";}
+                if(n.type==='new_patient'){i="procedures";t="Yeni Hasta";} 
+                
+                const time=n.timestamp?new Date(n.timestamp.toDate()).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):""; 
+                
+                l.innerHTML+=`<div class="notif-item"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`; 
+                
+                if(!n.isRead) db.collection("trio_notifications").doc(n.id).update({isRead:true});
+            }); 
+            document.getElementById('notifModal').classList.add('open');
+        }
+
+        function openSettings() {
+            document.getElementById('adminNumber').value = savedNumber;
+            document.getElementById('settingsModal').classList.add('open');
+        }
+
+        function clearNotifications(){if(confirm("Silinsin mi?")){notifications.forEach(n=>db.collection("trio_notifications").doc(n.id).delete()); closeModal('notifModal');}}
+        function setLocFilter(l){currentLocFilter=l;renderData();}
+        function transferToDevice(id){const n=prompt("Konum?","Depo"); if(n)db.collection(col).doc(id).update({type:'device',name:'BOŞTA',service:n,dateNext:firebase.firestore.FieldValue.delete()});}
+        function transferToPatient(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; document.getElementById('editType').value='patient'; document.getElementById('inpDevice').value=r.device; document.getElementById('inpService').value=r.service; setType('patient');}
+        function toggleMaintenance(id,m){if(confirm(m?"Bakım?":"Depo?"))db.collection(col).doc(id).update({type:m?'maintenance':'device'});}
+        function softDelete(id){if(confirm("Sil?"))db.collection(col).doc(id).update({isDeleted:true});}
+        function openTrash(){closeModal('settingsModal'); document.getElementById('trashModal').classList.add('open'); const l=document.getElementById('trashList'); l.innerHTML=""; allData.filter(x=>x.isDeleted).forEach(x=>{ l.innerHTML+=`<div style="padding:15px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><div><b>${x.name||x.device}</b></div><button class="act-btn btn-brand" style="width:auto;height:36px" onclick="restore('${x.id}')">Geri Al</button></div>`; });}
+        function restore(id){db.collection(col).doc(id).update({isDeleted:false}); openTrash();}
+        function saveData(){const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value; let data={type:t,service:s,device:d,isDeleted:false}; if(t==='patient'){data.name=document.getElementById('inpName').value; data.dateNext=document.getElementById('inpDate').value; if(!data.name)return alert("İsim?");}else data.name="BOŞTA"; if(id)db.collection(col).doc(id).update(data); else{data.createdAt=Date.now(); db.collection(col).add(data);} closeModal('modal');}
+        function editRecord(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; setType(r.type==='maintenance'?'device':r.type); document.getElementById('inpService').value=r.service; document.getElementById('inpDevice').value=r.device; if(r.type==='patient'){document.getElementById('inpName').value=r.name; document.getElementById('inpDate').value=r.dateNext;}}
+        function sharePatient(id){const p=allData.find(x=>x.id===id); window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,'_blank');}
+        function shareDevice(id){const d=allData.find(x=>x.id===id); window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,'_blank');}
+        function setType(t){document.getElementById('editType').value=t; const isP=t==='patient'; document.getElementById('patientFields').style.display=isP?'block':'none'; document.getElementById('btnTypePat').className=isP?"act-btn btn-brand":"act-btn btn-soft"; document.getElementById('btnTypeDev').className=!isP?"act-btn btn-brand":"act-btn btn-soft";}
+        function openModal(m){document.getElementById('modal').classList.add('open'); if(m==='new'){document.getElementById('editId').value=""; document.getElementById('inpName').value=""; document.getElementById('inpService').value=""; document.getElementById('inpDevice').value=""; setType('patient');}}
+        function closeModal(id){document.getElementById(id).classList.remove('open');}
+        
+        function saveSettings(){
+            savedNumber=document.getElementById('adminNumber').value.replace(/\D/g,''); 
+            localStorage.setItem('trioAdminNumber',savedNumber); 
+            closeModal('settingsModal');
+        }
+        
+        function switchTab(v,b){document.querySelectorAll('.view-section').forEach(x=>x.style.display='none'); document.getElementById('view-'+v).style.display='block'; document.querySelectorAll('.dock-btn').forEach(x=>x.classList.remove('active')); if(b)b.classList.add('active');}
+        function getDiff(d){const df=Math.ceil((new Date(d)-new Date().setHours(0,0,0,0))/86400000); if(df===0)return{days:0,text:'BUGÜN'}; if(df===1)return{days:1,text:'YARIN'}; if(df<0)return{days:-1,text:'GECİKTİ'}; return{days:df,text:df+' GÜN'};}
+        function formatDate(d){return d?new Date(d).toLocaleDateString('tr-TR'):"-";}
+        function updateStats(){const active=allData.filter(x=>!x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length;}
+        function toggleTheme(){document.body.classList.toggle('dark-mode'); localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');}
+        function exportMasterExcel(){const activeData=allData.filter(x=>!x.isDeleted); let sortedData=[]; activeData.filter(x=>x.type==='patient').forEach(x=>sortedData.push({d:"HASTA",c:x.device,k:x.service,i:x.name,t:formatDate(x.dateNext)})); activeData.filter(x=>x.type==='device').forEach(x=>sortedData.push({d:"BOŞTA",c:x.device,k:x.service,i:"-",t:"-"})); activeData.filter(x=>x.type==='maintenance').forEach(x=>sortedData.push({d:"BAKIMDA",c:x.device,k:x.service,i:"-",t:"-"})); let csv="\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n"; sortedData.forEach(r=>csv+=`${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`Trio_Rapor.csv`; link.click();}
     </script>
 </body>
 </html>
