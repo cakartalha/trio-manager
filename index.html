@@ -17,11 +17,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
     <style>
-        /* --- DESIGN SYSTEM (ULTRA LUXE) --- */
+        /* --- DESIGN SYSTEM (ULTRA LUXE) - AYNI KALDI --- */
         :root {
-            --primary: #4338ca; /* Derin İndigo */
+            --primary: #4338ca; 
             --primary-glow: rgba(67, 56, 202, 0.3);
-            --accent: #f43f5e; /* Rose */
+            --accent: #f43f5e; 
             --bg-body: #f8fafc;
             --surface: rgba(255, 255, 255, 0.85);
             --surface-solid: #ffffff;
@@ -62,14 +62,14 @@
         .app-container { 
             max-width: 600px; margin: 0 auto; padding: 20px; display: none; 
             animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
-            position: relative; z-index: 1; /* İçerik katmanı */
+            position: relative; z-index: 1; 
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HEADER - Z-INDEX DÜZELTİLDİ */
+        /* HEADER */
         .header { 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-top: 10px;
-            position: relative; z-index: 100; /* Butonların tıklanabilir olması için */
+            position: relative; z-index: 100;
         }
         .brand { display: flex; align-items: center; gap: 14px; }
         .logo-box { 
@@ -96,7 +96,7 @@
             box-shadow: var(--shadow-card);
             transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
-            z-index: 101; /* En üstte */
+            z-index: 101;
         }
         .btn-glass:active { transform: scale(0.92); }
         .badge-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px var(--surface-solid); display: none; }
@@ -193,7 +193,7 @@
 
         /* MODALS */
         .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
-        .modal-overlay.open { display: flex; } /* Tıklanınca açılması için bu class şart */
+        .modal-overlay.open { display: flex; }
         
         .modal-card { 
             background: var(--surface-solid); width: 100%; max-width: 600px; 
@@ -224,6 +224,16 @@
         #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 6000; display: none; justify-content: center; align-items: center; }
         .spinner { width: 50px; height: 50px; border: 4px solid var(--border-solid); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s infinite cubic-bezier(0.6, 0.2, 0.4, 0.8); }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* TRASH FIX */
+        .trash-row {
+            display: flex; flex-direction: column; gap: 10px; padding: 15px 0; border-bottom: 1px solid var(--border-solid);
+        }
+        .trash-info { font-weight: 700; color: var(--text-main); }
+        .trash-actions { display: flex; gap: 10px; width: 100%; }
+        .trash-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 13px; }
+        .tb-restore { background: var(--bg-body); color: var(--text-main); }
+        .tb-delete { background: rgba(244, 63, 94, 0.1); color: var(--accent); }
     </style>
 </head>
 <body>
@@ -325,7 +335,7 @@
             <div class="modal-handle"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 style="font-size:22px; font-weight:800;">Bildirimler</h3>
-                <button onclick="clearNotifications()" style="background:none; border:none; color:var(--accent); font-weight:700; font-size:13px;">Tümünü Sil</button>
+                <button onclick="clearNotifications()" style="background:none; border:none; color:var(--accent); font-weight:700; font-size:13px;">Temizle</button>
             </div>
             <div id="notifList" style="max-height:60vh; overflow-y:auto;"></div>
             <button onclick="closeModal('notifModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
@@ -365,47 +375,14 @@
         const col = "trio_records";
         let allData = [], notifications = [], currentLocFilter = 'TÜMÜ', savedNumber = localStorage.getItem('trioAdminNumber') || "";
 
-        // GİRİŞ KONTROLÜ
-        function checkLogin() { 
-            if(document.getElementById('passwordInput').value === "0000") { 
-                document.getElementById('login-screen').style.display = 'none'; 
-                document.getElementById('mainApp').style.display = 'block'; 
-                startApp(); 
-            } else { 
-                alert("Hatalı Şifre!"); 
-            } 
-        }
-
-        // UYGULAMA BAŞLATMA
-        function startApp() { 
-            document.getElementById('loader').style.display='flex'; 
-            if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); 
-            
-            const d=new Date(); d.setDate(d.getDate()+3); 
-            document.getElementById('inpDate').value=d.toISOString().split('T')[0]; 
-            
-            db.collection(col).onSnapshot(snap=>{ 
-                allData=[]; 
-                snap.forEach(doc=>allData.push({id:doc.id, ...doc.data()})); 
-                document.getElementById('loader').style.display='none'; 
-                renderData(); 
-                updateStats(); 
-            }); 
-            
-            db.collection("trio_notifications").orderBy("timestamp","desc").onSnapshot(snap=>{ 
-                notifications=[]; 
-                snap.forEach(doc=>notifications.push({id:doc.id, ...doc.data()})); 
-                updateBadge(); 
-            }); 
-        }
+        function checkLogin() { if(document.getElementById('passwordInput').value === "0000") { document.getElementById('login-screen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; startApp(); } else { alert("Hatalı!"); } }
+        function startApp() { document.getElementById('loader').style.display='flex'; if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); const d=new Date(); d.setDate(d.getDate()+3); document.getElementById('inpDate').value=d.toISOString().split('T')[0]; db.collection(col).onSnapshot(snap=>{ allData=[]; snap.forEach(doc=>allData.push({id:doc.id, ...doc.data()})); document.getElementById('loader').style.display='none'; renderData(); updateStats(); }); db.collection("trio_notifications").orderBy("timestamp","desc").onSnapshot(snap=>{ notifications=[]; snap.forEach(doc=>notifications.push({id:doc.id, ...doc.data()})); updateBadge(); }); }
         
-        // EKRAN RENDERING
         function renderData() {
             const pCont=document.getElementById('list-patient'), dCont=document.getElementById('list-device'), pSrc=document.getElementById('srcPat').value.toLowerCase(), dSrc=document.getElementById('srcDev').value.toLowerCase();
             pCont.innerHTML=""; dCont.innerHTML="";
             const activeData=allData.filter(x=>!x.isDeleted);
             
-            // HASTALAR
             let patients=activeData.filter(x=>x.type==='patient'&&(x.name+x.service+x.device).toLowerCase().includes(pSrc));
             patients.sort((a,b)=>new Date(a.dateNext)-new Date(b.dateNext));
             patients.forEach(p=>{
@@ -414,15 +391,8 @@
                 pCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title">${p.name}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${p.service} &nbsp;•&nbsp; ${p.device}</div></div><span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span></div><div class="action-row"><button class="act-btn btn-brand" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i> Rapor</button><button class="act-btn btn-soft" onclick="transferToDevice('${p.id}')">Boşa Çıkar</button><button class="act-btn btn-soft" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button></div></div>`;
             });
 
-            // CİHAZLAR & FİLTRELER
             const allDevices=activeData.filter(x=>x.type==='device'||x.type==='maintenance');
-            const locGroups={}; 
-            allDevices.forEach(d=>{ 
-                if(!d.service)return; 
-                const n=d.service.trim().toUpperCase(); 
-                if(!locGroups[n])locGroups[n]=0; 
-                locGroups[n]++; 
-            });
+            const locGroups={}; allDevices.forEach(d=>{ if(!d.service)return; const n=d.service.trim().toUpperCase(); if(!locGroups[n])locGroups[n]=0; locGroups[n]++; });
             renderLocationButtons(locGroups, allDevices.length);
             
             let devices=allDevices.filter(x=>(x.device+x.service).toLowerCase().includes(dSrc));
@@ -440,7 +410,6 @@
             if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Cihaz yok.</div>";
         }
 
-        // YARDIMCI FONKSİYONLAR
         function renderLocationButtons(groups, total) {
             const container=document.getElementById('locationFilters');
             const sorted=Object.keys(groups).sort();
@@ -449,47 +418,43 @@
             container.innerHTML=html;
         }
 
-        function updateBadge(){
-            const n=notifications.filter(x=>!x.isRead).length; 
-            const b=document.getElementById('notifBadge'); 
-            b.style.display=n>0?'block':'none';
-        }
-
-        // BUTON VE MODAL İŞLEVLERİ (DÜZELTİLDİ)
-        function openNotifications(){
-            const l=document.getElementById('notifList'); 
-            l.innerHTML=""; 
-            if(notifications.length===0) l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Yok.</p>"; 
-            
-            notifications.forEach(n=>{ 
-                let i="info-circle",t="Bilgi"; 
-                if(n.type==='transfer'){i="exchange-alt";t="Devir";}
-                if(n.type==='return'){i="box";t="İade";}
-                if(n.type==='problem'){i="exclamation-triangle";t="Arıza";}
-                if(n.type==='new_patient'){i="procedures";t="Yeni Hasta";} 
-                
-                const time=n.timestamp?new Date(n.timestamp.toDate()).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):""; 
-                
-                l.innerHTML+=`<div class="notif-item"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`; 
-                
-                if(!n.isRead) db.collection("trio_notifications").doc(n.id).update({isRead:true});
-            }); 
-            document.getElementById('notifModal').classList.add('open');
-        }
-
-        function openSettings() {
-            document.getElementById('adminNumber').value = savedNumber;
-            document.getElementById('settingsModal').classList.add('open');
-        }
-
+        function updateBadge(){const n=notifications.filter(x=>!x.isRead).length; const b=document.getElementById('notifBadge'); b.style.display=n>0?'block':'none';}
+        function openNotifications(){const l=document.getElementById('notifList'); l.innerHTML=""; if(notifications.length===0)l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Yok.</p>"; notifications.forEach(n=>{ let i="info-circle",t="Bilgi"; if(n.type==='transfer'){i="exchange-alt";t="Devir";}if(n.type==='return'){i="box";t="İade";}if(n.type==='problem'){i="exclamation-triangle";t="Arıza";}if(n.type==='new_patient'){i="procedures";t="Yeni Hasta";} const time=n.timestamp?new Date(n.timestamp.toDate()).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):""; l.innerHTML+=`<div class="notif-item ${!n.isRead?'unread':''}"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`; if(!n.isRead)db.collection("trio_notifications").doc(n.id).update({isRead:true});}); document.getElementById('notifModal').classList.add('open');}
         function clearNotifications(){if(confirm("Silinsin mi?")){notifications.forEach(n=>db.collection("trio_notifications").doc(n.id).delete()); closeModal('notifModal');}}
         function setLocFilter(l){currentLocFilter=l;renderData();}
         function transferToDevice(id){const n=prompt("Konum?","Depo"); if(n)db.collection(col).doc(id).update({type:'device',name:'BOŞTA',service:n,dateNext:firebase.firestore.FieldValue.delete()});}
         function transferToPatient(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; document.getElementById('editType').value='patient'; document.getElementById('inpDevice').value=r.device; document.getElementById('inpService').value=r.service; setType('patient');}
         function toggleMaintenance(id,m){if(confirm(m?"Bakım?":"Depo?"))db.collection(col).doc(id).update({type:m?'maintenance':'device'});}
         function softDelete(id){if(confirm("Sil?"))db.collection(col).doc(id).update({isDeleted:true});}
-        function openTrash(){closeModal('settingsModal'); document.getElementById('trashModal').classList.add('open'); const l=document.getElementById('trashList'); l.innerHTML=""; allData.filter(x=>x.isDeleted).forEach(x=>{ l.innerHTML+=`<div style="padding:15px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><div><b>${x.name||x.device}</b></div><button class="act-btn btn-brand" style="width:auto;height:36px" onclick="restore('${x.id}')">Geri Al</button></div>`; });}
+        
+        // TRASH FIX: BUTON GÖRÜNÜRLÜĞÜ DÜZELTİLDİ
+        function openTrash(){
+            closeModal('settingsModal'); 
+            document.getElementById('trashModal').classList.add('open'); 
+            const l=document.getElementById('trashList'); 
+            l.innerHTML=""; 
+            
+            const deleted = allData.filter(x=>x.isDeleted);
+            if(deleted.length===0) {
+                l.innerHTML="<p style='text-align:center; padding:20px; opacity:0.5'>Boş.</p>";
+                return;
+            }
+
+            deleted.forEach(x=>{ 
+                l.innerHTML+=`
+                <div class="trash-row">
+                    <div class="trash-info">${x.name||x.device} <span style="opacity:0.5; font-weight:400">(${x.service})</span></div>
+                    <div class="trash-actions">
+                        <button class="trash-btn tb-restore" onclick="restore('${x.id}')">Geri Al</button>
+                        <button class="trash-btn tb-delete" onclick="hardDelete('${x.id}')">Kalıcı Sil</button>
+                    </div>
+                </div>`; 
+            });
+        }
+        
         function restore(id){db.collection(col).doc(id).update({isDeleted:false}); openTrash();}
+        function hardDelete(id){if(confirm("DİKKAT: Tamamen silinecek?")){db.collection(col).doc(id).delete(); openTrash();}}
+        
         function saveData(){const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value; let data={type:t,service:s,device:d,isDeleted:false}; if(t==='patient'){data.name=document.getElementById('inpName').value; data.dateNext=document.getElementById('inpDate').value; if(!data.name)return alert("İsim?");}else data.name="BOŞTA"; if(id)db.collection(col).doc(id).update(data); else{data.createdAt=Date.now(); db.collection(col).add(data);} closeModal('modal');}
         function editRecord(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; setType(r.type==='maintenance'?'device':r.type); document.getElementById('inpService').value=r.service; document.getElementById('inpDevice').value=r.device; if(r.type==='patient'){document.getElementById('inpName').value=r.name; document.getElementById('inpDate').value=r.dateNext;}}
         function sharePatient(id){const p=allData.find(x=>x.id===id); window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,'_blank');}
@@ -497,17 +462,12 @@
         function setType(t){document.getElementById('editType').value=t; const isP=t==='patient'; document.getElementById('patientFields').style.display=isP?'block':'none'; document.getElementById('btnTypePat').className=isP?"act-btn btn-brand":"act-btn btn-soft"; document.getElementById('btnTypeDev').className=!isP?"act-btn btn-brand":"act-btn btn-soft";}
         function openModal(m){document.getElementById('modal').classList.add('open'); if(m==='new'){document.getElementById('editId').value=""; document.getElementById('inpName').value=""; document.getElementById('inpService').value=""; document.getElementById('inpDevice').value=""; setType('patient');}}
         function closeModal(id){document.getElementById(id).classList.remove('open');}
-        
-        function saveSettings(){
-            savedNumber=document.getElementById('adminNumber').value.replace(/\D/g,''); 
-            localStorage.setItem('trioAdminNumber',savedNumber); 
-            closeModal('settingsModal');
-        }
-        
+        function openSettings(){document.getElementById('settingsModal').classList.add('open'); document.getElementById('adminNumber').value=savedNumber;}
+        function saveSettings(){savedNumber=document.getElementById('adminNumber').value.replace(/\D/g,''); localStorage.setItem('trioAdminNumber',savedNumber); closeModal('settingsModal');}
         function switchTab(v,b){document.querySelectorAll('.view-section').forEach(x=>x.style.display='none'); document.getElementById('view-'+v).style.display='block'; document.querySelectorAll('.dock-btn').forEach(x=>x.classList.remove('active')); if(b)b.classList.add('active');}
         function getDiff(d){const df=Math.ceil((new Date(d)-new Date().setHours(0,0,0,0))/86400000); if(df===0)return{days:0,text:'BUGÜN'}; if(df===1)return{days:1,text:'YARIN'}; if(df<0)return{days:-1,text:'GECİKTİ'}; return{days:df,text:df+' GÜN'};}
         function formatDate(d){return d?new Date(d).toLocaleDateString('tr-TR'):"-";}
-        function updateStats(){const active=allData.filter(x=>!x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length;}
+        function updateStats(){const active=allData.filter(x=>!x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length; document.getElementById('stUrg').innerText=active.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length;}
         function toggleTheme(){document.body.classList.toggle('dark-mode'); localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');}
         function exportMasterExcel(){const activeData=allData.filter(x=>!x.isDeleted); let sortedData=[]; activeData.filter(x=>x.type==='patient').forEach(x=>sortedData.push({d:"HASTA",c:x.device,k:x.service,i:x.name,t:formatDate(x.dateNext)})); activeData.filter(x=>x.type==='device').forEach(x=>sortedData.push({d:"BOŞTA",c:x.device,k:x.service,i:"-",t:"-"})); activeData.filter(x=>x.type==='maintenance').forEach(x=>sortedData.push({d:"BAKIMDA",c:x.device,k:x.service,i:"-",t:"-"})); let csv="\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n"; sortedData.forEach(r=>csv+=`${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`Trio_Rapor.csv`; link.click();}
     </script>
