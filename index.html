@@ -12,229 +12,10 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-    <style>
-        /* --- DESIGN SYSTEM (ULTRA LUXE) - AYNI KALDI --- */
-        :root {
-            --primary: #4338ca; 
-            --primary-glow: rgba(67, 56, 202, 0.3);
-            --accent: #f43f5e; 
-            --bg-body: #f8fafc;
-            --surface: rgba(255, 255, 255, 0.85);
-            --surface-solid: #ffffff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --border: rgba(255, 255, 255, 0.6);
-            --border-solid: #e2e8f0;
-            --glass-blur: 20px;
-            --shadow-float: 0 20px 40px -10px rgba(0,0,0,0.08);
-            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-            --radius-XL: 28px;
-            --radius-L: 20px;
-        }
-
-        body.dark-mode {
-            --bg-body: #020617;
-            --surface: rgba(30, 41, 59, 0.7);
-            --surface-solid: #1e293b;
-            --text-main: #f1f5f9;
-            --text-sub: #94a3b8;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-solid: #334155;
-            --primary-glow: rgba(99, 102, 241, 0.2);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            padding-bottom: 120px; 
-            padding-top: env(safe-area-inset-top);
-            background-image: radial-gradient(circle at 0% 0%, rgba(67, 56, 202, 0.08) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.08) 0%, transparent 50%);
-            background-attachment: fixed;
-            transition: 0.3s;
-        }
-
-        .app-container { 
-            max-width: 600px; margin: 0 auto; padding: 20px; display: none; 
-            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
-            position: relative; z-index: 1; 
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* HEADER */
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-top: 10px;
-            position: relative; z-index: 100;
-        }
-        .brand { display: flex; align-items: center; gap: 14px; }
-        .logo-box { 
-            width: 52px; height: 52px; 
-            background: linear-gradient(135deg, var(--primary), #6366f1); 
-            border-radius: 18px; 
-            display: flex; align-items: center; justify-content: center; 
-            color: white; font-size: 24px; 
-            box-shadow: 0 10px 25px -5px var(--primary-glow);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .brand h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
-        .brand span { font-size: 11px; font-weight: 600; color: var(--text-sub); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px; display: block; }
-
-        .btn-glass {
-            width: 46px; height: 46px;
-            border-radius: 16px;
-            background: var(--surface);
-            backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; cursor: pointer;
-            box-shadow: var(--shadow-card);
-            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-            z-index: 101;
-        }
-        .btn-glass:active { transform: scale(0.92); }
-        .badge-dot { position: absolute; top: 10px; right: 10px; width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 0 2px var(--surface-solid); display: none; }
-
-        /* WIDGETS */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 35px; }
-        .stat-card { 
-            background: var(--surface); 
-            backdrop-filter: blur(var(--glass-blur));
-            border: 1px solid var(--border);
-            padding: 16px 8px; 
-            border-radius: var(--radius-L); 
-            text-align: center; 
-            box-shadow: var(--shadow-card);
-            transition: 0.3s;
-        }
-        .stat-num { font-size: 24px; font-weight: 800; display: block; margin-bottom: 6px; color: var(--text-main); letter-spacing: -0.05em; }
-        .stat-name { font-size: 10px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; }
-
-        /* INPUTS & FILTERS */
-        .search-bar { 
-            background: var(--surface-solid); 
-            padding: 4px 6px 4px 18px; 
-            border-radius: 20px; 
-            display: flex; align-items: center; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03); 
-            border: 1px solid var(--border-solid);
-            margin-bottom: 25px; transition: 0.3s;
-        }
-        .search-input { border: none; background: transparent; width: 100%; height: 48px; outline: none; font-size: 15px; font-weight: 600; color: var(--text-main); }
-        
-        .filter-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 5px 5px 15px 5px; scrollbar-width: none; margin-bottom: 10px; }
-        .filter-chip { 
-            padding: 10px 22px; border-radius: 30px; border: 1px solid var(--border-solid); background: var(--surface-solid); 
-            color: var(--text-sub); font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; transition: 0.3s;
-            box-shadow: var(--shadow-card);
-        }
-        .filter-chip.active { background: var(--text-main); color: var(--bg-body); border-color: var(--text-main); transform: scale(1.05); }
-        .filter-chip span { opacity: 0.6; font-size: 11px; margin-left: 6px; font-weight: 500; }
-
-        /* CARDS */
-        .item-card { 
-            background: var(--surface-solid); 
-            border-radius: var(--radius-XL); 
-            padding: 24px; margin-bottom: 18px; 
-            border: 1px solid var(--border-solid); 
-            box-shadow: var(--shadow-card); 
-            position: relative; overflow: hidden;
-            animation: slideUp 0.4s ease forwards;
-        }
-        .item-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
-        .item-title { font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; letter-spacing: -0.02em; }
-        .item-sub { font-size: 13px; font-weight: 500; color: var(--text-sub); display: flex; align-items: center; gap: 6px; }
-        .tag { padding: 6px 14px; border-radius: 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
-        .tag.blue { background: #eff6ff; color: #3b82f6; }
-        .tag.green { background: #f0fdfa; color: #14b8a6; }
-        .tag.orange { background: #fff7ed; color: #f97316; }
-        
-        .action-row { display: flex; gap: 8px; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border-solid); overflow-x: auto; }
-        .act-btn { 
-            flex: 1; min-width: max-content; height: 44px; padding: 0 18px; 
-            border-radius: 14px; border: none; font-size: 13px; font-weight: 700; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
-            cursor: pointer; transition: 0.2s;
-        }
-        .act-btn:active { transform: scale(0.95); }
-        .btn-soft { background: var(--bg-body); color: var(--text-main); }
-        .btn-accent { background: rgba(244, 63, 94, 0.1); color: var(--accent); }
-        .btn-brand { background: var(--text-main); color: white; }
-
-        /* DOCK NAV */
-        .dock { 
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 8px; border-radius: 40px; 
-            display: flex; gap: 5px; 
-            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.3);
-            z-index: 500; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .dock-btn { 
-            width: 50px; height: 50px; border-radius: 25px; border: none; background: transparent; 
-            color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .dock-btn.active { background: rgba(255,255,255,0.15); color: white; }
-        .dock-fab { 
-            width: 56px; height: 56px; border-radius: 28px; 
-            background: linear-gradient(135deg, var(--primary), #818cf8); 
-            color: white; font-size: 24px; border: none; 
-            box-shadow: 0 10px 20px rgba(67, 56, 202, 0.4); 
-            cursor: pointer; margin: -25px 10px 0; transition: 0.3s;
-        }
-        .dock-fab:active { transform: scale(0.9) rotate(90deg); }
-
-        /* MODALS */
-        .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; justify-content: center; }
-        .modal-overlay.open { display: flex; }
-        
-        .modal-card { 
-            background: var(--surface-solid); width: 100%; max-width: 600px; 
-            padding: 35px 30px 50px; border-radius: 40px 40px 0 0; 
-            max-height: 90vh; overflow-y: auto; 
-            box-shadow: 0 -20px 60px rgba(0,0,0,0.15);
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal-handle { width: 50px; height: 6px; background: var(--border-solid); border-radius: 10px; margin: 0 auto 25px; }
-        
-        .lux-input { 
-            width: 100%; padding: 18px; border-radius: 20px; border: 2px solid var(--bg-body); 
-            background: var(--bg-body); color: var(--text-main); font-size: 16px; font-weight: 600; 
-            margin-bottom: 16px; outline: none; transition: 0.3s;
-        }
-        .lux-input:focus { background: var(--surface-solid); border-color: var(--primary); }
-        .lux-btn { width: 100%; padding: 20px; border-radius: 22px; border: none; background: var(--text-main); color: white; font-size: 16px; font-weight: 800; cursor: pointer; }
-
-        /* LOGIN SCREEN */
-        #login-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
-        
-        /* NOTIFICATIONS */
-        .notif-item { padding: 18px 0; border-bottom: 1px solid var(--border-solid); display: flex; gap: 15px; }
-        .notif-icon { width: 44px; height: 44px; background: var(--bg-body); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px; flex-shrink: 0; }
-
-        /* LOADER */
-        #loader { position: fixed; inset: 0; background: var(--bg-body); z-index: 6000; display: none; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 4px solid var(--border-solid); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s infinite cubic-bezier(0.6, 0.2, 0.4, 0.8); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* TRASH FIX */
-        .trash-row {
-            display: flex; flex-direction: column; gap: 10px; padding: 15px 0; border-bottom: 1px solid var(--border-solid);
-        }
-        .trash-info { font-weight: 700; color: var(--text-main); }
-        .trash-actions { display: flex; gap: 10px; width: 100%; }
-        .trash-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 13px; }
-        .tb-restore { background: var(--bg-body); color: var(--text-main); }
-        .tb-delete { background: rgba(244, 63, 94, 0.1); color: var(--accent); }
-    </style>
 </head>
 <body>
 
@@ -299,10 +80,36 @@
             <div id="list-device"></div>
         </div>
 
+        <!-- NEW ANALYTICS VIEW -->
+        <div id="view-analytics" class="view-section" style="display:none;">
+            <div class="search-bar">
+                <i class="fas fa-calendar-alt" style="color:var(--text-sub); margin-right:10px;"></i>
+                <input type="month" id="analyticsDate" class="search-input" onchange="loadAnalytics()" style="font-family:monospace;">
+                <button onclick="resetMonthlyAnalytics()" style="width:40px;height:40px;background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash"></i></button>
+            </div>
+            
+            <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="stat-card">
+                     <span class="stat-num" id="an-total-recs" style="color:var(--text-main)">0</span>
+                     <span class="stat-name">TOPLAM İŞLEM</span>
+                </div>
+                 <div class="stat-card">
+                     <span class="stat-num" id="an-patients-added" style="color:var(--primary)">0</span>
+                     <span class="stat-name">YENİ HASTA</span>
+                </div>
+            </div>
+
+            <h3 style="font-size:14px; font-weight:800; margin:20px 0 10px; color:var(--text-sub); text-transform:uppercase;">İŞLEM GEÇMİŞİ</h3>
+            <div id="analytics-list">
+                <div style="text-align:center; padding:30px; opacity:0.5; font-size:13px;">Veri yüklemek için tarih seçin.</div>
+            </div>
+        </div>
+
         <div class="dock">
             <button class="dock-btn active" onclick="switchTab('patient', this)"><i class="fas fa-user-injured"></i></button>
             <button class="dock-fab" onclick="openModal('new')"><i class="fas fa-plus"></i></button>
             <button class="dock-btn" onclick="switchTab('device', this)"><i class="fas fa-server"></i></button>
+            <button class="dock-btn" onclick="switchTab('analytics', this)" style="color: #6366f1;"><i class="fas fa-chart-pie"></i></button>
         </div>
     </div>
 
@@ -355,6 +162,7 @@
             
             <button onclick="exportMasterExcel()" class="lux-btn" style="background:#10b981; margin-bottom:15px;"><i class="fas fa-file-excel"></i> Excel İndir</button>
             <button onclick="saveSettings()" class="lux-btn" style="background:var(--text-main)">KAYDET</button>
+            <button onclick="logout()" class="lux-btn" style="background:#ef4444; margin-top:10px;"><i class="fas fa-sign-out-alt"></i> GÜVENLİ ÇIKIŞ</button>
             <button onclick="closeModal('settingsModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
         </div>
     </div>
@@ -368,131 +176,28 @@
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = { apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs", authDomain: "trio-manager.firebaseapp.com", projectId: "trio-manager", storageBucket: "trio-manager.firebasestorage.app", messagingSenderId: "447336966368", appId: "1:447336966368:web:910c838ef487c7c84c8885" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const col = "trio_records";
-        let allData = [], notifications = [], currentLocFilter = 'TÜMÜ', savedNumber = localStorage.getItem('trioAdminNumber') || "";
-
-        // Sayfa yüklendiğinde oturum kontrolü
-        (function checkSession() {
-            if(localStorage.getItem('trioLoggedIn') === 'true') {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                startApp();
-            }
-        })();
-        
-        function checkLogin() { 
-            if(document.getElementById('passwordInput').value === "0000") { 
-                localStorage.setItem('trioLoggedIn', 'true'); // Oturumu kaydet
-                document.getElementById('login-screen').style.display = 'none'; 
-                document.getElementById('mainApp').style.display = 'block'; 
-                startApp(); 
-            } else { 
-                alert("Hatalı!"); 
-            } 
-        }
-        
-        function logout() {
-            localStorage.removeItem('trioLoggedIn');
-            window.location.reload();
-        }
-        function startApp() { document.getElementById('loader').style.display='flex'; if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); const d=new Date(); d.setDate(d.getDate()+3); document.getElementById('inpDate').value=d.toISOString().split('T')[0]; db.collection(col).onSnapshot(snap=>{ allData=[]; snap.forEach(doc=>allData.push({id:doc.id, ...doc.data()})); document.getElementById('loader').style.display='none'; renderData(); updateStats(); }); db.collection("trio_notifications").orderBy("timestamp","desc").onSnapshot(snap=>{ notifications=[]; snap.forEach(doc=>notifications.push({id:doc.id, ...doc.data()})); updateBadge(); }); }
-        
-        function renderData() {
-            const pCont=document.getElementById('list-patient'), dCont=document.getElementById('list-device'), pSrc=document.getElementById('srcPat').value.toLowerCase(), dSrc=document.getElementById('srcDev').value.toLowerCase();
-            pCont.innerHTML=""; dCont.innerHTML="";
-            const activeData=allData.filter(x=>!x.isDeleted);
+    <div id="dateModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <h3 style="font-size:20px; font-weight:800; margin-bottom:20px; text-align:center;">Sonraki Pansuman?</h3>
+            <input type="hidden" id="dateRecordId">
             
-            let patients=activeData.filter(x=>x.type==='patient'&&(x.name+x.service+x.device).toLowerCase().includes(pSrc));
-            patients.sort((a,b)=>new Date(a.dateNext)-new Date(b.dateNext));
-            patients.forEach(p=>{
-                const diff=getDiff(p.dateNext);
-                const tagColor=diff.days<=0?'#ef4444':'#10b981';
-                pCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title">${p.name}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${p.service} &nbsp;•&nbsp; ${p.device}</div></div><span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span></div><div class="action-row"><button class="act-btn btn-brand" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i> Rapor</button><button class="act-btn btn-soft" onclick="transferToDevice('${p.id}')">Boşa Çıkar</button><button class="act-btn btn-soft" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button></div></div>`;
-            });
+            <div class="date-actions">
+                <button class="quick-btn" onclick="setQuickDate(1)">YARIN</button>
+                <button class="quick-btn" onclick="setQuickDate(2)">2 GÜN</button>
+                <button class="quick-btn active" onclick="setQuickDate(3)">3 GÜN</button>
+            </div>
 
-            const allDevices=activeData.filter(x=>x.type==='device'||x.type==='maintenance');
-            const locGroups={}; allDevices.forEach(d=>{ if(!d.service)return; const n=d.service.trim().toUpperCase(); if(!locGroups[n])locGroups[n]=0; locGroups[n]++; });
-            renderLocationButtons(locGroups, allDevices.length);
+            <input type="date" id="dressingDateInput" class="big-date-input">
             
-            let devices=allDevices.filter(x=>(x.device+x.service).toLowerCase().includes(dSrc));
-            if(currentLocFilter!=='TÜMÜ') devices=devices.filter(x=>x.service&&x.service.trim().toUpperCase()===currentLocFilter);
-            
-            devices.forEach(d=>{
-                const isMaint=d.type==='maintenance';
-                const tagClass=isMaint?'orange':'blue';
-                const status=isMaint?'BAKIMDA':'DEPO / BOŞ';
-                const btns=isMaint?`<button class="act-btn btn-brand" onclick="toggleMaintenance('${d.id}',false)">Depoya Al</button>`:`<button class="act-btn btn-brand" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button><button class="act-btn btn-soft" onclick="transferToPatient('${d.id}')">Hastaya</button><button class="act-btn btn-soft" onclick="toggleMaintenance('${d.id}',true)">Bakım</button>`;
-                
-                dCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div><span class="tag ${tagClass}">${status}</span></div><div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button></div></div>`;
-            });
-            if(patients.length===0) pCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Kayıt yok.</div>";
-            if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Cihaz yok.</div>";
-        }
+            <button onclick="saveDressingDate()" class="lux-btn" style="background:#8b5cf6">KAYDET</button>
+            <button onclick="closeModal('dateModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
+        </div>
+    </div>
 
-        function renderLocationButtons(groups, total) {
-            const container=document.getElementById('locationFilters');
-            const sorted=Object.keys(groups).sort();
-            let html=`<button class="filter-chip ${currentLocFilter==='TÜMÜ'?'active':''}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${total})</span></button>`;
-            sorted.forEach(l=>{ html+=`<button class="filter-chip ${currentLocFilter===l?'active':''}" onclick="setLocFilter('${l}')">${l} <span>(${groups[l]})</span></button>`; });
-            container.innerHTML=html;
-        }
+    <script src="js/config.js"></script>
+    <script src="js/services/analytics.js"></script>
+    <script src="js/app.js"></script>
 
-        function updateBadge(){const n=notifications.filter(x=>!x.isRead).length; const b=document.getElementById('notifBadge'); b.style.display=n>0?'block':'none';}
-        function openNotifications(){const l=document.getElementById('notifList'); l.innerHTML=""; if(notifications.length===0)l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Yok.</p>"; notifications.forEach(n=>{ let i="info-circle",t="Bilgi"; if(n.type==='transfer'){i="exchange-alt";t="Devir";}if(n.type==='return'){i="box";t="İade";}if(n.type==='problem'){i="exclamation-triangle";t="Arıza";}if(n.type==='new_patient'){i="procedures";t="Yeni Hasta";} const time=n.timestamp?new Date(n.timestamp.toDate()).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):""; l.innerHTML+=`<div class="notif-item ${!n.isRead?'unread':''}"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`; if(!n.isRead)db.collection("trio_notifications").doc(n.id).update({isRead:true});}); document.getElementById('notifModal').classList.add('open');}
-        function clearNotifications(){if(confirm("Silinsin mi?")){notifications.forEach(n=>db.collection("trio_notifications").doc(n.id).delete()); closeModal('notifModal');}}
-        function setLocFilter(l){currentLocFilter=l;renderData();}
-        function transferToDevice(id){const n=prompt("Konum?","Depo"); if(n)db.collection(col).doc(id).update({type:'device',name:'BOŞTA',service:n,dateNext:firebase.firestore.FieldValue.delete()});}
-        function transferToPatient(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; document.getElementById('editType').value='patient'; document.getElementById('inpDevice').value=r.device; document.getElementById('inpService').value=r.service; setType('patient');}
-        function toggleMaintenance(id,m){if(confirm(m?"Bakım?":"Depo?"))db.collection(col).doc(id).update({type:m?'maintenance':'device'});}
-        function softDelete(id){if(confirm("Sil?"))db.collection(col).doc(id).update({isDeleted:true});}
-        
-        // TRASH FIX: BUTON GÖRÜNÜRLÜĞÜ DÜZELTİLDİ
-        function openTrash(){
-            closeModal('settingsModal'); 
-            document.getElementById('trashModal').classList.add('open'); 
-            const l=document.getElementById('trashList'); 
-            l.innerHTML=""; 
-            
-            const deleted = allData.filter(x=>x.isDeleted);
-            if(deleted.length===0) {
-                l.innerHTML="<p style='text-align:center; padding:20px; opacity:0.5'>Boş.</p>";
-                return;
-            }
-
-            deleted.forEach(x=>{ 
-                l.innerHTML+=`
-                <div class="trash-row">
-                    <div class="trash-info">${x.name||x.device} <span style="opacity:0.5; font-weight:400">(${x.service})</span></div>
-                    <div class="trash-actions">
-                        <button class="trash-btn tb-restore" onclick="restore('${x.id}')">Geri Al</button>
-                        <button class="trash-btn tb-delete" onclick="hardDelete('${x.id}')">Kalıcı Sil</button>
-                    </div>
-                </div>`; 
-            });
-        }
-        
-        function restore(id){db.collection(col).doc(id).update({isDeleted:false}); openTrash();}
-        function hardDelete(id){if(confirm("DİKKAT: Tamamen silinecek?")){db.collection(col).doc(id).delete(); openTrash();}}
-        
-        function saveData(){const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value; let data={type:t,service:s,device:d,isDeleted:false}; if(t==='patient'){data.name=document.getElementById('inpName').value; data.dateNext=document.getElementById('inpDate').value; if(!data.name)return alert("İsim?");}else data.name="BOŞTA"; if(id)db.collection(col).doc(id).update(data); else{data.createdAt=Date.now(); db.collection(col).add(data);} closeModal('modal');}
-        function editRecord(id){const r=allData.find(x=>x.id===id); openModal('new'); document.getElementById('editId').value=id; setType(r.type==='maintenance'?'device':r.type); document.getElementById('inpService').value=r.service; document.getElementById('inpDevice').value=r.device; if(r.type==='patient'){document.getElementById('inpName').value=r.name; document.getElementById('inpDate').value=r.dateNext;}}
-        function sharePatient(id){const p=allData.find(x=>x.id===id); window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,'_blank');}
-        function shareDevice(id){const d=allData.find(x=>x.id===id); window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,'_blank');}
-        function setType(t){document.getElementById('editType').value=t; const isP=t==='patient'; document.getElementById('patientFields').style.display=isP?'block':'none'; document.getElementById('btnTypePat').className=isP?"act-btn btn-brand":"act-btn btn-soft"; document.getElementById('btnTypeDev').className=!isP?"act-btn btn-brand":"act-btn btn-soft";}
-        function openModal(m){document.getElementById('modal').classList.add('open'); if(m==='new'){document.getElementById('editId').value=""; document.getElementById('inpName').value=""; document.getElementById('inpService').value=""; document.getElementById('inpDevice').value=""; setType('patient');}}
-        function closeModal(id){document.getElementById(id).classList.remove('open');}
-        function openSettings(){document.getElementById('settingsModal').classList.add('open'); document.getElementById('adminNumber').value=savedNumber;}
-        function saveSettings(){savedNumber=document.getElementById('adminNumber').value.replace(/\D/g,''); localStorage.setItem('trioAdminNumber',savedNumber); closeModal('settingsModal');}
-        function switchTab(v,b){document.querySelectorAll('.view-section').forEach(x=>x.style.display='none'); document.getElementById('view-'+v).style.display='block'; document.querySelectorAll('.dock-btn').forEach(x=>x.classList.remove('active')); if(b)b.classList.add('active');}
-        function getDiff(d){const df=Math.ceil((new Date(d)-new Date().setHours(0,0,0,0))/86400000); if(df===0)return{days:0,text:'BUGÜN'}; if(df===1)return{days:1,text:'YARIN'}; if(df<0)return{days:-1,text:'GECİKTİ'}; return{days:df,text:df+' GÜN'};}
-        function formatDate(d){return d?new Date(d).toLocaleDateString('tr-TR'):"-";}
-        function updateStats(){const active=allData.filter(x=>!x.isDeleted); document.getElementById('stPat').innerText=active.filter(x=>x.type==='patient').length; document.getElementById('stDev').innerText=active.filter(x=>x.type==='device').length; document.getElementById('stMaint').innerText=active.filter(x=>x.type==='maintenance').length; document.getElementById('stUrg').innerText=active.filter(x=>x.type==='patient'&&getDiff(x.dateNext).days<=0).length;}
-        function toggleTheme(){document.body.classList.toggle('dark-mode'); localStorage.setItem('theme',document.body.classList.contains('dark-mode')?'dark':'light');}
-        function exportMasterExcel(){const activeData=allData.filter(x=>!x.isDeleted); let sortedData=[]; activeData.filter(x=>x.type==='patient').forEach(x=>sortedData.push({d:"HASTA",c:x.device,k:x.service,i:x.name,t:formatDate(x.dateNext)})); activeData.filter(x=>x.type==='device').forEach(x=>sortedData.push({d:"BOŞTA",c:x.device,k:x.service,i:"-",t:"-"})); activeData.filter(x=>x.type==='maintenance').forEach(x=>sortedData.push({d:"BAKIMDA",c:x.device,k:x.service,i:"-",t:"-"})); let csv="\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n"; sortedData.forEach(r=>csv+=`${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=`Trio_Rapor.csv`; link.click();}
-    </script>
 </body>
 </html>
