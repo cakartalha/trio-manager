@@ -433,12 +433,24 @@ function hardDelete(id){
     }
 }
 
+
+function normalizeDeviceCode(code) {
+    if(!code) return "";
+    // Remove all spaces, convert to uppercase, and replace Turkish chars just in case
+    return code.replace(/\s+/g, '').toLocaleUpperCase('tr-TR');
+}
+
 function saveData(){
-    const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value.trim(); 
+    const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value;
+    
+    // Normalize Input Code
+    const rawDevice = document.getElementById('inpDevice').value;
+    const d = normalizeDeviceCode(rawDevice);
+
     let data={type:t,service:s,device:d,isDeleted:false}; 
     
-    // DUPLICATE CHECK
-    const existing = allData.find(x => x.device === d && !x.isDeleted && x.id !== id);
+    // DUPLICATE CHECK (Compare Normalized)
+    const existing = allData.find(x => normalizeDeviceCode(x.device) === d && !x.isDeleted && x.id !== id);
     if(existing) {
         return alert(`Bu cihaz kodu (${d}) zaten kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Boşta'}`);
     }
@@ -580,6 +592,7 @@ function exportMasterExcel(){
     link.click();
 }
 
+
 async function resetMonthlyAnalytics() {
     const month = document.getElementById('analyticsDate').value;
     if(!month) return alert("Lütfen önce bir tarih seçin.");
@@ -597,3 +610,43 @@ async function resetMonthlyAnalytics() {
         }
     }
 }
+
+function findDuplicates() {
+    const activeData = allData.filter(x => !x.isDeleted);
+    const seen = {};
+    const duplicates = [];
+
+    activeData.forEach(item => {
+        const code = normalizeDeviceCode(item.device);
+        if (seen[code]) {
+            seen[code].push(item);
+        } else {
+            seen[code] = [item];
+        }
+    });
+
+    for (const code in seen) {
+        if (seen[code].length > 1) {
+            duplicates.push({
+                code: code,
+                items: seen[code]
+            });
+        }
+    }
+
+    if (duplicates.length === 0) {
+        alert("Harika! Sistemde mükerrer (aynı kodlu) cihaz bulunamadı. ✅");
+    } else {
+        let msg = `⚠️ TOPLAM ${duplicates.length} ADET MÜKERRER KAYIT BULUNDU:\n\n`;
+        duplicates.forEach(d => {
+            msg += `BARKOD: ${d.code}\n`;
+            d.items.forEach(i => {
+                msg += `- Konum: ${i.service}, Durum: ${i.name}\n`;
+            });
+            msg += `------------------------\n`;
+        });
+        alert(msg);
+        console.table(duplicates);
+    }
+}
+
