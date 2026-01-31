@@ -578,6 +578,11 @@ async function resetMonthlyAnalytics() {
     const month = document.getElementById('analyticsDate').value;
     if(!month) return alert("Lütfen önce bir tarih seçin.");
     
+    const pw = prompt("Verileri silmek için yönetici şifresini girin:");
+    if(pw !== "5959") {
+        return alert("Hatalı Şifre! İşlem iptal edildi.");
+    }
+
     if(confirm(`${month} tarihli TÜM analitik verileri kalıcı olarak silinecek. Emin misiniz?`)) {
         if(confirm("Bu işlem geri alınamaz! Son onay?")) {
             await AnalyticsService.clearStats(month);
