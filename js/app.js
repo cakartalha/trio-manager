@@ -434,9 +434,15 @@ function hardDelete(id){
 }
 
 function saveData(){
-    const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value; 
+    const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value, d=document.getElementById('inpDevice').value.trim(); 
     let data={type:t,service:s,device:d,isDeleted:false}; 
     
+    // DUPLICATE CHECK
+    const existing = allData.find(x => x.device === d && !x.isDeleted && x.id !== id);
+    if(existing) {
+        return alert(`Bu cihaz kodu (${d}) zaten kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Boşta'}`);
+    }
+
     if(t==='patient'){
         data.name=document.getElementById('inpName').value; 
         data.dateNext=document.getElementById('inpDate').value; 

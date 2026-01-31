@@ -609,3 +609,104 @@ body.dark-mode button.lux-btn[onclick*="closeModal"] {
     background: rgba(255,255,255,0.05) !important;
     color: rgba(255,255,255,0.7) !important;
 }
+
+/* --- NURSE PANEL SPECIFIC --- */
+.body-nurse {
+    --primary: #0d9488; /* Teal 600 */
+    --primary-glow: rgba(13, 148, 136, 0.3);
+    --accent: #f59e0b; /* Amber */
+    background-image:
+    radial-gradient(circle at 0% 0%, rgba(13, 148, 136, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 50%);
+}
+
+.body-nurse.dark-mode {
+    --primary: #2dd4bf; /* Teal 400 */
+    --primary-glow: rgba(45, 212, 191, 0.2);
+    --text-main: #f0fdfa;
+    --text-sub: #99f6e4;
+}
+
+.nurse-pill { 
+    background: var(--surface); padding: 8px 16px; border-radius: 40px; 
+    font-weight: 700; color: var(--primary); font-size: 13px; 
+    display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-card);
+    cursor: pointer; border: 1px solid var(--border-solid);
+}
+
+.sheet-header {
+    text-align: center; margin-bottom: 30px;
+}
+.btn-option { 
+    width: 100%; padding: 20px; margin-bottom: 12px; border-radius: 20px; border: none; 
+    font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer;
+    transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    background: var(--surface); color: var(--text-main); border: 1px solid var(--border-solid);
+}
+.btn-option:active { transform: scale(0.98); }
+
+.opt-icon {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+
+/* Nurse Login Card Overrides */
+.login-nurse-bg {
+    background: linear-gradient(135deg, #f0fdfa 0%, #fff 100%);
+}
+body.dark-mode .login-nurse-bg {
+    background: var(--bg-body);
+}
+
+.card-badge { 
+    font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; 
+    margin-left: 8px; text-transform: uppercase; letter-spacing: 0.5px;
+    background: var(--bg-body); color: var(--text-sub); border: 1px solid var(--border-solid);
+}
+
+/* --- IMPROVED NURSE UI --- */
+.n-card {
+    background: var(--surface);
+    border: 1px solid var(--border-solid);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+    transition: 0.2s;
+    cursor: pointer;
+}
+.n-card:active { transform: scale(0.98); }
+
+.n-card-left { display: flex; align-items: center; gap: 15px; }
+
+.n-icon {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.n-icon.patient { background: rgba(13, 148, 136, 0.1); color: var(--primary); }
+.n-icon.empty   { background: #f1f5f9; color: #94a3b8; }
+
+.n-info h4 { font-size: 17px; font-weight: 800; color: var(--text-main); line-height: 1.2; margin-bottom: 3px; }
+.n-info p { font-size: 13px; font-weight: 600; color: var(--text-sub); display: flex; align-items: center; gap: 5px; }
+
+.n-action {
+    background: var(--bg-body);
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-sub);
+}
+
+/* Dark Mode Fixes for Nurse Panel */
+body.dark-mode .n-card { background: var(--surface-solid); border-color: rgba(255,255,255,0.1); }
+body.dark-mode .n-icon.empty { background: rgba(255,255,255,0.05); color: #64748b; }
+body.dark-mode .n-action { background: rgba(255,255,255,0.05); color: white; }
+body.dark-mode .n-info h4 { color: white; }
