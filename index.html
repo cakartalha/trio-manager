@@ -375,7 +375,30 @@
         const col = "trio_records";
         let allData = [], notifications = [], currentLocFilter = 'TÜMÜ', savedNumber = localStorage.getItem('trioAdminNumber') || "";
 
-        function checkLogin() { if(document.getElementById('passwordInput').value === "0000") { document.getElementById('login-screen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; startApp(); } else { alert("Hatalı!"); } }
+        // Sayfa yüklendiğinde oturum kontrolü
+        (function checkSession() {
+            if(localStorage.getItem('trioLoggedIn') === 'true') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                startApp();
+            }
+        })();
+        
+        function checkLogin() { 
+            if(document.getElementById('passwordInput').value === "0000") { 
+                localStorage.setItem('trioLoggedIn', 'true'); // Oturumu kaydet
+                document.getElementById('login-screen').style.display = 'none'; 
+                document.getElementById('mainApp').style.display = 'block'; 
+                startApp(); 
+            } else { 
+                alert("Hatalı!"); 
+            } 
+        }
+        
+        function logout() {
+            localStorage.removeItem('trioLoggedIn');
+            window.location.reload();
+        }
         function startApp() { document.getElementById('loader').style.display='flex'; if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); const d=new Date(); d.setDate(d.getDate()+3); document.getElementById('inpDate').value=d.toISOString().split('T')[0]; db.collection(col).onSnapshot(snap=>{ allData=[]; snap.forEach(doc=>allData.push({id:doc.id, ...doc.data()})); document.getElementById('loader').style.display='none'; renderData(); updateStats(); }); db.collection("trio_notifications").orderBy("timestamp","desc").onSnapshot(snap=>{ notifications=[]; snap.forEach(doc=>notifications.push({id:doc.id, ...doc.data()})); updateBadge(); }); }
         
         function renderData() {
