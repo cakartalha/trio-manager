@@ -65,6 +65,7 @@ function loadBossStats() {
         // Update KPI Cards
         animateValue("kpi-total", 0, totalDevices, 1000);
         animateValue("kpi-active", 0, activePatients, 1000);
+        animateValue("kpi-empty", 0, emptyDevices, 1000);
         // --- ADAPTIVE FORECAST AI ---
         // 1. Calculate Real Consumption from all Active Patients
         let totalRealSets = 0;
@@ -189,16 +190,4 @@ function animateValue(id, start, end, duration) {
     };
     window.requestAnimationFrame(step);
 }
-function animateValue(id, start, end, duration) {
-    const obj = document.getElementById(id);
-    let startTimestamp = null;
-    const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        obj.innerHTML = Math.floor(progress * (end - start) + start);
-        if (progress < 1) {
-            window.requestAnimationFrame(step);
-        }
-    };
-    window.requestAnimationFrame(step);
-}
+
