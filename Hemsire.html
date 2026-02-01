@@ -8,7 +8,7 @@
     />
     <meta name="theme-color" content="#0d9488" />
 
-    <title>Trio Hemşire</title>
+    <title>Trio Personel | Saha</title>
 
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
@@ -54,10 +54,10 @@
             margin-bottom: 5px;
           "
         >
-          Hemşire Paneli
+          Personel Portalı
         </h1>
         <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 30px">
-          Hızlı Cihaz Yönetimi
+          Saha Operasyon Ekranı
         </p>
 
         <div style="text-align: left; margin-bottom: 20px">
@@ -69,13 +69,13 @@
               letter-spacing: 1px;
               margin-left: 5px;
             "
-            >SERVİS (KISACA)</label
+            >BİRİM KODU / SERVİS</label
           >
           <input
             type="text"
             id="serviceInp"
             class="lux-input"
-            placeholder="Örn: ORTOPEDI, ACIL..."
+            placeholder="Örn: DAHILIYE, ACIL..."
           />
         </div>
 
@@ -88,7 +88,7 @@
               letter-spacing: 1px;
               margin-left: 5px;
             "
-            >ADINIZ</label
+            >PERSONEL KİMLİĞİ</label
           >
           <input
             type="text"
@@ -106,7 +106,7 @@
             box-shadow: 0 10px 25px -5px var(--primary-glow);
           "
         >
-          GİRİŞ YAP <i class="fas fa-arrow-right" style="margin-left: 10px"></i>
+          SİSTEME GİRİŞ YAP <i class="fas fa-arrow-right" style="margin-left: 10px"></i>
         </button>
 
         <button
@@ -124,7 +124,7 @@
             z-index: 1000;
           "
         >
-          <i class="fas fa-question-circle"></i> Sistem Nasıl Kullanılır?
+          <i class="fas fa-question-circle"></i> Kullanım Talimatları
         </button>
       </div>
     </div>
@@ -144,7 +144,7 @@
               letter-spacing: -1px;
             "
           >
-            Cihazlar
+            Aktif Envanter
           </div>
           <div
             style="font-size: 13px; font-weight: 600; color: var(--primary)"
@@ -186,7 +186,7 @@
           <h3
             style="font-size: 20px; font-weight: 800; color: var(--text-main)"
           >
-            Yardım
+            Yardım ve Destek
           </h3>
           <button
             onclick="closeHelp()"
@@ -219,27 +219,27 @@
             "
           >
             <h4 style="color: #0d9488; margin-bottom: 10px">
-              <i class="fas fa-user-nurse"></i> HEMŞİRE KILAVUZU
+              <i class="fas fa-user-nurse"></i> PERSONEL KILAVUZU
             </h4>
             <ul style="list-style: none; font-size: 13px; padding: 0">
               <li style="margin-bottom: 10px">
-                🏥 <b style="color: var(--primary)">Giriş Yapma:</b> Servis
-                adınızı kısaca yazın (Örn: DAHILIYE) ve isminizi ekleyin.
+                🏥 <b style="color: var(--primary)">Oturum Açma:</b> Görevli
+                olduğunuz birim kodunu (Örn: DAHILIYE) ve sicil/ad bilginizi giriniz.
               </li>
               <li style="margin-bottom: 10px">
-                📱 <b style="color: var(--primary)">Cihazları Görme:</b> Sadece
-                sizin servisinizdeki cihazlar listelenir. <br />🟦
-                <b>Mavi İkon:</b> Cihaz hastada takılı. <br />⬜
-                <b>Gri İkon:</b> Cihaz boşta / depoda.
+                📱 <b style="color: var(--primary)">Envanter Takibi:</b> Yalnızca
+                kendi biriminizin cihazları listelenir. <br />🟦
+                <b>Mavi İkon:</b> Cihaz aktif tedavide. <br />⬜
+                <b>Gri İkon:</b> Cihaz müsait durumda.
               </li>
               <li style="margin-bottom: 10px">
-                📣 <b style="color: var(--primary)">İşlem Yapma:</b> Cihaza
-                tıklayınca menü açılır:
+                📣 <b style="color: var(--primary)">İşlem Menüsü:</b> Cihaz kartına
+                tıklayarak işlem yapın:
                 <ul style="margin-top: 5px; padding-left: 15px; opacity: 0.8">
-                  <li><b>Hastaya Bağla:</b> Yeni hasta geldiyse.</li>
-                  <li><b>Transfer:</b> Cihazı başkasına verdiyseniz.</li>
-                  <li><b>Arıza:</b> Cihaz bozuksa.</li>
-                  <li><b>İade:</b> Hasta taburcu olduysa.</li>
+                  <li><b>Tedavi Başlat:</b> Yeni hasta kurulumu.</li>
+                  <li><b>Transfer:</b> Cihazın başka birime teslimi.</li>
+                  <li><b>Teknik Servis:</b> Arıza durumu bildirimi.</li>
+                  <li><b>İade:</b> Tedavi sonu, depoya iade.</li>
                 </ul>
               </li>
             </ul>
@@ -253,11 +253,10 @@
             "
           >
             <h4 style="color: var(--accent); margin-bottom: 10px">
-              ❓ SIKÇA SORULANLAR
+              ❓ SIKÇA SORULAN SORULAR
             </h4>
             <p style="font-size: 13px; margin-bottom: 8px">
-              <b>Gece modu var mı?</b><br />Evet, üstteki (Ay 🌙) butonuna
-              basarak açabilirsiniz.
+              <b>Karanlık Mod:</b><br />Göz yorgunluğunu önlemek için (Ay 🌙) butonunu kullanın.
             </p>
           </div>
         </div>
@@ -268,9 +267,9 @@
       <div class="modal-card">
         <div class="modal-handle"></div>
         <div class="sheet-header">
-          <h3 style="font-size: 20px; font-weight: 800">İşlem Seçin</h3>
+          <h3 style="font-size: 20px; font-weight: 800">İşlem Seçimi</h3>
           <p style="font-size: 13px; opacity: 0.6">
-            Seçilen cihaz için ne yapılacak?
+            Lütfen yapılacak işlemi belirleyiniz.
           </p>
         </div>
 
@@ -281,28 +280,28 @@
           <div class="opt-icon" style="background: #ede9fe; color: #7c3aed">
             <i class="fas fa-procedures"></i>
           </div>
-          <span>Hastaya Bağla</span>
+          <span>Tedavi Başlat (Hasta Bağla)</span>
         </button>
 
         <button class="btn-option" onclick="notify('transfer', this)">
           <div class="opt-icon" style="background: #ccfbf1; color: #0d9488">
             <i class="fas fa-exchange-alt"></i>
           </div>
-          <span>Transfer / Teslim Et</span>
+          <span>Birim Transferi / Teslim</span>
         </button>
 
         <button class="btn-option" onclick="notify('problem', this)">
           <div class="opt-icon" style="background: #fee2e2; color: #dc2626">
             <i class="fas fa-exclamation-triangle"></i>
           </div>
-          <span>Arıza Bildir</span>
+          <span>Teknik Servis / Arıza</span>
         </button>
 
         <button class="btn-option" onclick="notify('return', this)">
           <div class="opt-icon" style="background: #f1f5f9; color: #475569">
             <i class="fas fa-box-open"></i>
           </div>
-          <span>Depoya İade (Boşa Çıktı)</span>
+          <span>Depo İade İşlemi</span>
         </button>
 
         <button

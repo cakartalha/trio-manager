@@ -8,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <title>Trio Manager Elite</title>
+    <title>Trio Manager Elite | Kurumsal</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,17 +24,17 @@
 
     <div id="login-screen">
         <div class="logo-box" style="width:100px; height:100px; font-size:40px; margin-bottom:40px; border-radius:30px;"><i class="fas fa-fingerprint"></i></div>
-        <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Trio Manager</h2>
-        <p style="color:var(--text-sub); margin-bottom:40px;">Güvenli Yönetim Paneli</p>
-        <input type="tel" id="passwordInput" class="lux-input" placeholder="PASSCODE" maxlength="4" style="text-align:center; letter-spacing:10px; font-size:24px;">
-        <button class="lux-btn" onclick="checkLogin()">GİRİŞ YAP</button>
+        <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Trio Kurumsal</h2>
+        <p style="color:var(--text-sub); margin-bottom:40px;">Güvenli Erişim Portalı</p>
+        <input type="tel" id="passwordInput" class="lux-input" placeholder="GÜVENLİK KODU" maxlength="4" style="text-align:center; letter-spacing:10px; font-size:24px;">
+        <button class="lux-btn" onclick="checkLogin()">OTURUM AÇ</button>
     </div>
 
     <div class="app-container" id="mainApp">
         <header class="header">
             <div class="brand">
                 <div class="logo-box"><i class="fas fa-layer-group"></i></div>
-                <div><h1>TRIO<br><span>MANAGER ELITE</span></h1></div>
+                <div><h1>TRIO<br><span>MANAGER ENTERPRISE</span></h1></div>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-glass" onclick="openNotifications()">
@@ -49,26 +49,26 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <span class="stat-num" style="color:var(--primary)" id="stPat">0</span>
-                <span class="stat-name">HASTA</span>
+                <span class="stat-name">AKTİF HASTA</span>
             </div>
             <div class="stat-card">
                 <span class="stat-num" style="color:#64748b" id="stDev">0</span>
-                <span class="stat-name">DEPO</span>
+                <span class="stat-name">ENVANTER</span>
             </div>
             <div class="stat-card">
                 <span class="stat-num" style="color:#f59e0b" id="stMaint">0</span>
-                <span class="stat-name">BAKIM</span>
+                <span class="stat-name">SERVİS/BAKIM</span>
             </div>
             <div class="stat-card">
                 <span class="stat-num" style="color:#ef4444" id="stUrg">0</span>
-                <span class="stat-name">ACİL</span>
+                <span class="stat-name">KRİTİK DURUM</span>
             </div>
         </div>
 
         <div id="view-patient" class="view-section active">
             <div class="search-bar">
                 <i class="fas fa-search" style="color:var(--text-sub); margin-right:10px;"></i>
-                <input type="text" id="srcPat" class="search-input" placeholder="Hasta, Oda veya Cihaz Ara..." onkeyup="renderData()">
+                <input type="text" id="srcPat" class="search-input" placeholder="Hasta Kaydı veya Cihaz Kimliği Ara..." onkeyup="renderData()">
             </div>
             <div id="list-patient"></div>
         </div>
@@ -76,7 +76,7 @@
         <div id="view-device" class="view-section" style="display:none;">
             <div class="search-bar">
                 <i class="fas fa-search" style="color:var(--text-sub); margin-right:10px;"></i>
-                <input type="text" id="srcDev" class="search-input" placeholder="Barkod veya Konum Ara..." onkeyup="renderData()">
+                <input type="text" id="srcDev" class="search-input" placeholder="Barkod veya Konum Kimliği Ara..." onkeyup="renderData()">
             </div>
             <div id="locationFilters" class="filter-scroll"></div>
             <div id="list-device"></div>
@@ -97,13 +97,13 @@
                 </div>
                  <div class="stat-card">
                      <span class="stat-num" id="an-patients-added" style="color:var(--primary)">0</span>
-                     <span class="stat-name">YENİ HASTA</span>
+                     <span class="stat-name">YENİ KAYIT</span>
                 </div>
             </div>
 
-            <h3 style="font-size:14px; font-weight:800; margin:20px 0 10px; color:var(--text-sub); text-transform:uppercase;">İŞLEM GEÇMİŞİ</h3>
+            <h3 style="font-size:14px; font-weight:800; margin:20px 0 10px; color:var(--text-sub); text-transform:uppercase;">OPERASYONEL GEÇMİŞ</h3>
             <div id="analytics-list">
-                <div style="text-align:center; padding:30px; opacity:0.5; font-size:13px;">Veri yüklemek için tarih seçin.</div>
+                <div style="text-align:center; padding:30px; opacity:0.5; font-size:13px;">Veri görüntülemek için dönem seçiniz.</div>
             </div>
         </div>
 
@@ -118,27 +118,27 @@
     <div id="modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-handle"></div>
-            <h3 id="modalTitle" style="font-size:24px; font-weight:800; margin-bottom:25px;">Kayıt İşlemi</h3>
+            <h3 id="modalTitle" style="font-size:24px; font-weight:800; margin-bottom:25px;">Kayıt Oluştur</h3>
             <input type="hidden" id="editId"><input type="hidden" id="editType">
             
             <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:20px; background:var(--bg-body); padding:6px; border-radius:18px;">
-                <button onclick="setType('patient')" id="btnTypePat" class="act-btn btn-brand" style="flex:1; height:48px;">HASTA</button>
-                <button onclick="setType('device')" id="btnTypeDev" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ</button>
-                <button onclick="setType('bulk')" id="btnTypeBulk" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ (TOPLU)</button>
+                <button onclick="setType('patient')" id="btnTypePat" class="act-btn btn-brand" style="flex:1; height:48px;">HASTA GİRİŞİ</button>
+                <button onclick="setType('device')" id="btnTypeDev" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ EKLE</button>
+                <button onclick="setType('bulk')" id="btnTypeBulk" class="act-btn btn-soft" style="flex:1; height:48px;">TOPLU CİHAZ</button>
             </div>
 
-            <input type="text" id="inpService" class="lux-input" placeholder="Servis / Konum">
+            <input type="text" id="inpService" class="lux-input" placeholder="Servis / Lokasyon Kodu">
             
             <!-- Device Input Group (Single) -->
             <div id="deviceInputGroup" style="margin-bottom:15px;">
-                <input type="text" id="inpDevice" class="lux-input" placeholder="Cihaz Barkod">
+                <input type="text" id="inpDevice" class="lux-input" placeholder="Cihaz Barkod / Seri No">
             </div>
 
             <!-- Bulk Entry Fields -->
             <div id="bulkEntrySection" style="display:none; margin-bottom:15px;">
-                <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">CİHAZ KODLARI (HER SATIRA BİR TANE)</label>
+                <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">CİHAZ SERİ NO LİSTESİ</label>
                 <textarea id="inpDeviceBulk" class="lux-input" style="height:120px; font-family:monospace;" placeholder="VFVS001\nVFVS002\n..."></textarea>
-                <div style="font-size:11px; opacity:0.6; margin-top:5px;">* Barkodları alt alta yapıştırın.</div>
+                <div style="font-size:11px; opacity:0.6; margin-top:5px;">* Her satıra bir barkod gelecek şekilde yapıştırın.</div>
             </div>
 
             <div id="patientFields">
@@ -146,7 +146,7 @@
                 <input type="date" id="inpDate" class="lux-input">
             </div>
             <div style="display:flex; gap:15px; margin-top:20px;">
-                <button onclick="closeModal('modal')" class="lux-btn" style="background:var(--bg-body); color:var(--text-main); flex:1">İptal</button>
+                <button onclick="closeModal('modal')" class="lux-btn" style="background:var(--bg-body); color:var(--text-main); flex:1">İPTAL</button>
                 <button onclick="saveData()" class="lux-btn" style="flex:2">KAYDET</button>
             </div>
         </div>
@@ -156,32 +156,29 @@
         <div class="modal-card">
             <div class="modal-handle"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="font-size:22px; font-weight:800;">Bildirimler</h3>
-                <button onclick="clearNotifications()" style="background:none; border:none; color:var(--accent); font-weight:700; font-size:13px;">Temizle</button>
+                <h3 style="font-size:22px; font-weight:800;">Bildirim Merkezi</h3>
+                <button onclick="clearNotifications()" style="background:none; border:none; color:var(--accent); font-weight:700; font-size:13px;">Tümünü Temizle</button>
             </div>
             <div id="notifList" style="max-height:60vh; overflow-y:auto;"></div>
-            <button onclick="closeModal('notifModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
+            <button onclick="closeModal('notifModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">KAPAT</button>
         </div>
     </div>
 
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-handle"></div>
-            <h3 style="font-size:22px; font-weight:800; margin-bottom:20px;">Sistem Ayarları</h3>
-            <button onclick="window.location.reload(true)" class="lux-btn" style="background:var(--primary); margin-bottom:15px;"><i class="fas fa-sync"></i> SİSTEMİ YENİLE</button>
-            <button onclick="startSelectionMode()" class="lux-btn" style="background:#ef4444; margin-bottom:15px;"><i class="fas fa-check-square"></i> TOPLU CİHAZ SİLME</button>
-            <button onclick="openTrash()" class="lux-btn" style="background:var(--accent); margin-bottom:25px;"><i class="fas fa-trash-alt"></i> ÇÖP KUTUSU</button>
+            <h3 style="font-size:22px; font-weight:800; margin-bottom:20px;">Sistem Yapılandırması</h3>
+            <button onclick="window.location.reload(true)" class="lux-btn" style="background:var(--primary); margin-bottom:15px;"><i class="fas fa-sync"></i> VERİLERİ GÜNCELLE</button>
+            <button onclick="startSelectionMode()" class="lux-btn" style="background:#ef4444; margin-bottom:15px;"><i class="fas fa-check-square"></i> TOPLU ENVANTER SİLME</button>
+            <button onclick="openTrash()" class="lux-btn" style="background:var(--accent); margin-bottom:25px;"><i class="fas fa-trash-alt"></i> GERİ DÖNÜŞÜM</button>
             <button onclick="toggleTheme()" class="lux-btn" style="background:var(--text-main); margin-bottom:25px;"><i class="fas fa-moon"></i> GECE MODU</button>
             
-
-
-            
-            <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">RAPOR NUMARASI</label>
+            <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">RAPOR İLETİŞİM HATTI</label>
             <input type="tel" id="adminNumber" class="lux-input" placeholder="905xxxxxxxxx">
             
-            <button onclick="exportMasterExcel()" class="lux-btn" style="background:#10b981; margin-bottom:15px;"><i class="fas fa-file-excel"></i> Excel İndir</button>
-            <button onclick="findDuplicates()" class="lux-btn" style="background:#f59e0b; margin-bottom:15px;"><i class="fas fa-clone"></i> MÜKERRER KAYIT KONTROLÜ</button>
-            <button onclick="saveSettings()" class="lux-btn" style="background:var(--text-main)">KAYDET</button>
+            <button onclick="exportMasterExcel()" class="lux-btn" style="background:#10b981; margin-bottom:15px;"><i class="fas fa-file-excel"></i> EXCEL DIŞA AKTAR</button>
+            <button onclick="findDuplicates()" class="lux-btn" style="background:#f59e0b; margin-bottom:15px;"><i class="fas fa-clone"></i> VERİ TUTARLILIK DENETİMİ</button>
+            <button onclick="saveSettings()" class="lux-btn" style="background:var(--text-main)">AYARLARI KAYDET</button>
             <button onclick="logout()" class="lux-btn" style="background:#ef4444; margin-top:10px;"><i class="fas fa-sign-out-alt"></i> GÜVENLİ ÇIKIŞ</button>
             <button onclick="closeModal('settingsModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
         </div>
@@ -190,10 +187,10 @@
     <div id="trashModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-handle"></div>
-            <h3>Geri Dönüşüm</h3>
-            <button onclick="emptyTrash()" class="lux-btn" style="background:#ef4444; margin-bottom:15px; font-size:13px;"><i class="fas fa-bomb"></i> ÇÖPÜ BOŞALT (TÜMÜNÜ SİL)</button>
+            <h3>Geri Dönüşüm Kutusu</h3>
+            <button onclick="emptyTrash()" class="lux-btn" style="background:#ef4444; margin-bottom:15px; font-size:13px;"><i class="fas fa-bomb"></i> KUTUYU BOŞALT (KALICI SİL)</button>
             <div id="trashList" style="margin-top:20px;"></div>
-            <button onclick="closeModal('trashModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
+            <button onclick="closeModal('trashModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">KAPAT</button>
         </div>
     </div>
 
@@ -201,26 +198,26 @@
         <div class="modal-card" style="height:85vh; display:flex; flex-direction:column;">
             <div class="modal-handle"></div>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="font-size:22px; font-weight:800;">Yardım Merkezi</h3>
+                <h3 style="font-size:22px; font-weight:800;">Yardım Dokümantasyonu</h3>
                 <button onclick="closeModal('helpModal')" style="background:none; border:none; color:var(--text-main); font-size:20px;"><i class="fas fa-times"></i></button>
             </div>
             
             <div style="overflow-y:auto; flex:1; padding-right:5px; line-height:1.6; color:var(--text-main);">
                 <div style="background:var(--bg-body); padding:15px; border-radius:12px; margin-bottom:20px;">
-                    <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-crown"></i> YÖNETİCİ PANELİ</h4>
+                    <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-crown"></i> YÖNETİCİ KONSOLU</h4>
                     <ul style="list-style:none; font-size:13px; padding:0;">
-                        <li style="margin-bottom:10px;">🔑 <b style="color:var(--text-main)">Giriş (Şifre):</b> Size verilen şifre ile giriş yapın.</li>
-                        <li style="margin-bottom:10px;">➕ <b style="color:var(--text-main)">Yeni Kayıt:</b> Alttaki (+) butonuna basın. "HASTA" veya "CİHAZ" seçip kaydedin.</li>
-                        <li style="margin-bottom:10px;">🩹 <b style="color:var(--text-main)">Pansuman:</b> Listede hastayı bulup "Pansuman" butonuna basın. Günü seçip kaydedin.</li>
-                        <li style="margin-bottom:10px;">📊 <b style="color:var(--text-main)">Raporlar:</b> Alttaki mor pasta grafik ikonuna tıklayın. Ay seçerek geçmiş raporları görün.</li>
+                        <li style="margin-bottom:10px;">🔑 <b style="color:var(--text-main)">Oturum (Şifre):</b> Kurumsal güvenlik kodunuz ile giriş yapınız.</li>
+                        <li style="margin-bottom:10px;">➕ <b style="color:var(--text-main)">Yeni Kayıt:</b> Envanter veya hasta girişi için (+) butonunu kullanın.</li>
+                        <li style="margin-bottom:10px;">🩹 <b style="color:var(--text-main)">Tedavi İşlemi:</b> Hasta detayından "Tedavi" butonunu kullanarak işlem kaydedin.</li>
+                        <li style="margin-bottom:10px;">📊 <b style="color:var(--text-main)">Analiz:</b> Grafik ikonunu kullanarak operasyonel raporlara erişin.</li>
                     </ul>
                 </div>
 
                 <div style="background:var(--bg-body); padding:15px; border-radius:12px;">
-                    <h4 style="color:var(--accent); margin-bottom:10px;">❓ SIKÇA SORULANLAR</h4>
-                    <p style="font-size:13px; margin-bottom:8px;"><b>Gece modu var mı?</b><br>Evet, ayarlar menüsündeki "Ay" simgesiyle açabilirsiniz.</p>
-                    <p style="font-size:13px; margin-bottom:8px;"><b>Yanlışlıkla sildim?</b><br>Ayarlar > Çöp Kutusu menüsünden geri alabilirsiniz.</p>
-                    <p style="font-size:13px;"><b>Raporları silebilir miyim?</b><br>Evet, ancak bunun için Yönetici Şifresi gereklidir. Çöp kutusuna tıklayınca şifre sorar.</p>
+                    <h4 style="color:var(--accent); margin-bottom:10px;">❓ SIKÇA SORULAN SORULAR</h4>
+                    <p style="font-size:13px; margin-bottom:8px;"><b>Karanlık Mod:</b><br>Ayarlar menüsünden tema tercihinizi değiştirebilirsiniz.</p>
+                    <p style="font-size:13px; margin-bottom:8px;"><b>Hatalı Silme İşlemi?</b><br>Ayarlar > Geri Dönüşüm menüsünden verileri kurtarabilirsiniz.</p>
+                    <p style="font-size:13px;"><b>Veri Güvenliği:</b><br>Kritik işlemler yönetici yetkisi gerektirir.</p>
                 </div>
             </div>
         </div>
@@ -229,30 +226,30 @@
     <div id="dateModal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-handle"></div>
-            <h3 style="font-size:20px; font-weight:800; margin-bottom:20px; text-align:center;">Sonraki Pansuman?</h3>
+            <h3 style="font-size:20px; font-weight:800; margin-bottom:20px; text-align:center;">Sonraki İşlem Tarihi?</h3>
             <input type="hidden" id="dateRecordId">
             
             <div class="date-actions">
                 <button class="quick-btn" onclick="setQuickDate(1)">YARIN</button>
-                <button class="quick-btn" onclick="setQuickDate(2)">2 GÜN</button>
-                <button class="quick-btn active" onclick="setQuickDate(3)">3 GÜN</button>
+                <button class="quick-btn" onclick="setQuickDate(2)">2 GÜN SONRA</button>
+                <button class="quick-btn active" onclick="setQuickDate(3)">3 GÜN SONRA</button>
             </div>
 
             <!-- Material Usage Inputs -->
             <div style="display:flex; gap:10px; margin-bottom:15px; margin-top:20px;">
                 <div style="flex:1">
-                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">KAPAMA SETİ</label>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">SARF: KAPAMA SETİ</label>
                     <input type="number" id="inpUsedSets" class="lux-input" value="1" min="0" style="text-align:center; font-weight:800;">
                 </div>
                 <div style="flex:1">
-                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">TOPLAMA KABI</label>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">SARF: TOPLAMA KABI</label>
                     <input type="number" id="inpUsedCans" class="lux-input" value="0" min="0" style="text-align:center; font-weight:800;">
                 </div>
             </div>
 
             <input type="date" id="dressingDateInput" class="big-date-input">
             
-            <button onclick="saveDressingDate()" class="lux-btn" style="background:#8b5cf6">KAYDET</button>
+            <button onclick="saveDressingDate()" class="lux-btn" style="background:#8b5cf6">İŞLEMİ KAYDET</button>
             <button onclick="closeModal('dateModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
         </div>
     </div>
@@ -264,4 +261,3 @@
 
 </body>
 </html>
-```

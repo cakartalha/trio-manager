@@ -12,7 +12,7 @@ function adminLogin() {
         localStorage.setItem('trioAdminAuth', 'true');
         showDashboard();
     } else {
-        alert("ERİŞİM ENGELLENDİ: Girdiğiniz anahtar hatalı.");
+        alert("Güvenlik Uyarısı: Erişim Anahtarı Geçersiz.");
         document.getElementById('adminPassword').value = '';
     }
 }
@@ -34,7 +34,7 @@ function openSystemAsAdmin(target) {
         url = 'index.html';
         
     } else if (target === 'nurse') {
-        const name = prompt("Hangi hemşire adıyla giriş yapılsın?", "YÖNETİCİ");
+        const name = prompt("Giriş Yapılacak Personel Kimliği:", "YÖNETİCİ");
         if(!name) return;
         localStorage.setItem('trioNurseName', name);
         localStorage.setItem('trioNurseServiceShort', 'GENEL');
@@ -141,16 +141,16 @@ function createFeedItem(data) {
 }
 
 const TYPE_MAP_TR = {
-    'login': 'Giriş Başarılı',
-    'login_failed': 'Hatalı Giriş Denemesi',
-    'logout': 'Çıkış Yapıldı',
-    'create': 'Yeni Veri Eklendi',
-    'update': 'Veri Güncellendi',
-    'soft_delete': 'Kayıt Silindi (Arşiv)',
-    'session_start': 'Yeni Oturum Başladı',
-    'session_end': 'Oturum Sonlandı',
-    'notification_sent': 'Bildirim Gönderildi',
-    'page_visible': 'Sayfa Görüntülendi'
+    'login': 'Oturum Açma',
+    'login_failed': 'Başarısız Erişim Denemesi',
+    'logout': 'Oturum Kapatma',
+    'create': 'Veri Girişi',
+    'update': 'Veri Güncelleme',
+    'soft_delete': 'Arşive Taşıma',
+    'session_start': 'Yeni Oturum',
+    'session_end': 'Oturum Sonu',
+    'notification_sent': 'Sistem Bildirimi',
+    'page_visible': 'Sayfa Görüntüleme'
 };
 
 function formatDetailsSimple(d) {
@@ -222,7 +222,7 @@ async function loadActiveSessionsControl() {
             const diff = Math.floor((now - lastActive) / 1000);
             
             // Map panel names
-            const panelName = { 'main': 'Ana Panel', 'nurse': 'Hemşire', 'boss': 'Yönetici' }[s.panel] || s.panel;
+            const panelName = { 'main': 'Ana Yönetim', 'nurse': 'Personel Portalı', 'boss': 'Yönetici Özeti' }[s.panel] || s.panel;
             
             html += `<tr>
                 <td>
@@ -273,10 +273,10 @@ function setToggleState(id, isOn) {
 // --- HISTORY LOGS ---
 // --- HISTORY LOGS ---
 const PANEL_NAMES = {
-    'main': 'Ana Yönetim Paneli',
-    'nurse': 'Hemşire Paneli',
-    'boss': 'Patron Paneli',
-    'admin': 'Admin Konsolu'
+    'main': 'Ana Yönetim Konsolu',
+    'nurse': 'Saha Personel Portalı',
+    'boss': 'Üst Yönetim Konsolu',
+    'admin': 'Sistem Admin Konsolu'
 };
 
 function formatTimeAgo(date) {
@@ -419,10 +419,10 @@ async function loadActions() {
                 if(cleanDetails.status === 'success') delete cleanDetails.status;
                 
                 // Construct logic sentence
-                if(typeRaw === 'login') detailsText = `${d.details.method === 'pin' ? 'PIN ile' : ''} giriş yaptı.`;
+                if(typeRaw === 'login') detailsText = `${d.details.method === 'pin' ? 'Güvenlik Kodu ile' : ''} erişim sağlandı.`;
                 else if(typeRaw === 'session_start') detailsText = `Oturum başlatıldı.`;
                 else if(typeRaw === 'session_end') detailsText = `Oturum sonlandırıldı (${d.details.reason || 'Normal'}).`;
-                else if(typeRaw === 'show_notification') detailsText = `Duyuru: "${d.details.message}"`;
+                else if(typeRaw === 'show_notification') detailsText = `Sistem Mesajı: "${d.details.message}"`;
                 else detailsText = Object.values(cleanDetails).join(', ');
                 
                 if(!detailsText) detailsText = '-';

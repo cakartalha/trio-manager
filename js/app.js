@@ -29,9 +29,9 @@ function renderData() {
                 <span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span>
             </div>
             <div class="action-row">
-                <button class="act-btn btn-brand" onclick="registerDressing('${p.id}')"><i class="fas fa-band-aid"></i> Pansuman</button>
+                <button class="act-btn btn-brand" onclick="registerDressing('${p.id}')"><i class="fas fa-band-aid"></i> Tedavi İşlemi</button>
                 <button class="act-btn btn-soft" onclick="sharePatient('${p.id}')"><i class="fab fa-whatsapp"></i> Rapor</button>
-                <button class="act-btn btn-soft" onclick="transferToDevice('${p.id}')">Boşa Çıkar</button>
+                <button class="act-btn btn-soft" onclick="transferToDevice('${p.id}')">Envantere İade</button>
                 <button class="act-btn btn-soft" onclick="editRecord('${p.id}')"><i class="fas fa-pen"></i></button>
                 <button class="act-btn btn-accent" onclick="softDelete('${p.id}')"><i class="fas fa-trash"></i></button>
             </div>
@@ -54,8 +54,8 @@ function renderData() {
     devices.forEach(d=>{
         const isMaint=d.type==='maintenance';
         const tagClass=isMaint?'orange':'blue';
-        const status=isMaint?'BAKIMDA':'DEPO / BOŞ';
-        const btns=isMaint?`<button class="act-btn btn-brand" onclick="toggleMaintenance('${d.id}',false)">Depoya Al</button>`:`<button class="act-btn btn-brand" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button><button class="act-btn btn-soft" onclick="transferToPatient('${d.id}')">Hastaya</button><button class="act-btn btn-soft" onclick="toggleMaintenance('${d.id}',true)">Bakım</button>`;
+        const status=isMaint?'TEKNİK SERVİS':'ANA DEPO / MÜSAİT';
+        const btns=isMaint?`<button class="act-btn btn-brand" onclick="toggleMaintenance('${d.id}',false)">Depoya Al</button>`:`<button class="act-btn btn-brand" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button><button class="act-btn btn-soft" onclick="transferToPatient('${d.id}')">Hastaya</button><button class="act-btn btn-soft" onclick="toggleMaintenance('${d.id}',true)">Servis</button>`;
         
         let actionHtml = `<div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button></div>`;
         
@@ -75,14 +75,14 @@ function renderData() {
             </div>${actionHtml}</div>`;
     });
     
-    if(patients.length===0) pCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Kayıt yok.</div>";
-    if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Cihaz yok.</div>";
+    if(patients.length===0) pCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Kayıt bulunamadı.</div>";
+    if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Envanter kaydı yok.</div>";
     
     // Inject Delete Button if Selection Mode
     if(isSelectionMode) {
         dCont.insertAdjacentHTML('afterbegin', `
         <div style="position:sticky; top:0; z-index:100; background:var(--bg-body); padding:10px; margin-bottom:10px; border-bottom:1px solid var(--border-solid); display:flex; justify-content:space-between; align-items:center;">
-             <span style="font-weight:700; color:var(--text-main)">Toplu Silme Modu</span>
+             <span style="font-weight:700; color:var(--text-main)">Toplu Silme (Yönetici)</span>
              <div>
                 <button onclick="deleteSelected()" class="lux-btn" style="background:#ef4444; padding:8px 15px; font-size:12px;">SEÇİLENLERİ SİL</button>
                 <button onclick="cancelSelectionMode()" class="lux-btn" style="background:var(--surface); color:var(--text-main); padding:8px 15px; font-size:12px; margin-left:5px;">İptal</button>
@@ -108,7 +108,7 @@ function deleteSelected() {
     const checks = document.querySelectorAll('.bulk-check:checked');
     if(checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
     
-    if(confirm(`Seçilen ${checks.length} adet cihaz silinecek (Geri dönüşüm kutusuna gönderilecek). Onaylıyor musunuz?`)) {
+    if(confirm(`Seçilen ${checks.length} adet kayıt silinecek (Geri dönüşüm kutusuna taşınacak). Onaylıyor musunuz?`)) {
         const batch = db.batch();
         let count = 0;
         checks.forEach(c => {
@@ -259,15 +259,15 @@ async function loadAnalytics() {
         </div>
         <div class="stat-card">
              <span class="stat-num" style="color:#10b981">${totalDressings}</span>
-             <span class="stat-name">TOPLAM PANSUMAN</span>
+             <span class="stat-name">TOPLAM TEDAVİ</span>
         </div>
         <div class="stat-card">
              <span class="stat-num" style="color:#f59e0b">${totalMaterial}</span>
-             <span class="stat-name">KCI SET (ADET)</span>
+             <span class="stat-name">SARF: SET (ADET)</span>
         </div>
         <div class="stat-card">
              <span class="stat-num" style="font-size:16px; line-height:28px; color:#6366f1">${topService}</span>
-             <span class="stat-name">EN YOĞUN SERVİS</span>
+             <span class="stat-name">EN YOĞUN BİRİM</span>
         </div>
     </div>`;
 
@@ -289,13 +289,13 @@ async function loadAnalytics() {
             case 'patient_added': 
                 icon='user-plus'; color='var(--primary)'; text=`YENİ HASTA: ${s.name}`; break;
             case 'patient_discharged': 
-                icon='user-check'; color='#10b981'; text=`TABURCU: ${s.patient} (${s.service})`; break;
+                icon='user-check'; color='#10b981'; text=`TABURCU / BİTİŞ: ${s.patient} (${s.service})`; break;
             case 'dressing_done':
-                icon='band-aid'; color='#8b5cf6'; text=`PANSUMAN: ${s.patient} (${s.service})`; break;
+                icon='band-aid'; color='#8b5cf6'; text=`TEDAVİ: ${s.patient} (${s.service})`; break;
             case 'device_maintenance_start': 
-                icon='tools'; color='#f59e0b'; text=`BAKIM: ${s.device}`; break;
+                icon='tools'; color='#f59e0b'; text=`TEKNİK SERVİS: ${s.device}`; break;
             case 'device_added':
-                icon='server'; color='#6366f1'; text=`YENİ CİHAZ: ${s.device}`; break;
+                icon='server'; color='#6366f1'; text=`YENİ ENVANTER: ${s.device}`; break;
             case 'item_deleted_soft':
                 icon='trash'; color='#ef4444'; text=`SİLİNDİ: ${s.name}`; break;
         }
@@ -348,19 +348,19 @@ async function checkLogin() {
         // Force server fetch to avoid stale cache
         const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
         if (accessDoc.exists && accessDoc.data().main === false) {
-            return alert("⛔ Ana panel şu anda yönetici tarafından erişime kapatılmıştır.");
+            return alert("⛔ Ana yönetim paneli şu anda kilitlidir.");
         }
         
         const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
         if (maintDoc.exists && maintDoc.data().enabled === true) {
-            return alert(`🔧 ${maintDoc.data().message || "Sistem bakımda."}`);
+            return alert(`🔧 ${maintDoc.data().message || "Sistem şu anda bakım modundadır."}`);
         }
     } catch(e) { 
         console.warn("Access check failed (network might be down), trying cache...", e);
         // Fallback to cache if server fails
         try {
              const maintDocCache = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get();
-             if (maintDocCache.exists && maintDocCache.data().enabled) return alert("🔧 Sistem bakımda (Çevrimdışı).");
+             if (maintDocCache.exists && maintDocCache.data().enabled) return alert("🔧 Sistem bakımda (Çevrimdışı Mod).");
         } catch(ex) {}
     }
 
@@ -378,7 +378,7 @@ async function checkLogin() {
         startApp(); 
     } else { 
         logAction('login_failed', { panel: 'main', attemptedPin: '****' });
-        alert("Hatalı!"); 
+        alert("Erişim Reddedildi: Geçersiz Güvenlik Kodu."); 
     } 
 }
 
@@ -437,14 +437,14 @@ function updateBadge(){
 
 function openNotifications(){
     const l=document.getElementById('notifList'); l.innerHTML=""; 
-    if(notifications.length===0)l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Yok.</p>"; 
+    if(notifications.length===0)l.innerHTML="<p style='text-align:center;opacity:0.5;padding:20px'>Bildirim bulunmamaktadır.</p>"; 
     
     notifications.forEach(n=>{ 
         let i="info-circle",t="Bilgi"; 
-        if(n.type==='transfer'){i="exchange-alt";t="Devir";}
-        if(n.type==='return'){i="box";t="İade";}
-        if(n.type==='problem'){i="exclamation-triangle";t="Arıza";}
-        if(n.type==='new_patient'){i="procedures";t="Yeni Hasta";} 
+        if(n.type==='transfer'){i="exchange-alt";t="Birim Transferi";}
+        if(n.type==='return'){i="box";t="Depo İade";}
+        if(n.type==='problem'){i="exclamation-triangle";t="Teknik Servis Talebi";}
+        if(n.type==='new_patient'){i="procedures";t="Yeni Hasta Kaydı";} 
         
         const time=n.timestamp?new Date(n.timestamp.toDate()).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):""; 
         l.innerHTML+=`<div class="notif-item ${!n.isRead?'unread':''}"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`; 
@@ -463,7 +463,7 @@ function clearNotifications(){
 function setLocFilter(l){ currentLocFilter=l; renderData(); }
 
 function transferToDevice(id){
-    const n=prompt("Konum?","Depo"); 
+    const n=prompt("Hedef Depo/Konum Giriniz:","Ana Depo"); 
     if(n) {
         const rec = allData.find(x => x.id === id);
         db.collection(col).doc(id).update({type:'device', name:'BOŞTA', service:n, dateNext:firebase.firestore.FieldValue.delete()});
@@ -488,7 +488,7 @@ function transferToPatient(id){
 }
 
 function toggleMaintenance(id, m){
-    if(confirm(m?"Bakım?":"Depo?")) {
+    if(confirm(m?"Cihaz teknik servise alınsın mı?":"Cihaz tekrar depoya (müsait) alınsın mı?")) {
         const rec = allData.find(x => x.id === id);
         db.collection(col).doc(id).update({type:m?'maintenance':'device'});
         
@@ -500,7 +500,7 @@ function toggleMaintenance(id, m){
 }
 
 function softDelete(id){
-    if(confirm("Bu kaydı silmek istediğinize emin misiniz?")) {
+    if(confirm("Bu kaydı silip geri dönüşüm kutusuna taşımak istediğinize emin misiniz?")) {
         const rec = allData.find(x => x.id === id);
         db.collection(col).doc(id).update({
             isDeleted:true, 
@@ -522,7 +522,7 @@ function openTrash(){
     
     const deleted = allData.filter(x=>x.isDeleted);
     if(deleted.length===0) {
-        l.innerHTML="<p style='text-align:center; padding:20px; opacity:0.5'>Boş.</p>";
+        l.innerHTML="<p style='text-align:center; padding:20px; opacity:0.5'>Geri dönüşüm kutusu boş.</p>";
         return;
     }
 
@@ -546,7 +546,7 @@ function restore(id){
 
 
 function hardDelete(id){
-    if(confirm("DİKKAT: Tamamen silinecek?")) {
+    if(confirm("DİKKAT: Veri kalıcı olarak silinecek. Onaylıyor musunuz?")) {
         db.collection(col).doc(id).delete(); 
         openTrash();
         AnalyticsService.logEvent('item_deleted_hard', { id });
@@ -598,7 +598,7 @@ function saveData(){
         const rawBulk = document.getElementById('inpDeviceBulk').value;
         const lines = rawBulk.split(/\r?\n/).map(l => normalizeDeviceCode(l)).filter(l => l.length > 0);
         
-        if(lines.length === 0) return alert("Lütfen en least bir cihaz kodu girin.");
+        if(lines.length === 0) return alert("Lütfen en az bir adet seri no giriniz.");
         
         // ... (bulk logic same, using normalized code)
         // Ensure Service is kept normalized
@@ -611,14 +611,14 @@ function saveData(){
         lines.forEach(code => {
             const existing = allData.find(x => normalizeDeviceCode(x.device) === code && !x.isDeleted);
             if(existing) {
-                errorMsg += `${code}: Zaten kayıtlı (${existing.service})\n`;
+                errorMsg += `${code}: Mükerrer Kayıt (${existing.service})\n`;
             } else {
                 const newRef = db.collection(col).doc();
                 batch.set(newRef, {
                     type: t,
                     service: s, // Uppercase
                     device: code, // Uppercase
-                    name: "BOŞTA",
+                    name: "MÜSAİT",
                     isDeleted: false,
                     createdAt: Date.now()
                 });
@@ -650,15 +650,15 @@ function saveData(){
     // DUPLICATE CHECK
     const existing = allData.find(x => normalizeDeviceCode(x.device) === d && !x.isDeleted && x.id !== id);
     if(existing) {
-        return alert(`Bu cihaz kodu (${d}) zaten kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Boşta'}`);
+        return alert(`Bu cihaz kodu (${d}) zaten sisteme kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Müsait'}`);
     }
 
     if(t==='patient'){
         data.name=normalizeText(document.getElementById('inpName').value); 
         data.dateNext=document.getElementById('inpDate').value; 
-        if(!data.name) return alert("İsim?");
+        if(!data.name) return alert("Lütfen hasta adını giriniz.");
     } else {
-        data.name="BOŞTA";
+        data.name="MÜSAİT";
     }
     // ... saving logic continues
 
@@ -696,14 +696,14 @@ function editRecord(id){
 
 function sharePatient(id){
     const p=allData.find(x=>x.id===id); 
-    window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA:* ${p.name}\n*KONUM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,'_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA KAYDI:* ${p.name}\n*BİRİM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,'_blank');
     
     AnalyticsService.logEvent('report_shared', { type: 'patient', patient: p.name });
 }
 
 function shareDevice(id){
     const d=allData.find(x=>x.id===id); 
-    window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,'_blank');
+    window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*MÜSAİT ENVANTER*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,'_blank');
 }
 
 

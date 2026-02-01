@@ -63,7 +63,7 @@ async function togglePanelAccess(panel) {
     updatePanelStatusButtons(); 
     
     const statusText = newState ? "ERİŞİM AÇILDI" : "ERİŞİM KAPATILDI/KİLİTLENDİ";
-    const panelNames = { main: "Ana Panel", nurse: "Hemşire Paneli", boss: "Patron Paneli" };
+    const panelNames = { main: "Ana Yönetim Konsolu", nurse: "Saha Personel Portalı", boss: "Üst Yönetim Konsolu" };
     
     alert(`${panelNames[panel]} için ${statusText}`);
 }

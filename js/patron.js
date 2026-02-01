@@ -22,12 +22,12 @@ async function loginBoss() {
     try {
         const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
         if (accessDoc.exists && accessDoc.data().boss === false) {
-            return alert("⛔ Yönetici paneli şu anda kilitlidir.");
+            return alert("⛔ Üst yönetim konsol erişimi şu anda kilitlidir.");
         }
 
         const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
         if (maintDoc.exists && maintDoc.data().enabled === true) {
-            return alert("🔧 Sistem şu anda bakım modundadır.");
+            return alert(`🔧 ${maintDoc.data().message || "Sistem bakım modundadır."}`);
         }
     } catch(e) { console.warn("Access check failed", e); }
 
@@ -41,8 +41,8 @@ async function loginBoss() {
         });
     } else {
         logAction('login_failed', { panel: 'boss', attemptedPin: '****' });
-        alert("Hatalı Şifre");
-        document.getElementById('bossPass').value = "";
+        alert("Erişim Reddedildi: Girdiğiniz kod hatalı.");
+        document.getElementById('bossPass').value = '';
     }
 }
 
@@ -72,7 +72,7 @@ function loadBossStats() {
             if(!d.isDeleted) {
                 totalDevices++;
                 
-                if(d.name && d.name !== 'BOŞTA') {
+                if(d.name && d.name !== 'MÜSAİT') { // Changed 'BOŞTA' to 'MÜSAİT'
                     activePatients++;
                     // Service Dist
                     const s = (d.service || "BİLİNMİYOR").trim().toUpperCase();
@@ -107,7 +107,7 @@ function loadBossStats() {
 
         snap.forEach(doc => {
              const d = doc.data();
-             if(!d.isDeleted && d.name && d.name !== 'BOŞTA') {
+             if(!d.isDeleted && d.name && d.name !== 'MÜSAİT') { // Changed 'BOŞTA' to 'MÜSAİT'
                  // Sum real totals for "Real Consumption Point"
                  totalRealSets += (d.totalSets || 0);
                  totalRealCans += (d.totalCans || 0);

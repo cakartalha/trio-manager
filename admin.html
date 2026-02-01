@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trio Manager | Yönetim Konsolu</title>
+    <title>Trio Manager | Sistem Yönetim Paneli</title>
     
     <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -22,8 +22,8 @@
             <div style="font-size:3rem; margin-bottom:1rem; background:linear-gradient(135deg, #4f46e5, #ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
                 <i class="fas fa-fingerprint"></i>
             </div>
-            <h1 style="font-size:1.5rem; color:#1f2937; margin-bottom:0.5rem">Yönetici Girişi</h1>
-            <p style="color:#6b7280; margin-bottom:2rem;">Lütfen güvenlik anahtarınızı giriniz.</p>
+            <h1 style="font-size:1.5rem; color:#1f2937; margin-bottom:0.5rem">Admin Kimlik Doğrulama</h1>
+            <p style="color:#6b7280; margin-bottom:2rem;">Yetkili ağ geçidi anahtarını giriniz.</p>
             
             <div style="margin-bottom:1.5rem; text-align:left;">
                 <input type="password" id="adminPassword" placeholder="••••••••" 
@@ -34,11 +34,11 @@
             </div>
             
             <button onclick="adminLogin()" style="width:100%; padding:0.875rem; background:#4f46e5; color:white; border:none; border-radius:0.75rem; font-weight:600; font-size:1rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
-                Giriş Yap
+                Sisteme Eriş
             </button>
             
             <div style="margin-top:1.5rem;">
-                <a href="index.html" style="font-size:0.875rem; color:#6b7280; text-decoration:none;"><i class="fas fa-arrow-left"></i> Ana Uygulamaya Dön</a>
+                <a href="index.html" style="font-size:0.875rem; color:#6b7280; text-decoration:none;"><i class="fas fa-arrow-left"></i> Kurumsal Portala Dön</a>
             </div>
         </div>
     </div>
@@ -54,29 +54,29 @@
             
             <ul class="nav-menu">
                 <li class="nav-item active" onclick="switchAdminTab(this, 'monitor')">
-                    <i class="fas fa-chart-pie"></i> Genel Bakış
+                    <i class="fas fa-chart-pie"></i> Sistem İzleme
                 </li>
                 <li class="nav-item" onclick="switchAdminTab(this, 'control')">
-                    <i class="fas fa-gamepad"></i> Uzaktan Kontrol
+                    <i class="fas fa-gamepad"></i> Komut Merkezi
                 </li>
                 <li class="nav-item" onclick="switchAdminTab(this, 'sessions')">
-                    <i class="fas fa-globe"></i> Oturum Geçmişi
+                    <i class="fas fa-globe"></i> Erişim Kayıtları
                 </li>
                 <li class="nav-item" onclick="switchAdminTab(this, 'actions')">
-                    <i class="fas fa-list-alt"></i> İşlem Logları
+                    <i class="fas fa-list-alt"></i> İşlem Denetim
                 </li>
                 <li class="nav-item" onclick="switchAdminTab(this, 'settings')">
-                     <i class="fas fa-sliders-h"></i> Sistem
+                    <i class="fas fa-sliders-h"></i> Yapılandırma
                 </li>
                 <li class="nav-item" onclick="switchAdminTab(this, 'help')">
-                     <i class="fas fa-book"></i> Kullanım Kılavuzu
+                    <i class="fas fa-book"></i> Dokümantasyon
                 </li>
             </ul>
              
             <div style="padding:1.5rem; border-top:1px solid rgba(255,255,255,0.05); color:#6b7280; font-size:0.75rem;">
                  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
                      <div style="width:8px; height:8px; background:#10b981; border-radius:50%; box-shadow:0 0 8px #10b981;"></div>
-                     Sistem Online
+                     Sistem Çevrimiçi
                  </div>
                  <div style="cursor:pointer; color:#ef4444;" onclick="adminLogout()">
                      <i class="fas fa-sign-out-alt"></i> Güvenli Çıkış
@@ -89,11 +89,11 @@
             
             <div class="top-bar">
                 <div class="page-title">
-                    <h2 id="page-header-title">Kontrol Paneli</h2>
-                    <p id="page-header-desc">Sistemin anlık durumu ve hızlı erişim.</p>
+                    <h2 id="page-header-title">Sistem İzleme</h2>
+                    <p id="page-header-desc">Anlık veri akışı ve sistem durumu.</p>
                 </div>
                 <div style="display:flex; gap:1rem;">
-                    <button class="btn btn-soft" onclick="updateStats()" title="Yenile"><i class="fas fa-sync-alt"></i></button>
+                    <button class="btn btn-soft" onclick="updateStats()" title="Verileri Tazele"><i class="fas fa-sync-alt"></i></button>
                     <!-- Bildirim ikonu vs eklenebilir -->
                 </div>
             </div>
@@ -105,22 +105,22 @@
                     
                     <!-- HIZLI ERİŞİM KARTLARI (YENİ ÖZELLİK) -->
                     <div style="margin-bottom:1.5rem;">
-                        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:#374151;">Sistemlere Hızlı Erişim</h3>
+                        <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem; color:#374151;">Hızlı Yönetim Erişimi</h3>
                         <div class="access-grid">
                             <div class="access-card" onclick="openSystemAsAdmin('main')">
                                 <div class="access-icon" style="color:#4f46e5; background:#e0e7ff;"><i class="fas fa-laptop-medical"></i></div>
-                                <div class="access-title">Ana Panel</div>
-                                <div class="access-desc">Yönetici olarak giriş yap ve pansumanları yönet.</div>
+                                <div class="access-title">Ana Yönetim</div>
+                                <div class="access-desc">Yönetici yetkileriyle ana sisteme eriş.</div>
                             </div>
                             <div class="access-card" onclick="openSystemAsAdmin('nurse')">
                                 <div class="access-icon" style="color:#ec4899; background:#fce7f3;"><i class="fas fa-user-nurse"></i></div>
-                                <div class="access-title">Hemşire Paneli</div>
-                                <div class="access-desc">Hemşire ekranını görüntüle ve servis durumunu izle.</div>
+                                <div class="access-title">Personel Portalı</div>
+                                <div class="access-desc">Saha personel ekranını görüntüle.</div>
                             </div>
                             <div class="access-card" onclick="openSystemAsAdmin('boss')">
                                 <div class="access-icon" style="color:#f59e0b; background:#fef3c7;"><i class="fas fa-user-tie"></i></div>
-                                <div class="access-title">Patron Paneli</div>
-                                <div class="access-desc">İstatistikleri ve stok durumunu kontrol et.</div>
+                                <div class="access-title">Yönetici Özeti</div>
+                                <div class="access-desc">Kurumsal raporlara ve analitiklere eriş.</div>
                             </div>
                         </div>
                     </div>
@@ -130,29 +130,29 @@
                          <div class="card card-body" style="display:flex; align-items:center; gap:1rem;">
                               <div style="width:48px; height:48px; background:#e0e7ff; color:#4f46e5; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;"><i class="fas fa-users"></i></div>
                               <div>
-                                  <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">AKTİF KULLANICI</div>
+                                  <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">AKTİF OTURUM</div>
                                   <div style="font-size:1.5rem; font-weight:700;" id="stat-active">0</div>
                               </div>
                          </div>
                          <div class="card card-body" style="display:flex; align-items:center; gap:1rem;">
                             <div style="width:48px; height:48px; background:#d1fae5; color:#059669; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;"><i class="fas fa-clipboard-check"></i></div>
                             <div>
-                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">TOPLAM OTURUM</div>
+                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">TOPLAM ERİŞİM</div>
                                 <div style="font-size:1.5rem; font-weight:700;" id="stat-sessions">0</div>
                             </div>
                        </div>
                        <div class="card card-body" style="display:flex; align-items:center; gap:1rem;">
                             <div style="width:48px; height:48px; background:#fff7ed; color:#ea580c; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;"><i class="fas fa-map-marker-alt"></i></div>
                             <div>
-                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">KONUM SAYISI</div>
+                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">UÇ NOKTA (IP)</div>
                                 <div style="font-size:1.5rem; font-weight:700;" id="stat-ips">0</div>
                             </div>
                        </div>
                        <div class="card card-body" style="display:flex; align-items:center; gap:1rem;">
                             <div style="width:48px; height:48px; background:#fee2e2; color:#dc2626; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;"><i class="fas fa-heartbeat"></i></div>
                             <div>
-                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">SİSTEM PRENSİBİ</div>
-                                <div style="font-size:1.2rem; font-weight:700; color:#10b981">CANLI</div>
+                                <div style="font-size:0.85rem; color:#6b7280; font-weight:600;">SUNUCU DURUMU</div>
+                                <div style="font-size:1.2rem; font-weight:700; color:#10b981">STABİL</div>
                             </div>
                        </div>
                     </div>
@@ -160,7 +160,7 @@
                     <!-- CANLI AKIŞ -->
                     <div class="card">
                         <div class="card-header">
-                            <h3><i class="fas fa-stream" style="color:#6366f1; margin-right:10px;"></i> Canlı Aktivite Akışı</h3>
+                            <h3><i class="fas fa-stream" style="color:#6366f1; margin-right:10px;"></i> Canlı İşlem Akışı</h3>
                             <button class="btn btn-soft" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Canlı</button>
                         </div>
                         <div class="card-body" id="live-feed" style="max-height:400px; overflow-y:auto;">
@@ -173,18 +173,18 @@
                 <div id="tab-control" class="tab-content" style="display:none;">
                      <div class="grid-container grid-2">
                          <div class="card">
-                             <div class="card-header"><h3>Panel Erişim Kilitleri</h3></div>
+                             <div class="card-header"><h3>Erişim Protokolleri</h3></div>
                              <div class="card-body">
                                  <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6;">
                                      <span style="font-weight:500">Ana Panel Erişimi</span>
                                      <button id="btn-toggle-main" class="btn btn-soft" onclick="togglePanelAccess('main')">KONTROL EDİLİYOR</button>
                                  </div>
                                  <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f3f4f6;">
-                                    <span style="font-weight:500">Hemşire Paneli Erişimi</span>
+                                    <span style="font-weight:500">Personel Portalı Erişimi</span>
                                     <button id="btn-toggle-nurse" class="btn btn-soft" onclick="togglePanelAccess('nurse')">KONTROL EDİLİYOR</button>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0;">
-                                    <span style="font-weight:500">Patron Paneli Erişimi</span>
+                                    <span style="font-weight:500">Yönetici Özeti Erişimi</span>
                                     <button id="btn-toggle-boss" class="btn btn-soft" onclick="togglePanelAccess('boss')">KONTROL EDİLİYOR</button>
                                 </div>
                              </div>
@@ -193,8 +193,8 @@
                          <div class="card">
                              <div class="card-header"><h3>Acil Durum & Yönetim</h3></div>
                              <div class="card-body" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                                 <button class="btn btn-primary" onclick="sendSystemNotification()" style="justify-content:center;"><i class="fas fa-bullhorn"></i> DUYURU AT</button>
-                                 <button class="btn btn-soft" onclick="reloadAllClients()" style="justify-content:center;"><i class="fas fa-sync"></i> YENİLE</button>
+                                 <button class="btn btn-primary" onclick="sendSystemNotification()" style="justify-content:center;"><i class="fas fa-bullhorn"></i> DUYURU YAYINLA</button>
+                                 <button class="btn btn-soft" onclick="reloadAllClients()" style="justify-content:center;"><i class="fas fa-sync"></i> ZORLA YENİLE</button>
                                  <button class="btn btn-danger" onclick="maintenanceMode()" style="justify-content:center;"><i class="fas fa-tools"></i> BAKIM MODU</button>
                                  <button class="btn btn-danger" onclick="logoutAllUsers()" style="justify-content:center; border:1px solid #b91c1c; background:#fff; color:#b91c1c;"><i class="fas fa-bomb"></i> TÜMÜNÜ AT</button>
                              </div>
@@ -204,7 +204,7 @@
                      <div class="card">
                          <div class="card-header">
                             <h3>Aktif Bağlantılar</h3>
-                            <button class="btn btn-soft" style="font-size:0.75rem; padding:0.4rem;" onclick="loadActiveSessionsControl()">TARA</button>
+                            <button class="btn btn-soft" style="font-size:0.75rem; padding:0.4rem;" onclick="loadActiveSessionsControl()">AĞ TARAMASI</button>
                          </div>
                          <div class="card-body" id="active-sessions-list"></div>
                      </div>
@@ -214,8 +214,8 @@
                 <div id="tab-sessions" class="tab-content" style="display:none;">
                     <div class="card">
                         <div class="card-header">
-                           <h3>Oturum Kayıtları</h3>
-                           <button class="btn btn-soft" style="font-size:0.75rem;" onclick="loadSessions()">YENİLE</button>
+                           <h3>Erişim Kayıtları</h3>
+                           <button class="btn btn-soft" style="font-size:0.75rem;" onclick="loadSessions()">GÜNCELLE</button>
                         </div>
                         <div class="card-body table-responsive">
                             <div id="sessions-table-container"></div>
@@ -228,7 +228,7 @@
                     <div class="card">
                         <div class="card-header">
                            <h3>Detaylı İşlem Logları</h3>
-                           <input type="text" id="action-search" placeholder="Ara..." onkeyup="filterActions()" style="padding:0.5rem; border:1px solid #e5e7eb; border-radius:0.5rem; font-size:0.875rem;">
+                           <input type="text" id="action-search" placeholder="İşlem Ara..." onkeyup="filterActions()" style="padding:0.5rem; border:1px solid #e5e7eb; border-radius:0.5rem; font-size:0.875rem;">
                         </div>
                         <div class="card-body">
                             <div id="actions-table-container"></div>
@@ -239,13 +239,13 @@
                  <!-- TAB: SETTINGS -->
                  <div id="tab-settings" class="tab-content" style="display:none;">
                     <div class="card">
-                        <div class="card-header"><h3>Sistem Temizliği & Yedekleme</h3></div>
+                        <div class="card-header"><h3>Veritabanı Bakım & Yedekleme</h3></div>
                         <div class="card-body">
-                            <p style="margin-bottom:20px; color:#6b7280;">Sistem performansını korumak için periyodik temizlik yapın.</p>
+                            <p style="margin-bottom:20px; color:#6b7280;">Sistem performansını korumak için periyodik veri tabanı temizliği önerilir.</p>
                             <div style="display:flex; gap:15px;">
-                                <button class="btn btn-primary" onclick="exportAllData()"><i class="fas fa-download"></i> YEDEK İNDİR</button>
-                                <button class="btn btn-soft" onclick="cleanupOldLogs()"><i class="fas fa-trash"></i> ESKİ LOGLARI SİL</button>
-                                <button class="btn btn-danger" onclick="wipeAdminData()"><i class="fas fa-radiation"></i> KOMPLE SIFIRLA</button>
+                                <button class="btn btn-primary" onclick="exportAllData()"><i class="fas fa-download"></i> FULL YEDEK AL (JSON)</button>
+                                <button class="btn btn-soft" onclick="cleanupOldLogs()"><i class="fas fa-trash"></i> ESKİ LOGLARI TEMİZLE</button>
+                                <button class="btn btn-danger" onclick="wipeAdminData()"><i class="fas fa-radiation"></i> FABRİKA AYARLARINA DÖN</button>
                             </div>
                         </div>
                     </div>
@@ -254,61 +254,61 @@
                  <!-- TAB: HELP (MANUAL) -->
                  <div id="tab-help" class="tab-content" style="display:none;">
                     <div class="card">
-                        <div class="card-header"><h3>🚀 Admin Paneli Kullanım Kılavuzu</h3></div>
+                        <div class="card-header"><h3>🚀 Admin Teknik Dokümantasyon</h3></div>
                         <div class="card-body help-content">
                             <!-- SECTION 1: GİRİŞ -->
                             <div style="margin-bottom:2rem;">
-                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-key"></i> 1. Giriş ve Güvenlik</h4>
-                                <p>Sisteme girmek için <strong>5656</strong> şifresini kullanırsınız. Güvenliğiniz için:</p>
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-key"></i> 1. Güvenlik ve Yetkilendirme</h4>
+                                <p>Sisteme erişim için tahsis edilen <strong>Yönetici Anahtarı</strong> kullanılır. Güvenlik protokolleri gereği:</p>
                                 <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
-                                    <li>Sağ tık ve geliştirici araçları (F12) engellenmiştir.</li>
-                                    <li>Şifre yönetici dışında kimseyle paylaşılmamalıdır.</li>
-                                    <li>İşiniz bitince sol alttaki "Güvenli Çıkış" butonunu kullanın.</li>
+                                    <li>Konsol erişimi sınırlandırılmıştır.</li>
+                                    <li>Erişim anahtarı operasyonel güvenliğiniz için gizli tutulmalıdır.</li>
+                                    <li>Oturum sonunda "Güvenli Çıkış" yapılması zorunludur.</li>
                                 </ul>
                             </div>
 
                             <!-- SECTION 2: İZLEME -->
                             <div style="margin-bottom:2rem;">
-                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-chart-pie"></i> 2. Genel Bakış ve Hızlı Erişim</h4>
-                                <p><strong>Hızlı Erişim Kartları:</strong> Şifre girmeden diğer panellere (Ana, Hemşire, Patron) yönetici olarak girmek için bu kartlara tıklayın.</p>
-                                <p><strong>Canlı İstatistikler:</strong></p>
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-chart-pie"></i> 2. Sistem İzleme</h4>
+                                <p><strong>Hızlı Erişim Kartları:</strong> Şifre gerekmeksizin alt sistemlere (Personel, Yönetici vb.) yönetici yetkisiyle geçiş sağlar.</p>
+                                <p><strong>Canlı Telemetri:</strong></p>
                                 <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
-                                    <li><strong>Aktif Kullanıcı:</strong> Şu an sistemde kaç kişi var (son 3 Dk).</li>
-                                    <li><strong>Toplam Oturum:</strong> Bugün kaç kere giriş yapıldı.</li>
-                                    <li><strong>Canlı Akış:</strong> Sağdaki listede anlık olarak kimin girdiği, ne sildiği veya güncellediği akar.</li>
+                                    <li><strong>Aktif Oturum:</strong> Son 3 dakika içindeki aktif bağlantı sayısı.</li>
+                                    <li><strong>Toplam Erişim:</strong> Günlük tekil erişim sayacı.</li>
+                                    <li><strong>Canlı Akış:</strong> Gerçek zamanlı veritabanı olay günlüğü.</li>
                                 </ul>
                             </div>
 
                             <!-- SECTION 3: KONTROL -->
                             <div style="margin-bottom:2rem;">
-                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-gamepad"></i> 3. Uzaktan Kontrol (Acil Durum)</h4>
-                                <p>Bu menü, sistem üzerinde tam hakimiyet kurmanızı sağlar:</p>
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-gamepad"></i> 3. Komut Merkezi (Acil Durum)</h4>
+                                <p>Bu modül, sistem üzerinde tam yetkili kontrol sağlar:</p>
                                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:10px;">
                                     <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
-                                        <strong><i class="fas fa-lock"></i> Panel Erişim Kilitleri:</strong>
-                                        <p style="font-size:0.85rem;">Ana panel, hemşire veya patron paneline girişi tek tıkla engelleyin.</p>
+                                        <strong><i class="fas fa-lock"></i> Erişim Kilitleri:</strong>
+                                        <p style="font-size:0.85rem;">Belirtilen portallara girişi uzaktan engeller.</p>
                                     </div>
                                     <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
-                                        <strong><i class="fas fa-bullhorn"></i> Duyuru At:</strong>
-                                        <p style="font-size:0.85rem;">Sistemdeki herkese anlık mesaj gönderir (Pop-up olarak çıkar).</p>
+                                        <strong><i class="fas fa-bullhorn"></i> Duyuru Yayınla:</strong>
+                                        <p style="font-size:0.85rem;">Tüm aktif terminallere sistem mesajı gönderir.</p>
                                     </div>
                                     <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
-                                        <strong><i class="fas fa-sync"></i> Yenile:</strong>
-                                        <p style="font-size:0.85rem;">Herkesin sayfasını zorla yeniler. Güncelleme yaptıysanız kullanın.</p>
+                                        <strong><i class="fas fa-sync"></i> Zorla Yenile:</strong>
+                                        <p style="font-size:0.85rem;">Tüm istemcileri yeniden başlatır (Update sonrası).</p>
                                     </div>
                                     <div style="padding:10px; background:#fee2e2; border-radius:8px; border:1px solid #fca5a5;">
                                         <strong><i class="fas fa-tools"></i> BAKIM MODU:</strong>
-                                        <p style="font-size:0.85rem;">Tüm sistemi kilitler. Sadece "Sistem Bakımda" yazısı çıkar.</p>
+                                        <p style="font-size:0.85rem;">Sistemi global olarak kilitler.</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- SECTION 4: LOGLAR -->
                             <div style="margin-bottom:2rem;">
-                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-list-alt"></i> 4. Loglar ve Geçmiş</h4>
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-list-alt"></i> 4. Denetim Kayıtları</h4>
                                 <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
-                                    <li><strong>Oturum Geçmişi:</strong> Kim, ne zaman, hangi cihazdan girdi?</li>
-                                    <li><strong>İşlem Logları:</strong> Sistemde yapılan her hareket kaydedilir (Veri silme, ekleme vb.).</li>
+                                    <li><strong>Erişim Kayıtları:</strong> Kullanıcı giriş-çıkış zaman çizelgesi.</li>
+                                    <li><strong>İşlem Denetim:</strong> Veritabanı manipülasyon logları (Create/Update/Delete).</li>
                                 </ul>
                             </div>
                         </div>
@@ -339,12 +339,12 @@
     <script>
         // Tab Helper
         const tabData = {
-            'monitor': { title: 'Kontrol Paneli', desc: 'Sistemin anlık durumu ve hızlı erişim.' },
-            'control': { title: 'Uzaktan Yönetim', desc: 'Sistemi kilitle, kullanıcıları at veya mesaj gönder.' },
-            'sessions': { title: 'Oturum Geçmişi', desc: 'Sisteme giriş yapan herkesin geçmiş kayıtları.' },
-            'actions': { title: 'Log Kayıtları', desc: 'Yapılan her işlemin detaylı dökümü.' },
-            'settings': { title: 'Sistem Ayarları', desc: 'Veritabanı bakımı ve yedekleme.' },
-            'help': { title: 'Kullanım Kılavuzu', desc: 'Panel özelliklerini ve nasıl kullanılacağını öğrenin.' }
+            'monitor': { title: 'Sistem İzleme', desc: 'Anlık veri akışı ve sistem durumu.' },
+            'control': { title: 'Komut Merkezi', desc: 'Sistemi kilitle, kullanıcıları at veya mesaj gönder.' },
+            'sessions': { title: 'Erişim Kayıtları', desc: 'Sisteme giriş yapan yetkili personel logları.' },
+            'actions': { title: 'Denetim Günlüğü', desc: 'Yapılan kritik işlemlerin detaylı dökümü.' },
+            'settings': { title: 'Yapılandırma', desc: 'Veritabanı bakımı ve yedekleme.' },
+            'help': { title: 'Dokümantasyon', desc: 'Panel özelliklerini ve teknik detayları inceleyin.' }
         };
 
         window.switchAdminTab = function(btn, id) {

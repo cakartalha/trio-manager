@@ -40,18 +40,18 @@ async function login() {
   nName = document.getElementById("nurseInp").value.trim();
 
   if (!sName || !nName)
-    return alert("Lütfen servis ve ad bilgilerinizi giriniz.");
+    return alert("Eksik Bilgi: Lütfen birim kodu ve personel kimliğini giriniz.");
 
   // ACCESS CONTROL
   try {
       const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
       if (accessDoc.exists && accessDoc.data().nurse === false) {
-          return alert("⛔ Hemşire paneli şu anda yönetici tarafından erişime kapatılmıştır.");
+          return alert("⛔ Personel portal erişimi şu anda yönetici tarafından kısıtlanmıştır.");
       }
       
       const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
       if (maintDoc.exists && maintDoc.data().enabled === true) {
-          return alert(`🔧 ${maintDoc.data().message || "Sistem bakımda."}`);
+          return alert(`🔧 ${maintDoc.data().message || "Sistem bakım modundadır."}`);
       }
   } catch(e) { console.warn("Access check failed", e); }
 
@@ -65,7 +65,7 @@ async function login() {
   document.getElementById("app").style.display = "block";
   document.getElementById("nurseDisplay").innerText = nName.split(" ")[0];
   document.getElementById("filterInfo").innerText =
-    `"${sName}" servisi taranıyor`;
+    `"${sName}" birim verileri yükleniyor...`;
     
   // TRACKER
   startTrackingSession('nurse', nName).then(() => {
@@ -76,7 +76,7 @@ async function login() {
 }
 
 function logout() {
-  if (confirm("Çıkış yapılsın mı?")) {
+  if (confirm("Oturumu sonlandırmak istiyor musunuz?")) {
     localStorage.removeItem("trioNurseServiceShort");
     localStorage.removeItem("trioNurseName");
     window.location.reload();
@@ -99,8 +99,8 @@ function loadDevices() {
       if (!d.isDeleted && dbService.includes(sName)) {
         count++;
         const statusText =
-          d.name === "BOŞTA" ? "Boşta / Depoda" : d.name || "Boşta";
-        const isPatient = d.name && d.name !== "BOŞTA";
+          d.name === "MÜSAİT" ? "Ana Depo / Müsait" : d.name || "Müsait";
+        const isPatient = d.name && d.name !== "MÜSAİT";
         const icon = isPatient ? "user-injured" : "check-circle";
         const statusColor = isPatient ? "var(--primary)" : "#64748b";
 
@@ -117,8 +117,8 @@ function loadDevices() {
                             <h4>${d.device} <span style="font-size:12px; color:#94a3b8; font-weight:normal; margin-left:5px;">${d.service}</span></h4>
                             <p>
                                 <i class="fas fa-${icon}" style="color:${statusColor}"></i>
-                                ${d.name !== "BOŞTA" ? d.name : "Kullanıma Hazır"}
-                                ${isPatient ? '<span style="color:var(--accent); font-size:10px; margin-left:5px;">HASTADA</span>' : ""}
+                                ${d.name !== "MÜSAİT" ? d.name : "Kullanıma Hazır"}
+                                ${isPatient ? '<span style="color:var(--accent); font-size:10px; margin-left:5px;">TEDAVİDE</span>' : ""}
                             </p>
                         </div>
                     </div>
@@ -137,8 +137,8 @@ function loadDevices() {
                 <div style="width:80px; height:80px; background:var(--surface); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:var(--shadow-card);">
                     <i class="fas fa-search" style="font-size:30px; color:var(--text-sub);"></i>
                 </div>
-                <p style="font-weight:600">Servisinizde kayıtlı cihaz yok.</p>
-                <p style="font-size:13px;">"${sName}" için arama yapıldı.</p>
+                <p style="font-weight:600">Biriminizde kayıtlı aktif envanter bulunamadı.</p>
+                <p style="font-size:13px;">"${sName}" birimi için sorgulama yapıldı.</p>
             </div>`;
     }
   });
@@ -169,7 +169,7 @@ function notify(type, btnElement) {
   let note = "";
 
   if (type === "transfer") {
-    const who = prompt("Cihaz kime/nereye gidiyor?");
+    const who = prompt("Hedef Birim / Personel:");
     if (!who) return;
     note = `TRANSFER: ${who}`;
   } else if (type === "new_patient") {
@@ -178,12 +178,12 @@ function notify(type, btnElement) {
     const pRoom = prompt("ODA NO:");
     note = `YENİ HASTA: ${pName} (${pRoom ? "Oda: " + pRoom : "Servis"})`;
   } else if (type === "problem") {
-    const problem = prompt("Sorun nedir?");
+    const problem = prompt("Arıza / Durum Açıklaması:");
     if (!problem) return;
-    note = `ARIZA: ${problem}`;
+    note = `TEKNİK SERVİS: ${problem}`;
   } else if (type === "return") {
-    if (!confirm("Cihaz boşa çıktı ve depoya mı gönderilecek?")) return;
-    note = "İADE: Cihaz boşa çıktı.";
+    if (!confirm("Cihaz tedaviden çıktı ve depoya mı iade edilecek?")) return;
+    note = "İADE: Cihaz envantere iade edildi.";
   }
 
   document.getElementById("loader").style.display = "flex";
@@ -220,7 +220,7 @@ function notify(type, btnElement) {
 
       setTimeout(() => {
         closeSheet();
-        alert("✅ Bildirim sisteme düştü. Yönetici onayı bekleniyor.");
+        alert("✅ Talep iletildi. Yönetici onayı bekleniyor.");
         // Reset button state slightly delayed
         setTimeout(() => {
           btn.innerHTML = originalContent;
