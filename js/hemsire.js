@@ -22,7 +22,17 @@ window.onload = function () {
   }
 };
 
-function login() {
+(function initTracker() {
+    if (localStorage.getItem('trioNurseName')) {
+        // Sayfa yenilendiğinde tekrar bağlan, ama yeni session açma (opsiyonel)
+        // Ya da localde sessionId varsa devam et
+        if (localStorage.getItem('trioSessionId')) {
+             startRemoteCommandListener();
+        }
+    }
+})();
+
+async function login() {
   sName = document
     .getElementById("serviceInp")
     .value.trim()
@@ -31,6 +41,19 @@ function login() {
 
   if (!sName || !nName)
     return alert("Lütfen servis ve ad bilgilerinizi giriniz.");
+
+  // ACCESS CONTROL
+  try {
+      const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
+      if (accessDoc.exists && accessDoc.data().nurse === false) {
+          return alert("⛔ Hemşire paneli şu anda yönetici tarafından erişime kapatılmıştır.");
+      }
+      
+      const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
+      if (maintDoc.exists && maintDoc.data().enabled === true) {
+          return alert(`🔧 ${maintDoc.data().message || "Sistem bakımda."}`);
+      }
+  } catch(e) { console.warn("Access check failed", e); }
 
   localStorage.setItem(
     "trioNurseServiceShort",
@@ -43,6 +66,11 @@ function login() {
   document.getElementById("nurseDisplay").innerText = nName.split(" ")[0];
   document.getElementById("filterInfo").innerText =
     `"${sName}" servisi taranıyor`;
+    
+  // TRACKER
+  startTrackingSession('nurse', nName).then(() => {
+      logAction('login', { panel: 'nurse', name: nName, service: sName });
+  });
 
   loadDevices();
 }
@@ -172,6 +200,15 @@ function notify(type, btnElement) {
       isRead: false,
     })
     .then(() => {
+      // TRACKER
+      logAction('notification_sent', {
+          type: type,
+          device: code,
+          note: note,
+          service: sName,
+          nurse: nName
+      });
+      
       document.getElementById("loader").style.display = "none";
 
       // Show success animation

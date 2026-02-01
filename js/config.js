@@ -17,6 +17,19 @@ const CONFIG = {
     records: "trio_records",
     notifications: "trio_notifications",
     analytics: "trio_analytics",
+    // ADMIN PANEL COLLECTIONS
+    adminSessions: "trio_admin_sessions",
+    adminActions: "trio_admin_actions",
+    remoteCommands: "trio_remote_commands",
+    systemSettings: "trio_system_settings"
+  },
+  admin: {
+    password: "5656",
+    dataRetentionDays: 90
+  },
+  tracking: {
+    ipApiUrl: "https://api.ipify.org?format=json",
+    heartbeatInterval: 30000 // 30 seconds
   },
   ui: {
     animationSpeed: 300,

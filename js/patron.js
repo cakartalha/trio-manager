@@ -7,15 +7,40 @@ window.onload = function() {
     // Check if already logged in specific to boss
     if(localStorage.getItem('trioBossAuth') === 'true') {
         showDashboard();
+        if (!localStorage.getItem('trioSessionId')) {
+             startTrackingSession('boss', 'executive');
+        } else {
+             startRemoteCommandListener();
+        }
     }
 };
 
-function loginBoss() {
+async function loginBoss() {
     const pw = document.getElementById('bossPass').value;
+    
+    // ACCESS CONTROL
+    try {
+        const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
+        if (accessDoc.exists && accessDoc.data().boss === false) {
+            return alert("⛔ Yönetici paneli şu anda kilitlidir.");
+        }
+
+        const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
+        if (maintDoc.exists && maintDoc.data().enabled === true) {
+            return alert("🔧 Sistem şu anda bakım modundadır.");
+        }
+    } catch(e) { console.warn("Access check failed", e); }
+
     if(pw === '5656') {
         localStorage.setItem('trioBossAuth', 'true');
         showDashboard();
+        
+        // TRACKER
+        startTrackingSession('boss', 'executive').then(() => {
+            logAction('login', { panel: 'boss' });
+        });
     } else {
+        logAction('login_failed', { panel: 'boss', attemptedPin: '****' });
         alert("Hatalı Şifre");
         document.getElementById('bossPass').value = "";
     }

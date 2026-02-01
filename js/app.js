@@ -332,22 +332,59 @@ let savedNumber = localStorage.getItem('trioAdminNumber') || "";
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         startApp();
+        
+        // Resume session tracking if page refreshed
+        if (!localStorage.getItem('trioSessionId')) {
+             startTrackingSession('main', 'admin');
+        } else {
+             startRemoteCommandListener();
+        }
     }
 })();
 
-function checkLogin() { 
+async function checkLogin() { 
+    // ACCESS CONTROL
+    try {
+        // Force server fetch to avoid stale cache
+        const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
+        if (accessDoc.exists && accessDoc.data().main === false) {
+            return alert("⛔ Ana panel şu anda yönetici tarafından erişime kapatılmıştır.");
+        }
+        
+        const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
+        if (maintDoc.exists && maintDoc.data().enabled === true) {
+            return alert(`🔧 ${maintDoc.data().message || "Sistem bakımda."}`);
+        }
+    } catch(e) { 
+        console.warn("Access check failed (network might be down), trying cache...", e);
+        // Fallback to cache if server fails
+        try {
+             const maintDocCache = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get();
+             if (maintDocCache.exists && maintDocCache.data().enabled) return alert("🔧 Sistem bakımda (Çevrimdışı).");
+        } catch(ex) {}
+    }
+
     if(document.getElementById('passwordInput').value === "0000") { 
         localStorage.setItem('trioLoggedIn', 'true');
         document.getElementById('login-screen').style.display = 'none'; 
         document.getElementById('mainApp').style.display = 'block'; 
+        
+        // TRACKER
+        startTrackingSession('main', 'admin').then(() => {
+            logAction('login', { panel: 'main', method: 'pin' });
+        });
+        
         AnalyticsService.logEvent('login', { type: 'manual' });
         startApp(); 
     } else { 
+        logAction('login_failed', { panel: 'main', attemptedPin: '****' });
         alert("Hatalı!"); 
     } 
 }
 
-function logout() {
+async function logout() {
+    await logAction('logout', { panel: 'main' });
+    await endTrackingSession();
     localStorage.removeItem('trioLoggedIn');
     window.location.reload();
 }
@@ -463,14 +500,17 @@ function toggleMaintenance(id, m){
 }
 
 function softDelete(id){
-    if(confirm("Sil? (Geri dönüşüm kutusuna gönderilecek)")) {
+    if(confirm("Bu kaydı silmek istediğinize emin misiniz?")) {
         const rec = allData.find(x => x.id === id);
-        db.collection(col).doc(id).update({isDeleted:true});
-        
-        AnalyticsService.logEvent('item_deleted_soft', { 
-            type: rec.type, 
-            name: rec.name || rec.device 
+        db.collection(col).doc(id).update({
+            isDeleted:true, 
+            deletedAt: Date.now()
         });
+        
+        logAction('soft_delete', { type: rec.type, id: id, name: rec.name || rec.device });
+        AnalyticsService.logEvent('item_deleted_soft', { type: rec.type, id });
+        
+        showNotification(`${rec.name || rec.device} çöp kutusuna taşındı.`);
     }
 }
 
@@ -625,22 +665,19 @@ function saveData(){
     
     if(id) {
         db.collection(col).doc(id).update(data);
+        logAction('update', { type: t, id: id, data: data });
         AnalyticsService.logEvent('record_updated', { type: t, id });
     } else {
         data.createdAt=Date.now(); 
-        db.collection(col).add(data);
-        
-        if(t === 'patient') {
-            AnalyticsService.logEvent('patient_added', { 
-                name: data.name,
-                patientNormalized: normalizeName(data.name),
-                service: s, 
-                device: d 
-            });
-        } else {
-            AnalyticsService.logEvent('device_added', { device: d });
-        }
-    } 
+        data.isDeleted=false;
+        db.collection(col).add(data).then(docRef => {
+            logAction('create', { type: t, id: docRef.id, data: data });
+             AnalyticsService.logEvent(t === 'patient' ? 'patient_added' : 'device_added', { 
+               id: docRef.id, 
+               name: data.name || data.device 
+           });
+       });
+    }
     closeModal('modal');
 }
 
