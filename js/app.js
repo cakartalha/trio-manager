@@ -317,7 +317,102 @@ async function loadAnalytics() {
     
     if(stats.length === 0) html = '<div style="text-align:center; padding:30px; opacity:0.5; font-size:13px;">Bu ay için veri bulunamadı.</div>';
     listEl.innerHTML = html;
+    
+    // Auto-check for consistency
+    validateAnalyticsData(stats);
 }
+
+/* --- DATA CONSISTENCY LOGIC --- */
+function validateAnalyticsData(stats) {
+    if(!stats || stats.length === 0) return;
+    
+    // 1. Get Real Active Patients (and recently deleted ones to be safe, but mostly active)
+    // Actually, analytics should reflect HISTORY. 
+    // BUT "Tekil Hasta" count comes from unique names in analytics.
+    // If a patient was DELETED hard, they might still be in analytics (which is true history).
+    // The user's issue is: "I haven't entered a patient yet but it says 1".
+    // This implies a phantom record from testing or a previous state that shouldn't be there.
+    
+    // We will consider a record "Phantom" if it is a 'patient_added' or active-type event 
+    // but the patient does not exist in 'allData' AND hasn't been softly deleted recently.
+    // However, for strict consistency as requested ("Kesin olarak girişini yapmadan..."), 
+    // we can check if the patient name exists in current database.
+    
+    phantomIds = [];
+    
+    // Get all known patient names (Active + Soft Deleted)
+    const knownNames = new Set(allData.filter(x => x.type === 'patient').map(x => normalizeName(x.name)));
+    
+    stats.forEach(s => {
+        // Check 1: 'patient_added' event but no such patient in DB
+        if(s.type === 'patient_added') {
+            const pName = normalizeName(s.name);
+            if(!knownNames.has(pName)) {
+                phantomIds.push(s.id);
+            }
+        }
+        
+        // Check 2: 'dressing_done' but patient not in DB
+        if(s.type === 'dressing_done') {
+            const pName = normalizeName(s.patient || s.patientNormalized);
+            if(!knownNames.has(pName)) {
+                phantomIds.push(s.id);
+            }
+        }
+    });
+
+    // Update UI
+    const count = phantomIds.length;
+    if(count > 0) {
+        document.getElementById('phantomCount').innerText = `${count} Kayıt`;
+        // Show warning button or auto-modal?
+        // User asked for a plan. Let's show the modal if it's the first time or explicitly requested.
+        // For auto-check, maybe just highlight the sync button?
+        // We'll auto-show modal ONLY if explicit sync or critical mismatch.
+        // Let's stick to the plan: "Sistem her açıldığında... uyar"
+        
+        // Show a visual cue near sync button
+        const btn = document.querySelector('#syncBtnContainer button');
+        if(btn) {
+           btn.style.borderColor = '#ef4444';
+           btn.style.color = '#ef4444';
+           btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> DÜZELTME GEREKLİ (${count})`;
+        }
+    } else {
+        const btn = document.querySelector('#syncBtnContainer button');
+        if(btn) {
+           btn.style.borderColor = 'var(--primary)';
+           btn.style.color = 'var(--primary)';
+           btn.innerHTML = `<i class="fas fa-sync" style="margin-right:5px;"></i> VERİ SENKRONİZASYONU`;
+        }
+    }
+}
+
+function syncAnalyticsData() {
+    // 1. Force Reload
+    document.getElementById('analytics-list').innerHTML = '<div class="spinner"></div>';
+    loadAnalytics().then(() => {
+        // 2. If phantom data found, open modal
+        if(phantomIds.length > 0) {
+            document.getElementById('dataCleanupModal').classList.add('open');
+        } else {
+            alert("✅ Veriler senkronize. Sorun tespit edilmedi.");
+        }
+    });
+}
+
+function cleanPhantomData() {
+    if(phantomIds.length === 0) return alert("Silinecek veri yok.");
+    
+    if(confirm(`Tespit edilen ${phantomIds.length} adet geçersiz kayıt silinecek ve istatistikler düzeltilecek.\nOnaylıyor musunuz?`)) {
+        AnalyticsService.deletePhantomRecords(phantomIds).then(count => {
+            alert(`${count} adet kayıt temizlendi.`);
+            closeModal('dataCleanupModal');
+            loadAnalytics(); // Reload to see clean state
+        });
+    }
+}
+
 
 // Global Application Logic
 const col = CONFIG.collections.records;
@@ -325,6 +420,8 @@ let allData = [];
 let notifications = [];
 let currentLocFilter = 'TÜMÜ';
 let savedNumber = localStorage.getItem('trioAdminNumber') || "";
+let phantomIds = []; // Lists IDs of detected phantom records
+
 
 // Initialize
 (function checkSession() {

@@ -90,6 +90,12 @@
                 <button onclick="resetMonthlyAnalytics()" style="width:40px;height:40px;background:none;border:none;color:#ef4444;cursor:pointer;"><i class="fas fa-trash"></i></button>
             </div>
             
+            <div style="margin-bottom:15px;" id="syncBtnContainer">
+                 <button onclick="syncAnalyticsData()" class="lux-btn" style="background:var(--bg-body); color:var(--primary); font-size:12px; height:36px; line-height:36px; padding:0 15px; border:1px solid var(--primary);">
+                    <i class="fas fa-sync" style="margin-right:5px;"></i> VERİ SENKRONİZASYONU
+                </button>
+            </div>
+            
             <div class="stats-grid" style="grid-template-columns: 1fr 1fr;">
                 <div class="stat-card">
                      <span class="stat-num" id="an-total-recs" style="color:var(--text-main)">0</span>
@@ -251,6 +257,36 @@
             
             <button onclick="saveDressingDate()" class="lux-btn" style="background:#8b5cf6">İŞLEMİ KAYDET</button>
             <button onclick="closeModal('dateModal')" class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;">Vazgeç</button>
+        </div>
+    </div>
+
+    <div id="dataCleanupModal" class="modal-overlay" style="z-index: 100000;">
+        <div class="modal-card">
+            <div class="modal-handle"></div>
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="width:60px; height:60px; background:#fef2f2; color:#ef4444; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px; font-size:24px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 style="font-size:20px; font-weight:800; color:var(--text-main);">Veri Tutarlılığı Uyarısı</h3>
+                <p style="font-size:13px; color:var(--text-sub); margin-top:10px; line-height:1.5;">
+                    Analytics raporlarında, artık sistemde mevcut olmayan kayıtlara ait veriler tespit edildi.
+                </p>
+            </div>
+
+            <div style="background:var(--bg-body); padding:15px; border-radius:12px; margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:13px; font-weight:700;">Tespit Edilen:</span>
+                    <span class="tag orange" id="phantomCount">0 Kayıt</span>
+                </div>
+                <p style="font-size:12px; opacity:0.7;">Bu veriler istatistiklerin yanlış görünmesine neden oluyor ("Hayalet Veri"). Temizlemeniz önerilir.</p>
+            </div>
+            
+            <button onclick="cleanPhantomData()" class="lux-btn" style="background:#ef4444; margin-bottom:10px;">
+                <i class="fas fa-broom"></i> VERİLERİ TEMİZLE (ÖNERİLEN)
+            </button>
+            <button onclick="closeModal('dataCleanupModal')" class="lux-btn" style="background:transparent; color:var(--text-sub);">
+                Şimdilik Yoksay
+            </button>
         </div>
     </div>
 
