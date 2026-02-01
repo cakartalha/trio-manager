@@ -1,142 +1,325 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0d9488">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0d9488" />
+
     <title>Trio Hemşire</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/styles.css">
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="js/security.js"></script>
-</head>
-<body class="body-nurse">
-
-    <div id="loader"><div class="spinner" style="border-top-color:var(--primary)"></div></div>
+  </head>
+  <body class="body-nurse">
+    <div id="loader">
+      <div class="spinner" style="border-top-color: var(--primary)"></div>
+    </div>
 
     <div id="login-screen" class="login-nurse-bg">
-        <div class="login-card" style="max-width:360px">
-            <div class="logo-box" style="width:80px; height:80px; margin:0 auto 25px; font-size:32px; background:#ccfbf1; color:#0f766e; border:none; box-shadow:0 15px 30px -5px rgba(13,148,136,0.2)">
-                <i class="fas fa-user-nurse"></i>
-            </div>
-            <h1 style="font-size:24px; font-weight:800; color:var(--text-main); margin-bottom:5px;">Hemşire Paneli</h1>
-            <p style="color:var(--text-sub); font-size:14px; margin-bottom:30px;">Hızlı Cihaz Yönetimi</p>
-            
-            <div style="text-align:left; margin-bottom:20px;">
-                <label style="font-size:11px; font-weight:800; color:var(--text-sub); letter-spacing:1px; margin-left:5px;">SERVİS (KISACA)</label>
-                <input type="text" id="serviceInp" class="lux-input" placeholder="Örn: ORTOPEDI, ACIL...">
-            </div>
-            
-            <div style="text-align:left; margin-bottom:30px;">
-                <label style="font-size:11px; font-weight:800; color:var(--text-sub); letter-spacing:1px; margin-left:5px;">ADINIZ</label>
-                <input type="text" id="nurseInp" class="lux-input" placeholder="Ad Soyad">
-            </div>
-            
-            <button class="lux-btn" onclick="login()" style="background:var(--primary); box-shadow: 0 10px 25px -5px var(--primary-glow);">
-                GİRİŞ YAP <i class="fas fa-arrow-right" style="margin-left:10px"></i>
-            </button>
-            
-            <button onclick="toggleHelp()" style="background:none; border:none; color:var(--text-sub); font-size:13px; margin-top:20px; cursor:pointer; font-weight:600; text-decoration:underline; position:relative; z-index:1000;">
-                <i class="fas fa-question-circle"></i> Sistem Nasıl Kullanılır?
-            </button>
+      <div class="login-card" style="max-width: 360px">
+        <div
+          class="logo-box"
+          style="
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            font-size: 32px;
+            background: #ccfbf1;
+            color: #0f766e;
+            border: none;
+            box-shadow: 0 15px 30px -5px rgba(13, 148, 136, 0.2);
+          "
+        >
+          <i class="fas fa-user-nurse"></i>
         </div>
+        <h1
+          style="
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 5px;
+          "
+        >
+          Hemşire Paneli
+        </h1>
+        <p style="color: var(--text-sub); font-size: 14px; margin-bottom: 30px">
+          Hızlı Cihaz Yönetimi
+        </p>
+
+        <div style="text-align: left; margin-bottom: 20px">
+          <label
+            style="
+              font-size: 11px;
+              font-weight: 800;
+              color: var(--text-sub);
+              letter-spacing: 1px;
+              margin-left: 5px;
+            "
+            >SERVİS (KISACA)</label
+          >
+          <input
+            type="text"
+            id="serviceInp"
+            class="lux-input"
+            placeholder="Örn: ORTOPEDI, ACIL..."
+          />
+        </div>
+
+        <div style="text-align: left; margin-bottom: 30px">
+          <label
+            style="
+              font-size: 11px;
+              font-weight: 800;
+              color: var(--text-sub);
+              letter-spacing: 1px;
+              margin-left: 5px;
+            "
+            >ADINIZ</label
+          >
+          <input
+            type="text"
+            id="nurseInp"
+            class="lux-input"
+            placeholder="Ad Soyad"
+          />
+        </div>
+
+        <button
+          class="lux-btn"
+          onclick="login()"
+          style="
+            background: var(--primary);
+            box-shadow: 0 10px 25px -5px var(--primary-glow);
+          "
+        >
+          GİRİŞ YAP <i class="fas fa-arrow-right" style="margin-left: 10px"></i>
+        </button>
+
+        <button
+          onclick="toggleHelp()"
+          style="
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 13px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: underline;
+            position: relative;
+            z-index: 1000;
+          "
+        >
+          <i class="fas fa-question-circle"></i> Sistem Nasıl Kullanılır?
+        </button>
+      </div>
     </div>
 
-    <div id="app" class="app-container" style="display:none; padding-bottom:40px;">
-        <header class="header">
-            <div>
-                <div style="font-size:28px; font-weight:800; color:var(--text-main); letter-spacing:-1px;">Cihazlar</div>
-                <div style="font-size:13px; font-weight:600; color:var(--primary);" id="filterInfo">...</div>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button class="nurse-pill" onclick="toggleHelp()"><i class="fas fa-question-circle"></i></button>
-                <button class="nurse-pill" onclick="toggleThemeNurse()"><i class="fas fa-moon"></i></button>
-                <div class="nurse-pill" onclick="logout()">
-                    <i class="fas fa-user-nurse"></i> <span id="nurseDisplay">...</span>
-                </div>
-            </div>
-        </header>
+    <div
+      id="app"
+      class="app-container"
+      style="display: none; padding-bottom: 40px"
+    >
+      <header class="header">
+        <div>
+          <div
+            style="
+              font-size: 28px;
+              font-weight: 800;
+              color: var(--text-main);
+              letter-spacing: -1px;
+            "
+          >
+            Cihazlar
+          </div>
+          <div
+            style="font-size: 13px; font-weight: 600; color: var(--primary)"
+            id="filterInfo"
+          >
+            ...
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px">
+          <button class="nurse-pill" onclick="toggleHelp()">
+            <i class="fas fa-question-circle"></i>
+          </button>
+          <button class="nurse-pill" onclick="toggleThemeNurse()">
+            <i class="fas fa-moon"></i>
+          </button>
+          <div class="nurse-pill" onclick="logout()">
+            <i class="fas fa-user-nurse"></i> <span id="nurseDisplay">...</span>
+          </div>
+        </div>
+      </header>
 
-        <div id="deviceList"></div>
+      <div id="deviceList"></div>
     </div>
 
-
-    <div id="helpModal" class="modal-overlay" style="z-index:99999;">
-        <div class="modal-card" style="height:70vh; display:flex; flex-direction:column;">
-            <div class="modal-handle"></div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="font-size:20px; font-weight:800; color:var(--text-main)">Yardım</h3>
-                <button onclick="closeHelp()" style="background:none; border:none; color:var(--text-main); font-size:20px;"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <div style="overflow-y:auto; flex:1; padding-right:5px; line-height:1.6; color:var(--text-main);">
-                <div style="background:var(--bg-body); padding:15px; border-radius:12px; margin-bottom:20px;">
-                    <h4 style="color:#0d9488; margin-bottom:10px;"><i class="fas fa-user-nurse"></i> HEMŞİRE KILAVUZU</h4>
-                    <ul style="list-style:none; font-size:13px; padding:0;">
-                        <li style="margin-bottom:10px;">🏥 <b style="color:var(--primary)">Giriş Yapma:</b> Servis adınızı kısaca yazın (Örn: DAHILIYE) ve isminizi ekleyin.</li>
-                        <li style="margin-bottom:10px;">📱 <b style="color:var(--primary)">Cihazları Görme:</b> Sadece sizin servisinizdeki cihazlar listelenir.
-                        <br>🟦 <b>Mavi İkon:</b> Cihaz hastada takılı.
-                        <br>⬜ <b>Gri İkon:</b> Cihaz boşta / depoda.</li>
-                        <li style="margin-bottom:10px;">📣 <b style="color:var(--primary)">İşlem Yapma:</b> Cihaza tıklayınca menü açılır:
-                            <ul style="margin-top:5px; padding-left:15px; opacity:0.8;">
-                                <li><b>Hastaya Bağla:</b> Yeni hasta geldiyse.</li>
-                                <li><b>Transfer:</b> Cihazı başkasına verdiyseniz.</li>
-                                <li><b>Arıza:</b> Cihaz bozuksa.</li>
-                                <li><b>İade:</b> Hasta taburcu olduysa.</li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-
-                <div style="background:var(--bg-body); padding:15px; border-radius:12px;">
-                    <h4 style="color:var(--accent); margin-bottom:10px;">❓ SIKÇA SORULANLAR</h4>
-                    <p style="font-size:13px; margin-bottom:8px;"><b>Gece modu var mı?</b><br>Evet, üstteki (Ay 🌙) butonuna basarak açabilirsiniz.</p>
-                </div>
-            </div>
+    <div id="helpModal" class="modal-overlay" style="z-index: 99999">
+      <div
+        class="modal-card"
+        style="height: 70vh; display: flex; flex-direction: column"
+      >
+        <div class="modal-handle"></div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          "
+        >
+          <h3
+            style="font-size: 20px; font-weight: 800; color: var(--text-main)"
+          >
+            Yardım
+          </h3>
+          <button
+            onclick="closeHelp()"
+            style="
+              background: none;
+              border: none;
+              color: var(--text-main);
+              font-size: 20px;
+            "
+          >
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+
+        <div
+          style="
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 5px;
+            line-height: 1.6;
+            color: var(--text-main);
+          "
+        >
+          <div
+            style="
+              background: var(--bg-body);
+              padding: 15px;
+              border-radius: 12px;
+              margin-bottom: 20px;
+            "
+          >
+            <h4 style="color: #0d9488; margin-bottom: 10px">
+              <i class="fas fa-user-nurse"></i> HEMŞİRE KILAVUZU
+            </h4>
+            <ul style="list-style: none; font-size: 13px; padding: 0">
+              <li style="margin-bottom: 10px">
+                🏥 <b style="color: var(--primary)">Giriş Yapma:</b> Servis
+                adınızı kısaca yazın (Örn: DAHILIYE) ve isminizi ekleyin.
+              </li>
+              <li style="margin-bottom: 10px">
+                📱 <b style="color: var(--primary)">Cihazları Görme:</b> Sadece
+                sizin servisinizdeki cihazlar listelenir. <br />🟦
+                <b>Mavi İkon:</b> Cihaz hastada takılı. <br />⬜
+                <b>Gri İkon:</b> Cihaz boşta / depoda.
+              </li>
+              <li style="margin-bottom: 10px">
+                📣 <b style="color: var(--primary)">İşlem Yapma:</b> Cihaza
+                tıklayınca menü açılır:
+                <ul style="margin-top: 5px; padding-left: 15px; opacity: 0.8">
+                  <li><b>Hastaya Bağla:</b> Yeni hasta geldiyse.</li>
+                  <li><b>Transfer:</b> Cihazı başkasına verdiyseniz.</li>
+                  <li><b>Arıza:</b> Cihaz bozuksa.</li>
+                  <li><b>İade:</b> Hasta taburcu olduysa.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            style="
+              background: var(--bg-body);
+              padding: 15px;
+              border-radius: 12px;
+            "
+          >
+            <h4 style="color: var(--accent); margin-bottom: 10px">
+              ❓ SIKÇA SORULANLAR
+            </h4>
+            <p style="font-size: 13px; margin-bottom: 8px">
+              <b>Gece modu var mı?</b><br />Evet, üstteki (Ay 🌙) butonuna
+              basarak açabilirsiniz.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="actionSheet" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-handle"></div>
-            <div class="sheet-header">
-                <h3 style="font-size:20px; font-weight:800;">İşlem Seçin</h3>
-                <p style="font-size:13px; opacity:0.6">Seçilen cihaz için ne yapılacak?</p>
-            </div>
-            
-            <input type="hidden" id="selectedDeviceId">
-            <input type="hidden" id="selectedDeviceCode">
-            
-            <button class="btn-option" onclick="notify('new_patient')">
-                <div class="opt-icon" style="background:#ede9fe; color:#7c3aed;"><i class="fas fa-procedures"></i></div>
-                <span>Hastaya Bağla</span>
-            </button>
-
-            <button class="btn-option" onclick="notify('transfer')">
-                <div class="opt-icon" style="background:#ccfbf1; color:#0d9488;"><i class="fas fa-exchange-alt"></i></div>
-                <span>Transfer / Teslim Et</span>
-            </button>
-            
-            <button class="btn-option" onclick="notify('problem')">
-                <div class="opt-icon" style="background:#fee2e2; color:#dc2626;"><i class="fas fa-exclamation-triangle"></i></div>
-                <span>Arıza Bildir</span>
-            </button>
-            
-            <button class="btn-option" onclick="notify('return')">
-                <div class="opt-icon" style="background:#f1f5f9; color:#475569;"><i class="fas fa-box-open"></i></div>
-                <span>Depoya İade (Boşa Çıktı)</span>
-            </button>
-            
-            <button class="lux-btn" style="background:transparent; color:var(--text-sub); margin-top:10px;" onclick="closeSheet()">Vazgeç</button>
+      <div class="modal-card">
+        <div class="modal-handle"></div>
+        <div class="sheet-header">
+          <h3 style="font-size: 20px; font-weight: 800">İşlem Seçin</h3>
+          <p style="font-size: 13px; opacity: 0.6">
+            Seçilen cihaz için ne yapılacak?
+          </p>
         </div>
+
+        <input type="hidden" id="selectedDeviceId" />
+        <input type="hidden" id="selectedDeviceCode" />
+
+        <button class="btn-option" onclick="notify('new_patient', this)">
+          <div class="opt-icon" style="background: #ede9fe; color: #7c3aed">
+            <i class="fas fa-procedures"></i>
+          </div>
+          <span>Hastaya Bağla</span>
+        </button>
+
+        <button class="btn-option" onclick="notify('transfer', this)">
+          <div class="opt-icon" style="background: #ccfbf1; color: #0d9488">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <span>Transfer / Teslim Et</span>
+        </button>
+
+        <button class="btn-option" onclick="notify('problem', this)">
+          <div class="opt-icon" style="background: #fee2e2; color: #dc2626">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <span>Arıza Bildir</span>
+        </button>
+
+        <button class="btn-option" onclick="notify('return', this)">
+          <div class="opt-icon" style="background: #f1f5f9; color: #475569">
+            <i class="fas fa-box-open"></i>
+          </div>
+          <span>Depoya İade (Boşa Çıktı)</span>
+        </button>
+
+        <button
+          class="lux-btn"
+          style="
+            background: transparent;
+            color: var(--text-sub);
+            margin-top: 10px;
+          "
+          onclick="closeSheet()"
+        >
+          Vazgeç
+        </button>
+      </div>
     </div>
 
     <script src="js/config.js"></script>
     <script src="js/hemsire.js"></script>
-</body>
+  </body>
 </html>
