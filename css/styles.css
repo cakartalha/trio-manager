@@ -455,6 +455,7 @@ body {
   color: var(--text-main);
   font-size: 16px;
   font-weight: 600;
+  text-transform: uppercase;
   margin-bottom: 16px;
   outline: none;
   transition: 0.3s;
@@ -710,3 +711,128 @@ body.dark-mode .n-card { background: var(--surface-solid); border-color: rgba(25
 body.dark-mode .n-icon.empty { background: rgba(255,255,255,0.05); color: #64748b; }
 body.dark-mode .n-action { background: rgba(255,255,255,0.05); color: white; }
 body.dark-mode .n-info h4 { color: white; }
+
+/* --- BOSS PANEL (PREMIUM GOLD) --- */
+.body-boss {
+    --bg-body: #09090b; /* Rich Black */
+    --surface: #18181b;
+    --text-main: #ffffff;
+    --text-sub: #a1a1aa;
+    --gold: #d4af37;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+    background-color: var(--bg-body);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-main);
+}
+.boss-login-bg {
+    background: #09090b;
+    display: flex; align-items: center; justify-content: center;
+}
+.boss-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--gold);
+}
+.boss-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+}
+
+.boss-card {
+    background: linear-gradient(145deg, #18181b, #0f0f10);
+    border: 1px solid rgba(255,255,255,0.05);
+    position: relative; overflow: hidden;
+}
+.gold-text {
+    color: transparent;
+    background: linear-gradient(45deg, #d4af37, #f9d976);
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+.card-bg-icon {
+    position: absolute; right: -10px; bottom: -10px;
+    font-size: 80px; opacity: 0.05; color: white;
+}
+
+.boss-section { margin-top: 30px; }
+.boss-title {
+    font-size: 14px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-left: 3px solid var(--gold); padding-left: 10px;
+}
+
+.srv-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.progress-bg {
+    height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 8px; overflow: hidden;
+}
+.progress-bar {
+    height: 100%; background: var(--gold); border-radius: 10px;
+}
+
+.feed-item {
+    display: flex; gap: 15px; margin-bottom: 20px;
+}
+.feed-icon {
+    width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; flex-shrink: 0;
+}
+.feed-icon.new_patient { color: #d4af37; }
+
+.feed-icon.active { color: #ef4444; }
+.feed-icon i { font-size: 8px; }
+
+/* BOSS PANEL 2.0 EXTRAS */
+.live-dot {
+    width: 8px; height: 8px; background: #ef4444; border-radius: 50%;
+    margin-right: 5px; box-shadow: 0 0 10px #ef4444;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+
+.ai-ticker-box {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 25px;
+    display: flex; align-items: center; gap: 10px;
+}
+.ai-icon {
+    font-size: 11px; font-weight: 800; color: var(--gold);
+    background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;
+    white-space: nowrap;
+}
+.ai-text {
+    font-family: 'Courier New', monospace; font-size: 12px; color: #fff;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.heatmap-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    background: #121214; padding: 15px; border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+.heatmap-cell {
+    background: #1e1e24; border-radius: 8px; padding: 15px;
+    text-align: center; position: relative; overflow: hidden;
+    transition: 0.3s; border: 1px solid transparent;
+}
+.heatmap-cell:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.1); }
+.heatmap-val { font-size: 20px; font-weight: 800; color: white; position: relative; z-index: 2; }
+.heatmap-label { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 700; position: relative; z-index: 2; }
+.heatmap-glow {
+    position: absolute; inset: 0; opacity: 0.2; z-index: 1;
+    transition: 0.5s;
+}
+
+.integration-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+.int-btn {
+    flex: 1; background: linear-gradient(to bottom, #18181b, #09090b);
+    border: 1px solid rgba(255,255,255,0.1); color: var(--text-sub);
+    padding: 15px; border-radius: 12px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: 0.2s; white-space: nowrap;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.int-btn i { font-size: 18px; color: var(--gold); margin-bottom: 2px; }
+.int-btn:hover { background: #27272a; border-color: var(--gold); color: white; }
+.int-btn:active { transform: scale(0.95); }

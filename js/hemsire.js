@@ -116,6 +116,15 @@ function closeSheet() {
     document.getElementById('actionSheet').classList.remove('open');
 }
 
+function toggleHelp() {
+    console.log("Toggle Help Called");
+    document.getElementById('helpModal').classList.add('open');
+}
+
+function closeHelp() {
+    document.getElementById('helpModal').classList.remove('open');
+}
+
 function notify(type) {
     const id = document.getElementById('selectedDeviceId').value;
     const code = document.getElementById('selectedDeviceCode').value;

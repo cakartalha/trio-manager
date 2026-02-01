@@ -57,11 +57,72 @@ function renderData() {
         const status=isMaint?'BAKIMDA':'DEPO / BOŞ';
         const btns=isMaint?`<button class="act-btn btn-brand" onclick="toggleMaintenance('${d.id}',false)">Depoya Al</button>`:`<button class="act-btn btn-brand" onclick="shareDevice('${d.id}')"><i class="fab fa-whatsapp"></i></button><button class="act-btn btn-soft" onclick="transferToPatient('${d.id}')">Hastaya</button><button class="act-btn btn-soft" onclick="toggleMaintenance('${d.id}',true)">Bakım</button>`;
         
-        dCont.innerHTML+=`<div class="item-card"><div class="item-header"><div><div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div><span class="tag ${tagClass}">${status}</span></div><div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+        let actionHtml = `<div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="softDelete('${d.id}')"><i class="fas fa-trash"></i></button></div>`;
+        
+        // If Selection Mode Active
+        let selectHtml = "";
+        if(isSelectionMode) {
+            actionHtml = ""; // Hide buttons in selection mode
+            selectHtml = `<input type="checkbox" class="bulk-check" value="${d.id}" style="width:20px; height:20px; margin-right:15px;">`;
+        }
+
+        dCont.innerHTML+=`<div class="item-card"><div class="item-header" style="justify-content:flex-start">
+            ${selectHtml}
+            <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
+                <div><div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div>
+                <span class="tag ${tagClass}">${status}</span>
+            </div>
+            </div>${actionHtml}</div>`;
     });
     
     if(patients.length===0) pCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Kayıt yok.</div>";
     if(devices.length===0) dCont.innerHTML="<div style='text-align:center; padding:30px; opacity:0.5'>Cihaz yok.</div>";
+    
+    // Inject Delete Button if Selection Mode
+    if(isSelectionMode) {
+        dCont.insertAdjacentHTML('afterbegin', `
+        <div style="position:sticky; top:0; z-index:100; background:var(--bg-body); padding:10px; margin-bottom:10px; border-bottom:1px solid var(--border-solid); display:flex; justify-content:space-between; align-items:center;">
+             <span style="font-weight:700; color:var(--text-main)">Toplu Silme Modu</span>
+             <div>
+                <button onclick="deleteSelected()" class="lux-btn" style="background:#ef4444; padding:8px 15px; font-size:12px;">SEÇİLENLERİ SİL</button>
+                <button onclick="cancelSelectionMode()" class="lux-btn" style="background:var(--surface); color:var(--text-main); padding:8px 15px; font-size:12px; margin-left:5px;">İptal</button>
+             </div>
+        </div>`);
+    }
+}
+
+let isSelectionMode = false;
+function startSelectionMode() {
+    isSelectionMode = true;
+    closeModal('settingsModal');
+    switchTab('device'); // Force device tab
+    renderData();
+}
+
+function cancelSelectionMode() {
+    isSelectionMode = false;
+    renderData();
+}
+
+function deleteSelected() {
+    const checks = document.querySelectorAll('.bulk-check:checked');
+    if(checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
+    
+    if(confirm(`Seçilen ${checks.length} adet cihaz silinecek (Geri dönüşüm kutusuna gönderilecek). Onaylıyor musunuz?`)) {
+        const batch = db.batch();
+        let count = 0;
+        checks.forEach(c => {
+            const ref = db.collection(col).doc(c.value);
+            batch.update(ref, { isDeleted: true });
+            count++;
+        });
+        
+        batch.commit().then(() => {
+            alert(`${count} cihaz silindi.`);
+            cancelSelectionMode();
+            AnalyticsService.logEvent('bulk_delete_soft', { count });
+        });
+    }
 }
 
 /* --- NEW ANALYTICS LOGIC --- */
@@ -106,23 +167,40 @@ window.setQuickDate = setQuickDate;
 function saveDressingDate() {
     const id = document.getElementById('dateRecordId').value;
     const newDate = document.getElementById('dressingDateInput').value;
+    const uSets = parseInt(document.getElementById('inpUsedSets').value) || 0;
+    const uCans = parseInt(document.getElementById('inpUsedCans').value) || 0;
     
     if(!newDate || !id) return;
     
     const r = allData.find(x => x.id === id);
     if(r) {
-        db.collection(col).doc(id).update({ dateNext: newDate });
+        // Update basic info + Increment Running Totals for Adaptive AI
+        const currentSets = r.totalSets || 0;
+        const currentCans = r.totalCans || 0;
+        
+        db.collection(col).doc(id).update({ 
+            dateNext: newDate,
+            totalSets: currentSets + uSets,
+            totalCans: currentCans + uCans,
+            lastDressingDate: firebase.firestore.FieldValue.serverTimestamp()
+        });
 
+        // Log Analytics
         AnalyticsService.logEvent('dressing_done', {
             patient: r.name,
             patientNormalized: normalizeName(r.name),
             service: r.service,
             device: r.device,
-            material: 'KCI Set',
-            materialCount: 1
+            usedSets: uSets,
+            usedCans: uCans
         });
         
         closeModal('dateModal');
+        // Reset inputs for next time
+        setTimeout(() => {
+            document.getElementById('inpUsedSets').value = 1;
+            document.getElementById('inpUsedCans').value = 0;
+        }, 500);
     }
 }
 
@@ -292,6 +370,7 @@ function startApp() {
         document.getElementById('loader').style.display='none'; 
         renderData(); 
         updateStats(); 
+        checkAndFixData(); // Auto Check
     }); 
     
     db.collection(CONFIG.collections.notifications).orderBy("timestamp","desc").onSnapshot(snap=>{ 
@@ -425,11 +504,31 @@ function restore(id){
     AnalyticsService.logEvent('item_restored', { id });
 }
 
+
 function hardDelete(id){
     if(confirm("DİKKAT: Tamamen silinecek?")) {
         db.collection(col).doc(id).delete(); 
         openTrash();
         AnalyticsService.logEvent('item_deleted_hard', { id });
+    }
+}
+
+function emptyTrash() {
+    if(confirm("DİKKAT: Çöp kutusundaki TÜM veriler kalıcı olarak silinecek!\nBu işlemin geri dönüşü YOKTUR.\n\nDevam etmek istiyor musunuz?")) {
+        const deleted = allData.filter(x => x.isDeleted);
+        if(deleted.length === 0) return alert("Çöp kutusu zaten boş.");
+
+        const batch = db.batch();
+        deleted.forEach(doc => {
+            const ref = db.collection(col).doc(doc.id);
+            batch.delete(ref);
+        });
+
+        batch.commit().then(() => {
+            alert("Çöp kutusu boşaltıldı.");
+            openTrash();
+            AnalyticsService.logEvent('trash_emptied', { count: deleted.length });
+        });
     }
 }
 
@@ -440,28 +539,89 @@ function normalizeDeviceCode(code) {
     return code.replace(/\s+/g, '').toLocaleUpperCase('tr-TR');
 }
 
+
+
+function normalizeText(txt) {
+    if(!txt) return "";
+    return txt.toLocaleUpperCase('tr-TR').trim();
+}
+
 function saveData(){
-    const id=document.getElementById('editId').value, t=document.getElementById('editType').value, s=document.getElementById('inpService').value;
+    const id=document.getElementById('editId').value, rawType=document.getElementById('editType').value;
+    const s=normalizeText(document.getElementById('inpService').value);
     
+    // Map bulk/device to 'device' type internally for storage, unless it is bulk logic handling
+    let t = rawType === 'bulk' ? 'device' : rawType;
+    
+    // --- BULK MODE HANDLER ---
+    if(rawType === 'bulk') {
+        const rawBulk = document.getElementById('inpDeviceBulk').value;
+        const lines = rawBulk.split(/\r?\n/).map(l => normalizeDeviceCode(l)).filter(l => l.length > 0);
+        
+        if(lines.length === 0) return alert("Lütfen en least bir cihaz kodu girin.");
+        
+        // ... (bulk logic same, using normalized code)
+        // Ensure Service is kept normalized
+    
+        let addedCount = 0;
+        let errorMsg = "";
+        
+        const batch = db.batch();
+        
+        lines.forEach(code => {
+            const existing = allData.find(x => normalizeDeviceCode(x.device) === code && !x.isDeleted);
+            if(existing) {
+                errorMsg += `${code}: Zaten kayıtlı (${existing.service})\n`;
+            } else {
+                const newRef = db.collection(col).doc();
+                batch.set(newRef, {
+                    type: t,
+                    service: s, // Uppercase
+                    device: code, // Uppercase
+                    name: "BOŞTA",
+                    isDeleted: false,
+                    createdAt: Date.now()
+                });
+                addedCount++;
+            }
+        });
+        
+        if(addedCount > 0) {
+            batch.commit().then(() => {
+                let msg = `${addedCount} cihaz başarıyla eklendi.`;
+                if(errorMsg) msg += `\n\nEklenemeyenler:\n${errorMsg}`;
+                alert(msg);
+                closeModal('modal');
+                AnalyticsService.logEvent('bulk_device_added', { count: addedCount });
+            });
+        } else {
+            alert("Hiçbir cihaz eklenemedi.\n" + errorMsg);
+        }
+        return;
+    }
+    // --- END BULK MODE ---
+
     // Normalize Input Code
     const rawDevice = document.getElementById('inpDevice').value;
     const d = normalizeDeviceCode(rawDevice);
 
     let data={type:t,service:s,device:d,isDeleted:false}; 
     
-    // DUPLICATE CHECK (Compare Normalized)
+    // DUPLICATE CHECK
     const existing = allData.find(x => normalizeDeviceCode(x.device) === d && !x.isDeleted && x.id !== id);
     if(existing) {
         return alert(`Bu cihaz kodu (${d}) zaten kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Boşta'}`);
     }
 
     if(t==='patient'){
-        data.name=document.getElementById('inpName').value; 
+        data.name=normalizeText(document.getElementById('inpName').value); 
         data.dateNext=document.getElementById('inpDate').value; 
         if(!data.name) return alert("İsim?");
     } else {
         data.name="BOŞTA";
     }
+    // ... saving logic continues
+
     
     if(id) {
         db.collection(col).doc(id).update(data);
@@ -509,12 +669,46 @@ function shareDevice(id){
     window.open(`https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*BOŞ CİHAZ*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,'_blank');
 }
 
+
 function setType(t){
-    document.getElementById('editType').value=t; 
-    const isP=t==='patient'; 
-    document.getElementById('patientFields').style.display=isP?'block':'none'; 
-    document.getElementById('btnTypePat').className=isP?"act-btn btn-brand":"act-btn btn-soft"; 
-    document.getElementById('btnTypeDev').className=!isP?"act-btn btn-brand":"act-btn btn-soft";
+    document.getElementById('editType').value = t; 
+    
+    // UI States
+    const isP = t === 'patient';
+    const isD = t === 'device';
+    const isB = t === 'bulk';
+    
+    // Button Styles
+    document.getElementById('btnTypePat').className = isP ? "act-btn btn-brand" : "act-btn btn-soft";
+    document.getElementById('btnTypeDev').className = isD ? "act-btn btn-brand" : "act-btn btn-soft";
+    document.getElementById('btnTypeBulk').className = isB ? "act-btn btn-brand" : "act-btn btn-soft";
+    
+    // Fields Visibility
+    document.getElementById('patientFields').style.display = isP ? 'block' : 'none';
+    
+    // Manage Inputs
+    const singleInp = document.getElementById('inpDevice');
+    const bulkDiv = document.getElementById('bulkEntrySection');
+    const bulkBtn = document.getElementById('btnBulkToggle'); // Legacy toggle
+    if(bulkBtn) bulkBtn.style.display = 'none'; // Hide legacy toggle as we have main button now
+
+    if(isB) {
+        // Bulk Mode
+        isBulkMode = true;
+        singleInp.style.display = 'none';
+        bulkDiv.style.display = 'block';
+        // Ensure input device group is visible but just hide the single input
+        document.getElementById('deviceInputGroup').style.display = 'block';
+    } else {
+        // Normal Mode (Patient or Single Device)
+        isBulkMode = false;
+        singleInp.style.display = 'block';
+        bulkDiv.style.display = 'none';
+        
+        // If patient, hide device input entirely? No, keep it for linking device
+        // But if device, show it.
+        document.getElementById('deviceInputGroup').style.display = 'block';
+    }
 }
 
 function openModal(m){
@@ -524,13 +718,45 @@ function openModal(m){
         document.getElementById('inpName').value=""; 
         document.getElementById('inpService').value=""; 
         document.getElementById('inpDevice').value=""; 
+        document.getElementById('inpDeviceBulk').value=""; // Clear bulk too
+        isBulkMode = false; // Reset mode
+        document.getElementById('inpDevice').style.display='block';
+        document.getElementById('bulkEntrySection').style.display='none';
+        
         setType('patient');
     }
 }
 
+let isBulkMode = false;
+function toggleBulkEntry() {
+    isBulkMode = !isBulkMode;
+    const singleInp = document.getElementById('inpDevice');
+    const bulkDiv = document.getElementById('bulkEntrySection');
+    const btn = document.getElementById('btnBulkToggle');
+    
+    if(isBulkMode) {
+        singleInp.style.display = 'none';
+        bulkDiv.style.display = 'block';
+        if(btn) btn.innerHTML = '<i class="fas fa-times"></i> TEKLİ GİRİŞE DÖN';
+    } else {
+        singleInp.style.display = 'block';
+        bulkDiv.style.display = 'none';
+        if(btn) btn.innerHTML = '<i class="fas fa-layer-group"></i> TOPLU GİRİŞ AÇ';
+    }
+}
+
+
+
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
+
+
+function toggleHelp() {
+    document.getElementById('helpModal').classList.add('open');
+}
+
 function openSettings(){
+
     document.getElementById('settingsModal').classList.add('open'); 
     document.getElementById('adminNumber').value=savedNumber;
 }

@@ -40,6 +40,7 @@
                     <i class="fas fa-bell"></i>
                     <div id="notifBadge" class="badge-dot"></div>
                 </button>
+                <button class="btn-glass" onclick="toggleHelp()" style="color:var(--text-sub)"><i class="fas fa-question-circle"></i></button>
                 <button class="btn-glass" onclick="openSettings()"><i class="fas fa-cog"></i></button>
             </div>
         </header>
@@ -122,10 +123,23 @@
             <div id="typeSelector" style="display:flex; gap:10px; margin-bottom:20px; background:var(--bg-body); padding:6px; border-radius:18px;">
                 <button onclick="setType('patient')" id="btnTypePat" class="act-btn btn-brand" style="flex:1; height:48px;">HASTA</button>
                 <button onclick="setType('device')" id="btnTypeDev" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ</button>
+                <button onclick="setType('bulk')" id="btnTypeBulk" class="act-btn btn-soft" style="flex:1; height:48px;">CİHAZ (TOPLU)</button>
             </div>
 
             <input type="text" id="inpService" class="lux-input" placeholder="Servis / Konum">
-            <input type="text" id="inpDevice" class="lux-input" placeholder="Cihaz Barkod">
+            
+            <!-- Device Input Group (Single) -->
+            <div id="deviceInputGroup" style="margin-bottom:15px;">
+                <input type="text" id="inpDevice" class="lux-input" placeholder="Cihaz Barkod">
+            </div>
+
+            <!-- Bulk Entry Fields -->
+            <div id="bulkEntrySection" style="display:none; margin-bottom:15px;">
+                <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">CİHAZ KODLARI (HER SATIRA BİR TANE)</label>
+                <textarea id="inpDeviceBulk" class="lux-input" style="height:120px; font-family:monospace;" placeholder="VFVS001\nVFVS002\n..."></textarea>
+                <div style="font-size:11px; opacity:0.6; margin-top:5px;">* Barkodları alt alta yapıştırın.</div>
+            </div>
+
             <div id="patientFields">
                 <input type="text" id="inpName" class="lux-input" placeholder="Hasta Adı Soyadı">
                 <input type="date" id="inpDate" class="lux-input">
@@ -154,8 +168,10 @@
             <div class="modal-handle"></div>
             <h3 style="font-size:22px; font-weight:800; margin-bottom:20px;">Sistem Ayarları</h3>
             <button onclick="window.location.reload(true)" class="lux-btn" style="background:var(--primary); margin-bottom:15px;"><i class="fas fa-sync"></i> SİSTEMİ YENİLE</button>
+            <button onclick="startSelectionMode()" class="lux-btn" style="background:#ef4444; margin-bottom:15px;"><i class="fas fa-check-square"></i> TOPLU CİHAZ SİLME</button>
             <button onclick="openTrash()" class="lux-btn" style="background:var(--accent); margin-bottom:25px;"><i class="fas fa-trash-alt"></i> ÇÖP KUTUSU</button>
             <button onclick="toggleTheme()" class="lux-btn" style="background:var(--text-main); margin-bottom:25px;"><i class="fas fa-moon"></i> GECE MODU</button>
+
             
             <label style="font-size:12px; font-weight:700; color:var(--text-sub); margin-bottom:10px; display:block;">RAPOR NUMARASI</label>
             <input type="tel" id="adminNumber" class="lux-input" placeholder="905xxxxxxxxx">
@@ -172,8 +188,38 @@
         <div class="modal-card">
             <div class="modal-handle"></div>
             <h3>Geri Dönüşüm</h3>
+            <button onclick="emptyTrash()" class="lux-btn" style="background:#ef4444; margin-bottom:15px; font-size:13px;"><i class="fas fa-bomb"></i> ÇÖPÜ BOŞALT (TÜMÜNÜ SİL)</button>
             <div id="trashList" style="margin-top:20px;"></div>
             <button onclick="closeModal('trashModal')" class="lux-btn" style="margin-top:20px; background:var(--bg-body); color:var(--text-main)">Kapat</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal-overlay" style="z-index:99999;">
+        <div class="modal-card" style="height:85vh; display:flex; flex-direction:column;">
+            <div class="modal-handle"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="font-size:22px; font-weight:800;">Yardım Merkezi</h3>
+                <button onclick="closeModal('helpModal')" style="background:none; border:none; color:var(--text-main); font-size:20px;"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div style="overflow-y:auto; flex:1; padding-right:5px; line-height:1.6; color:var(--text-main);">
+                <div style="background:var(--bg-body); padding:15px; border-radius:12px; margin-bottom:20px;">
+                    <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-crown"></i> YÖNETİCİ PANELİ</h4>
+                    <ul style="list-style:none; font-size:13px; padding:0;">
+                        <li style="margin-bottom:10px;">🔑 <b style="color:var(--text-main)">Giriş (Şifre):</b> Size verilen şifre ile giriş yapın.</li>
+                        <li style="margin-bottom:10px;">➕ <b style="color:var(--text-main)">Yeni Kayıt:</b> Alttaki (+) butonuna basın. "HASTA" veya "CİHAZ" seçip kaydedin.</li>
+                        <li style="margin-bottom:10px;">🩹 <b style="color:var(--text-main)">Pansuman:</b> Listede hastayı bulup "Pansuman" butonuna basın. Günü seçip kaydedin.</li>
+                        <li style="margin-bottom:10px;">📊 <b style="color:var(--text-main)">Raporlar:</b> Alttaki mor pasta grafik ikonuna tıklayın. Ay seçerek geçmiş raporları görün.</li>
+                    </ul>
+                </div>
+
+                <div style="background:var(--bg-body); padding:15px; border-radius:12px;">
+                    <h4 style="color:var(--accent); margin-bottom:10px;">❓ SIKÇA SORULANLAR</h4>
+                    <p style="font-size:13px; margin-bottom:8px;"><b>Gece modu var mı?</b><br>Evet, ayarlar menüsündeki "Ay" simgesiyle açabilirsiniz.</p>
+                    <p style="font-size:13px; margin-bottom:8px;"><b>Yanlışlıkla sildim?</b><br>Ayarlar > Çöp Kutusu menüsünden geri alabilirsiniz.</p>
+                    <p style="font-size:13px;"><b>Raporları silebilir miyim?</b><br>Evet, ancak bunun için Yönetici Şifresi gereklidir. Çöp kutusuna tıklayınca şifre sorar.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -187,6 +233,18 @@
                 <button class="quick-btn" onclick="setQuickDate(1)">YARIN</button>
                 <button class="quick-btn" onclick="setQuickDate(2)">2 GÜN</button>
                 <button class="quick-btn active" onclick="setQuickDate(3)">3 GÜN</button>
+            </div>
+
+            <!-- Material Usage Inputs -->
+            <div style="display:flex; gap:10px; margin-bottom:15px; margin-top:20px;">
+                <div style="flex:1">
+                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">KAPAMA SETİ</label>
+                    <input type="number" id="inpUsedSets" class="lux-input" value="1" min="0" style="text-align:center; font-weight:800;">
+                </div>
+                <div style="flex:1">
+                    <label style="font-size:11px; font-weight:700; color:var(--text-sub);">TOPLAMA KABI</label>
+                    <input type="number" id="inpUsedCans" class="lux-input" value="0" min="0" style="text-align:center; font-weight:800;">
+                </div>
             </div>
 
             <input type="date" id="dressingDateInput" class="big-date-input">
