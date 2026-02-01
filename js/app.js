@@ -466,7 +466,7 @@ function transferToDevice(id){
     const n=prompt("Hedef Depo/Konum Giriniz:","Ana Depo"); 
     if(n) {
         const rec = allData.find(x => x.id === id);
-        db.collection(col).doc(id).update({type:'device', name:'BOŞTA', service:n, dateNext:firebase.firestore.FieldValue.delete()});
+        db.collection(col).doc(id).update({type:'device', name:'MÜSAİT', service:n, dateNext:firebase.firestore.FieldValue.delete()});
         
         AnalyticsService.logEvent('patient_discharged', { 
             patient: rec.name,
@@ -650,7 +650,7 @@ function saveData(){
     // DUPLICATE CHECK
     const existing = allData.find(x => normalizeDeviceCode(x.device) === d && !x.isDeleted && x.id !== id);
     if(existing) {
-        return alert(`Bu cihaz kodu (${d}) zaten sisteme kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.name !== 'BOŞTA' ? existing.name : 'Müsait'}`);
+        return alert(`Bu cihaz kodu (${d}) zaten sisteme kayıtlı!\nKonum: ${existing.service}\nDurum: ${existing.type !== 'device' ? existing.name : 'Müsait'}`);
     }
 
     if(t==='patient'){
@@ -841,9 +841,9 @@ function toggleTheme(){
 function exportMasterExcel(){
     const activeData=allData.filter(x=>!x.isDeleted); 
     let sortedData=[]; 
-    activeData.filter(x=>x.type==='patient').forEach(x=>sortedData.push({d:"HASTA",c:x.device,k:x.service,i:x.name,t:formatDate(x.dateNext)})); 
-    activeData.filter(x=>x.type==='device').forEach(x=>sortedData.push({d:"BOŞTA",c:x.device,k:x.service,i:"-",t:"-"})); 
-    activeData.filter(x=>x.type==='maintenance').forEach(x=>sortedData.push({d:"BAKIMDA",c:x.device,k:x.service,i:"-",t:"-"})); 
+    activeData.filter(x=>x.type==='device').forEach(x=>sortedData.push({d:"MÜSAİT",c:x.device,k:x.service,i:"-",t:"-"})); 
+    activeData.filter(x=>x.type==='maintenance').forEach(x=>sortedData.push({d:"TEKNİK SERVİS",c:x.device,k:x.service,i:"-",t:"-"})); 
+    activeData.filter(x=>x.type==='patient').forEach(x=>sortedData.push({d:x.name,c:x.device,k:x.service,i:x.dateNext,t:getDiff(x.dateNext).text})); 
     
     let csv="\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n"; 
     sortedData.forEach(r=>csv+=`${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`); 

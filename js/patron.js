@@ -72,11 +72,13 @@ function loadBossStats() {
             if(!d.isDeleted) {
                 totalDevices++;
                 
-                if(d.name && d.name !== 'MÜSAİT') { // Changed 'BOŞTA' to 'MÜSAİT'
+                if(d.type === 'patient') { 
                     activePatients++;
                     // Service Dist
                     const s = (d.service || "BİLİNMİYOR").trim().toUpperCase();
                     serviceCounts[s] = (serviceCounts[s] || 0) + 1;
+                } else if (d.type === 'maintenance') {
+                    maintDevices++;
                 } else {
                     emptyDevices++;
                 }
@@ -107,7 +109,7 @@ function loadBossStats() {
 
         snap.forEach(doc => {
              const d = doc.data();
-             if(!d.isDeleted && d.name && d.name !== 'MÜSAİT') { // Changed 'BOŞTA' to 'MÜSAİT'
+             if(!d.isDeleted && d.type === 'patient') { 
                  // Sum real totals for "Real Consumption Point"
                  totalRealSets += (d.totalSets || 0);
                  totalRealCans += (d.totalCans || 0);

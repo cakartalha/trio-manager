@@ -98,11 +98,10 @@ function loadDevices() {
       // Filter by Service Name AND exclude deleted items
       if (!d.isDeleted && dbService.includes(sName)) {
         count++;
-        const statusText =
-          d.name === "MÜSAİT" ? "Ana Depo / Müsait" : d.name || "Müsait";
-        const isPatient = d.name && d.name !== "MÜSAİT";
-        const icon = isPatient ? "user-injured" : "check-circle";
-        const statusColor = isPatient ? "var(--primary)" : "#64748b";
+        const isPatient = d.type === "patient";
+        const statusText = isPatient ? d.name : (d.type === "maintenance" ? "Teknik Servis" : "Müsait");
+        const icon = isPatient ? "user-injured" : (d.type === "maintenance" ? "tools" : "check-circle");
+        const statusColor = isPatient ? "var(--primary)" : (d.type === "maintenance" ? "#f59e0b" : "#64748b");
 
         // Determine card badge color and icon
         const badgeClass = isPatient ? "card-badge" : "card-badge";
@@ -117,7 +116,7 @@ function loadDevices() {
                             <h4>${d.device} <span style="font-size:12px; color:#94a3b8; font-weight:normal; margin-left:5px;">${d.service}</span></h4>
                             <p>
                                 <i class="fas fa-${icon}" style="color:${statusColor}"></i>
-                                ${d.name !== "MÜSAİT" ? d.name : "Kullanıma Hazır"}
+                                ${isPatient ? d.name : (d.type === "maintenance" ? "Teknik Servis" : "Müsait")}
                                 ${isPatient ? '<span style="color:var(--accent); font-size:10px; margin-left:5px;">TEDAVİDE</span>' : ""}
                             </p>
                         </div>
