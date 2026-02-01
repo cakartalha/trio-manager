@@ -68,6 +68,9 @@
                 <li class="nav-item" onclick="switchAdminTab(this, 'settings')">
                      <i class="fas fa-sliders-h"></i> Sistem
                 </li>
+                <li class="nav-item" onclick="switchAdminTab(this, 'help')">
+                     <i class="fas fa-book"></i> Kullanım Kılavuzu
+                </li>
             </ul>
              
             <div style="padding:1.5rem; border-top:1px solid rgba(255,255,255,0.05); color:#6b7280; font-size:0.75rem;">
@@ -248,6 +251,70 @@
                     </div>
                 </div>
 
+                 <!-- TAB: HELP (MANUAL) -->
+                 <div id="tab-help" class="tab-content" style="display:none;">
+                    <div class="card">
+                        <div class="card-header"><h3>🚀 Admin Paneli Kullanım Kılavuzu</h3></div>
+                        <div class="card-body help-content">
+                            <!-- SECTION 1: GİRİŞ -->
+                            <div style="margin-bottom:2rem;">
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-key"></i> 1. Giriş ve Güvenlik</h4>
+                                <p>Sisteme girmek için <strong>5656</strong> şifresini kullanırsınız. Güvenliğiniz için:</p>
+                                <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
+                                    <li>Sağ tık ve geliştirici araçları (F12) engellenmiştir.</li>
+                                    <li>Şifre yönetici dışında kimseyle paylaşılmamalıdır.</li>
+                                    <li>İşiniz bitince sol alttaki "Güvenli Çıkış" butonunu kullanın.</li>
+                                </ul>
+                            </div>
+
+                            <!-- SECTION 2: İZLEME -->
+                            <div style="margin-bottom:2rem;">
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-chart-pie"></i> 2. Genel Bakış ve Hızlı Erişim</h4>
+                                <p><strong>Hızlı Erişim Kartları:</strong> Şifre girmeden diğer panellere (Ana, Hemşire, Patron) yönetici olarak girmek için bu kartlara tıklayın.</p>
+                                <p><strong>Canlı İstatistikler:</strong></p>
+                                <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
+                                    <li><strong>Aktif Kullanıcı:</strong> Şu an sistemde kaç kişi var (son 3 Dk).</li>
+                                    <li><strong>Toplam Oturum:</strong> Bugün kaç kere giriş yapıldı.</li>
+                                    <li><strong>Canlı Akış:</strong> Sağdaki listede anlık olarak kimin girdiği, ne sildiği veya güncellediği akar.</li>
+                                </ul>
+                            </div>
+
+                            <!-- SECTION 3: KONTROL -->
+                            <div style="margin-bottom:2rem;">
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-gamepad"></i> 3. Uzaktan Kontrol (Acil Durum)</h4>
+                                <p>Bu menü, sistem üzerinde tam hakimiyet kurmanızı sağlar:</p>
+                                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:10px;">
+                                    <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
+                                        <strong><i class="fas fa-lock"></i> Panel Erişim Kilitleri:</strong>
+                                        <p style="font-size:0.85rem;">Ana panel, hemşire veya patron paneline girişi tek tıkla engelleyin.</p>
+                                    </div>
+                                    <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
+                                        <strong><i class="fas fa-bullhorn"></i> Duyuru At:</strong>
+                                        <p style="font-size:0.85rem;">Sistemdeki herkese anlık mesaj gönderir (Pop-up olarak çıkar).</p>
+                                    </div>
+                                    <div style="padding:10px; background:#f3f4f6; border-radius:8px;">
+                                        <strong><i class="fas fa-sync"></i> Yenile:</strong>
+                                        <p style="font-size:0.85rem;">Herkesin sayfasını zorla yeniler. Güncelleme yaptıysanız kullanın.</p>
+                                    </div>
+                                    <div style="padding:10px; background:#fee2e2; border-radius:8px; border:1px solid #fca5a5;">
+                                        <strong><i class="fas fa-tools"></i> BAKIM MODU:</strong>
+                                        <p style="font-size:0.85rem;">Tüm sistemi kilitler. Sadece "Sistem Bakımda" yazısı çıkar.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- SECTION 4: LOGLAR -->
+                            <div style="margin-bottom:2rem;">
+                                <h4 style="color:#4f46e5; margin-bottom:0.5rem;"><i class="fas fa-list-alt"></i> 4. Loglar ve Geçmiş</h4>
+                                <ul style="list-style:disc; margin-left:20px; color:#4b5563;">
+                                    <li><strong>Oturum Geçmişi:</strong> Kim, ne zaman, hangi cihazdan girdi?</li>
+                                    <li><strong>İşlem Logları:</strong> Sistemde yapılan her hareket kaydedilir (Veri silme, ekleme vb.).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
+
             </div>
         </div>
     </div>
@@ -276,7 +343,8 @@
             'control': { title: 'Uzaktan Yönetim', desc: 'Sistemi kilitle, kullanıcıları at veya mesaj gönder.' },
             'sessions': { title: 'Oturum Geçmişi', desc: 'Sisteme giriş yapan herkesin geçmiş kayıtları.' },
             'actions': { title: 'Log Kayıtları', desc: 'Yapılan her işlemin detaylı dökümü.' },
-            'settings': { title: 'Sistem Ayarları', desc: 'Veritabanı bakımı ve yedekleme.' }
+            'settings': { title: 'Sistem Ayarları', desc: 'Veritabanı bakımı ve yedekleme.' },
+            'help': { title: 'Kullanım Kılavuzu', desc: 'Panel özelliklerini ve nasıl kullanılacağını öğrenin.' }
         };
 
         window.switchAdminTab = function(btn, id) {
