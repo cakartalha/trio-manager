@@ -1,7 +1,4 @@
 const AnalyticsService = {
-  /**
-   * Log an event to Firestore
-   */
   async logEvent(type, data) {
     try {
       const now = new Date();
@@ -15,7 +12,7 @@ const AnalyticsService = {
         ...data,
       };
 
-      await db.collection(CONFIG.collections.analytics).add(payload);
+      await db.collection(_SYS_CFG.cols.anl).add(payload);
       console.log("[Analytics] Event logged:", type, payload);
     } catch (error) {
       console.error("[Analytics] Error logging event:", error);
@@ -32,7 +29,7 @@ const AnalyticsService = {
     try {
       // Simple query using yearMonth field - no composite index needed
       const snapshot = await db
-        .collection(CONFIG.collections.analytics)
+        .collection(_SYS_CFG.cols.anl)
         .where("yearMonth", "==", monthStr)
         .get();
 
@@ -57,7 +54,7 @@ const AnalyticsService = {
     if (!monthStr) return;
     try {
       const snapshot = await db
-        .collection(CONFIG.collections.analytics)
+        .collection(_SYS_CFG.cols.anl)
         .where("yearMonth", "==", monthStr)
         .get();
 
@@ -90,7 +87,7 @@ const AnalyticsService = {
       // Firestore batches are limited to 500 operations, but likely we won't hit that here often.
       // For robustness, one could chunks it, but keeping it simple for now as phantom data is usually small.
       recordIds.forEach((id) => {
-        const ref = db.collection(CONFIG.collections.analytics).doc(id);
+        const ref = db.collection(_SYS_CFG.cols.anl).doc(id);
         batch.delete(ref);
         count++;
       });

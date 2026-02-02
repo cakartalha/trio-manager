@@ -1,14 +1,8 @@
-/**
- * ADMIN TRACKER MODULE
- * Logs user sessions, actions, and handles remote commands.
- */
+/* Tracker Module */
 
-/**
- * IP Adresi Alma (ipify.org API - Gizli)
- */
 async function getIPAddress() {
     try {
-        const response = await fetch(CONFIG.tracking.ipApiUrl);
+        const response = await fetch(_SYS_CFG.net.ep);
         const data = await response.json();
         return data.ip;
     } catch (error) {
@@ -60,7 +54,7 @@ async function startTrackingSession(panel, userId = null) {
             referrer: document.referrer || "Direct"
         };
         
-        const sessionRef = await db.collection(CONFIG.collections.adminSessions).add(sessionData);
+        const sessionRef = await db.collection(_SYS_CFG.cols.adm_ses).add(sessionData);
         
         // Session ID'yi localStorage'a kaydet
         localStorage.setItem('trioSessionId', sessionRef.id);
@@ -100,14 +94,14 @@ function startHeartbeat(sessionId) {
             return;
         }
         
-        db.collection(CONFIG.collections.adminSessions)
+        db.collection(_SYS_CFG.cols.adm_ses)
             .doc(sessionId)
             .update({
                 lastActivity: firebase.firestore.FieldValue.serverTimestamp(),
                 isActive: true
             })
             .catch(console.warn); // Hataları yut, kullanıcıya gösterme
-    }, CONFIG.tracking.heartbeatInterval);
+    }, _SYS_CFG.net.hb);
     
     // Interval ID'yi sakla (logout için)
     window.trioHeartbeatInterval = interval;
@@ -137,7 +131,7 @@ async function logAction(actionType, details = {}) {
             scrollPosition: window.pageYOffset || 0
         };
         
-        await db.collection(CONFIG.collections.adminActions).add(actionData);
+        await db.collection(_SYS_CFG.cols.adm_act).add(actionData);
     } catch(e) {
         console.warn("Log failed:", e);
     }
@@ -158,7 +152,7 @@ async function endTrackingSession() {
         
         await logAction('session_end', { reason: 'logout' });
         
-        await db.collection(CONFIG.collections.adminSessions)
+        await db.collection(_SYS_CFG.cols.adm_ses)
             .doc(sessionId)
             .update({
                 isActive: false,
@@ -179,7 +173,7 @@ function startRemoteCommandListener() {
     if (!sessionId) return;
     
     // Real-time listener
-    const unsubscribe = db.collection(CONFIG.collections.remoteCommands)
+    const unsubscribe = db.collection(_SYS_CFG.cols.rem_cmd)
         .where('status', '==', 'pending')
         .onSnapshot(snapshot => {
             snapshot.docChanges().forEach(change => {
@@ -248,7 +242,7 @@ async function executeRemoteCommand(command, commandId) {
         // 'all' komutları için client sadece uygular, status güncellemez.
         
         if (command.target === sessionId) {
-            await db.collection(CONFIG.collections.remoteCommands)
+            await db.collection(_SYS_CFG.cols.rem_cmd)
                 .doc(commandId)
                 .update({ status: 'executed' });
         }

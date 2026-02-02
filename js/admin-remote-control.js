@@ -1,6 +1,4 @@
-/**
- * ADMIN REMOTE CONTROL LOGIC (Turkish)
- */
+/* Remote Control */
 
 /**
  * Tüm Kullanıcıları LOUT ET
@@ -8,7 +6,7 @@
 async function logoutAllUsers() {
     if (!confirm("⚠️ UYARI: Bu işlem bağlanan HERKESİ sistemden anında atacaktır.\nEmin misiniz?")) return;
     
-    await db.collection(CONFIG.collections.remoteCommands).add({
+    await db.collection(_SYS_CFG.cols.rem_cmd).add({
         command: "logout_all",
         target: "all",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -25,7 +23,7 @@ async function logoutAllUsers() {
 async function logoutSession(sessionId) {
     if (!confirm("Bu kullanıcıyı sistemden atmak istiyor musunuz?")) return;
     
-    await db.collection(CONFIG.collections.remoteCommands).add({
+    await db.collection(_SYS_CFG.cols.rem_cmd).add({
         command: "force_logout",
         target: sessionId,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -46,7 +44,7 @@ async function logoutSession(sessionId) {
  */
 async function togglePanelAccess(panel) {
     
-    const docRef = db.collection(CONFIG.collections.systemSettings).doc('panelAccess');
+    const docRef = db.collection(_SYS_CFG.cols.sys_set).doc('panelAccess');
     const doc = await docRef.get({source: 'server'}); // Force server check
     const data = doc.exists ? doc.data() : {};
     
@@ -75,7 +73,7 @@ async function sendSystemNotification() {
     const message = prompt("TÜM KULLANICILARA GÖNDERİLECEK MESAJ:");
     if (!message) return;
     
-    await db.collection(CONFIG.collections.remoteCommands).add({
+    await db.collection(_SYS_CFG.cols.rem_cmd).add({
         command: "show_notification",
         target: "all",
         params: { message: message },
@@ -92,7 +90,7 @@ async function sendSystemNotification() {
  */
 async function reloadAllClients() {
     if(!confirm("Tüm tarayıcıları yenilemek istiyor musunuz?")) return;
-    await db.collection(CONFIG.collections.remoteCommands).add({
+    await db.collection(_SYS_CFG.cols.rem_cmd).add({
         command: "reload_page",
         target: "all",
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -107,7 +105,7 @@ async function reloadAllClients() {
  */
 async function maintenanceMode() {
     // Önce mevcut durumu kontrol et
-    const docRef = db.collection(CONFIG.collections.systemSettings).doc('maintenance');
+    const docRef = db.collection(_SYS_CFG.cols.sys_set).doc('maintenance');
     const doc = await docRef.get();
     const current = doc.exists ? doc.data().enabled : false;
     
@@ -160,9 +158,9 @@ async function autoCleanupOldData() {
  * Eski Logları Temizle
  */
 async function cleanupOldLogs(interactive = true) {
-    if (interactive && !confirm(`${CONFIG.admin.dataRetentionDays} günden eski tüm logları silmek istediğinize emin misiniz?`)) return;
+    if (interactive && !confirm(`${90} günden eski tüm logları silmek istediğinize emin misiniz?`)) return;
     
-    const days = CONFIG.admin.dataRetentionDays || 90;
+    const days = 90 || 90;
     const date = new Date();
     date.setDate(date.getDate() - days);
     
@@ -170,7 +168,7 @@ async function cleanupOldLogs(interactive = true) {
     let count = 0;
     
     // Sessions
-    const oldSessions = await db.collection(CONFIG.collections.adminSessions)
+    const oldSessions = await db.collection(_SYS_CFG.cols.adm_ses)
         .where('loginTime', '<', date)
         .limit(400)
         .get();
@@ -178,7 +176,7 @@ async function cleanupOldLogs(interactive = true) {
     oldSessions.forEach(d => { batch.delete(d.ref); count++; });
     
     // Actions
-    const oldActions = await db.collection(CONFIG.collections.adminActions)
+    const oldActions = await db.collection(_SYS_CFG.cols.adm_act)
         .where('timestamp', '<', date)
         .limit(400) 
         .get();
@@ -209,10 +207,10 @@ async function exportAllData() {
     };
     
     // Son 1000'er kaydı al
-    const sSnap = await db.collection(CONFIG.collections.adminSessions).orderBy('loginTime', 'desc').limit(1000).get();
+    const sSnap = await db.collection(_SYS_CFG.cols.adm_ses).orderBy('loginTime', 'desc').limit(1000).get();
     sSnap.forEach(d => exportData.sessions.push({id: d.id, ...d.data()}));
     
-    const aSnap = await db.collection(CONFIG.collections.adminActions).orderBy('timestamp', 'desc').limit(1000).get();
+    const aSnap = await db.collection(_SYS_CFG.cols.adm_act).orderBy('timestamp', 'desc').limit(1000).get();
     aSnap.forEach(d => exportData.actions.push({id: d.id, ...d.data()}));
     
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: "application/json"});
@@ -235,10 +233,10 @@ async function wipeAdminData() {
     
     const batch = db.batch();
     
-    const sSnap = await db.collection(CONFIG.collections.adminSessions).limit(500).get();
+    const sSnap = await db.collection(_SYS_CFG.cols.adm_ses).limit(500).get();
     sSnap.forEach(d => batch.delete(d.ref));
     
-    const aSnap = await db.collection(CONFIG.collections.adminActions).limit(500).get();
+    const aSnap = await db.collection(_SYS_CFG.cols.adm_act).limit(500).get();
     aSnap.forEach(d => batch.delete(d.ref));
     
     await batch.commit();

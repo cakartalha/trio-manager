@@ -19,7 +19,7 @@
     <!-- GİRİŞ EKRANI -->
     <div id="admin-login" class="admin-login-screen">
         <div class="login-glass">
-            <div style="font-size:3rem; margin-bottom:1rem; background:linear-gradient(135deg, #4f46e5, #ec4899); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+            <div style="font-size:3rem; margin-bottom:1rem; background:linear-gradient(135deg, #4f46e5, #ec4899); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
                 <i class="fas fa-fingerprint"></i>
             </div>
             <h1 style="font-size:1.5rem; color:#1f2937; margin-bottom:0.5rem">Admin Kimlik Doğrulama</h1>
@@ -30,10 +30,10 @@
                     style="width:100%; padding:0.875rem; border:1px solid #e5e7eb; border-radius:0.75rem; font-size:1rem; outline:none; transition:0.2s;"
                     onfocus="this.style.borderColor='#4f46e5'; this.style.boxShadow='0 0 0 4px rgba(79, 70, 229, 0.1)'"
                     onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
-                    onkeyup="if(event.key==='Enter') adminLogin()">
+                    onkeyup="if(event.key==='Enter') sysAuth()">
             </div>
             
-            <button onclick="adminLogin()" style="width:100%; padding:0.875rem; background:#4f46e5; color:white; border:none; border-radius:0.75rem; font-weight:600; font-size:1rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
+            <button onclick="sysAuth()" style="width:100%; padding:0.875rem; background:#4f46e5; color:white; border:none; border-radius:0.75rem; font-weight:600; font-size:1rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
                 Sisteme Eriş
             </button>
             
@@ -88,6 +88,9 @@
         <div class="main-content">
             
             <div class="top-bar">
+                <button class="btn btn-soft mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('active')" style="display:none; margin-right:10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <div class="page-title">
                     <h2 id="page-header-title">Sistem İzleme</h2>
                     <p id="page-header-desc">Anlık veri akışı ve sistem durumu.</p>
@@ -320,16 +323,7 @@
     </div>
 
     <!-- SECURITY -->
-    <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) { return false; } // F12
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { return false; } // Ctrl+Shift+I
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { return false; } // Ctrl+Shift+C
-            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { return false; } // Ctrl+Shift+J
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { return false; } // Ctrl+U
-        };
-    </script>
+    <!-- Security Handled by security.js -->
 
     <!-- Scripts -->
     <script src="js/config.js"></script>

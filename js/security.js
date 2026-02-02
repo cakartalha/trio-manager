@@ -1,74 +1,32 @@
 /**
- * TRIO SECURITY MODULE v1.0
- * (c) 2026 Trio Medikal - All Rights Reserved.
- * Unauthorized copying, viewing, or distribution of this code is strictly prohibited.
+ * Trio System Protection Layer
+ * Build: 2026.2.1-RC
  */
-
 (function(){
-    // 1. Disable Right Click
-    document.addEventListener('contextmenu', event => {
-        event.preventDefault();
-        return false;
-    });
-
-    // 2. Disable Key Shortcuts (F12, Ctrl+U, Ctrl+S, Ctrl+Shift+I)
-    document.addEventListener('keydown', event => {
-        // F12
-        if(event.key === 'F12') {
-            event.preventDefault();
-            return false;
+    const _p = (e) => { e.preventDefault(); return false; };
+    const _k = (e) => {
+        if(e.key === 'F12' || 
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || 
+          (e.ctrlKey && (e.key === 'u' || e.key === 's'))) {
+            return _p(e);
         }
-        
-        // Ctrl+Shift+I (DevTools)
-        if(event.ctrlKey && event.shiftKey && event.key === 'I') {
-            event.preventDefault();
-            return false;
-        }
+    };
 
-        // Ctrl+Shift+J (Console)
-        if(event.ctrlKey && event.shiftKey && event.key === 'J') {
-            event.preventDefault();
-            return false;
-        }
+    document.addEventListener('contextmenu', _p);
+    document.addEventListener('keydown', _k);
+    document.addEventListener('dragstart', _p);
 
-        // Ctrl+U (View Source)
-        if(event.ctrlKey && event.key === 'u') {
-            event.preventDefault();
-            return false;
-        }
-
-        // Ctrl+S (Save Page)
-        if(event.ctrlKey && event.key === 's') {
-            event.preventDefault();
-            alert("Bu sayfa korumalıdır. Kayıt edilemez.");
-            return false;
-        }
-    });
-
-    // 3. Disable Dragging Images (Visual Protection)
-    document.addEventListener('dragstart', event => {
-        event.preventDefault();
-    });
-
-    // 4. Console Warning
-    const warningTitle = "background: red; color: white; font-size: 40px; font-weight: bold; padding: 10px;";
-    const warningText = "font-size: 16px; color: red; font-weight: bold;";
-    
-    // Clear any previous logs
+    const _w = "background: #b91c1c; color: white; font-size: 24px; padding: 10px; border-radius: 4px;";
     console.clear();
-    
     setTimeout(() => {
-        console.log("%cDUR!", warningTitle);
-        console.log("%cBu alan geliştiriciler içindir. Buraya herhangi bir kod yapıştırmak veya incelemek yasal suç teşkil edebilir.", warningText);
-        console.log("%cTrio Medikal Yazılım Güvenliği Devrede.", "color: gray; font-size: 12px;");
-    }, 1000);
+        console.log("%cSYSTEM SECURITY ACTIVE", _w);
+        console.log("%cUnlawful access to this terminal is monitored.", "color: #9ca3af; font-family: monospace;");
+    }, 800);
 
-    // 5. Basic Debugger Loop (Annoyance for DevTools users)
-    // This constantly pauses execution if DevTools is open and breakpoints are active.
     setInterval(() => {
-        const start = new Date().getTime();
+        const t0 = Date.now();
         debugger; 
-        const end = new Date().getTime();
-    }, 1000);
+        const t1 = Date.now();
+    }, 2000);
 
 })();

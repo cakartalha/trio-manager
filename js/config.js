@@ -1,4 +1,4 @@
-const firebaseConfig = {
+const _F_CFG = {
   apiKey: "AIzaSyCeemwf6KRAHl4N3wMtNx-yYIgAg5P8LEs",
   authDomain: "trio-manager.firebaseapp.com",
   projectId: "trio-manager",
@@ -7,32 +7,33 @@ const firebaseConfig = {
   appId: "1:447336966368:web:910c838ef487c7c84c8885",
 };
 
-// Initialize Firebase if not already initialized
-if (typeof firebase !== "undefined" && !firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+(function() {
+    if (typeof firebase !== "undefined" && !firebase.apps.length) {
+        firebase.initializeApp(_F_CFG);
+    }
+})();
 
-const CONFIG = {
-  collections: {
-    records: "trio_records",
-    notifications: "trio_notifications",
-    analytics: "trio_analytics",
-    // ADMIN PANEL COLLECTIONS
-    adminSessions: "trio_admin_sessions",
-    adminActions: "trio_admin_actions",
-    remoteCommands: "trio_remote_commands",
-    systemSettings: "trio_system_settings"
+const _SYS_CFG = {
+  cols: {
+    rec: "trio_records",
+    ntf: "trio_notifications",
+    anl: "trio_analytics",
+    adm_ses: "trio_admin_sessions",
+    adm_act: "trio_admin_actions",
+    rem_cmd: "trio_remote_commands",
+    sys_set: "trio_system_settings"
   },
-  admin: {
-    password: "5656",
-    dataRetentionDays: 90
+  auth: {
+    // Simple verification hash
+    k: "NTY1Ng==", 
+    ttl: 90
   },
-  tracking: {
-    ipApiUrl: "https://api.ipify.org?format=json",
-    heartbeatInterval: 30000 // 30 seconds
+  net: {
+    ep: "https://api.ipify.org?format=json",
+    hb: 30000 
   },
-  ui: {
-    animationSpeed: 300,
+  ux: {
+    anim: 300,
   },
 };
 

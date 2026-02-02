@@ -1,18 +1,18 @@
 /**
- * ADMIN PANEL BACKEND LOGIC (Turkish)
- * Premium Theme Update
+ * Trio Admin Core
  */
 
 let liveListenerUnsubscribe = null;
 
 // --- AUTHENTICATION ---
-function adminLogin() {
+function sysAuth() {
     const pwd = document.getElementById('adminPassword').value;
-    if(pwd === CONFIG.admin.password) {
+    // B64 Comparison
+    if(btoa(pwd) === _SYS_CFG.auth.k) {
         localStorage.setItem('trioAdminAuth', 'true');
         showDashboard();
     } else {
-        alert("Güvenlik Uyarısı: Erişim Anahtarı Geçersiz.");
+        alert("Erişim Reddedildi.");
         document.getElementById('adminPassword').value = '';
     }
 }
@@ -24,7 +24,7 @@ function adminLogout() {
     }
 }
 
-// --- QUICK ACCESS (GOD MODE) ---
+// System Access Control
 function openSystemAsAdmin(target) {
     let url = '';
     
@@ -53,7 +53,7 @@ function openSystemAsAdmin(target) {
 
 async function logSystemAccess(target) {
     // Log this special admin action
-    await db.collection(CONFIG.collections.adminActions).add({
+    await db.collection(_SYS_CFG.cols.adm_act).add({
         actionType: 'admin_god_mode',
         details: { target: target, note: 'Direct Access via Admin Panel' },
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -83,7 +83,7 @@ function startLiveMonitoring() {
     const feed = document.getElementById('live-feed');
     feed.innerHTML = ''; // Clear previous
     
-    liveListenerUnsubscribe = db.collection(CONFIG.collections.adminActions)
+    liveListenerUnsubscribe = db.collection(_SYS_CFG.cols.adm_act)
         .orderBy('timestamp', 'desc')
         .limit(25)
         .onSnapshot(snap => {
@@ -166,13 +166,13 @@ function formatDetailsSimple(d) {
 async function updateStats() {
     try {
         // Total Sessions
-        const sSnap = await db.collection(CONFIG.collections.adminSessions).get();
+        const sSnap = await db.collection(_SYS_CFG.cols.adm_ses).get();
         document.getElementById('stat-sessions').innerText = sSnap.size;
         
         // Active Users (Last 3 mins)
         const now = new Date();
         const cutoff = new Date(now.getTime() - 3 * 60000);
-        const aSnap = await db.collection(CONFIG.collections.adminSessions)
+        const aSnap = await db.collection(_SYS_CFG.cols.adm_ses)
             .where('lastActivity', '>', cutoff).get();
             
         document.getElementById('stat-active').innerText = aSnap.size;
@@ -196,7 +196,7 @@ async function loadActiveSessionsControl() {
     try {
         const now = new Date();
         const cutoff = new Date(now.getTime() - 60000); // 1 min active
-        const snap = await db.collection(CONFIG.collections.adminSessions)
+        const snap = await db.collection(_SYS_CFG.cols.adm_ses)
             .where('lastActivity', '>', cutoff)
             .orderBy('lastActivity', 'desc').get();
             
@@ -250,7 +250,7 @@ async function loadActiveSessionsControl() {
 
 async function updatePanelStatusButtons() {
     try {
-        const doc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get();
+        const doc = await db.collection(_SYS_CFG.cols.sys_set).doc('panelAccess').get();
         const data = doc.exists ? doc.data() : { main:true, nurse:true, boss:true };
         
         setToggleState('btn-toggle-main', data.main !== false);
@@ -294,7 +294,7 @@ async function loadSessions() {
     container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted)"><i class="fas fa-circle-notch fa-spin"></i> Veriler yükleniyor...</div>';
     
     try {
-        const snap = await db.collection(CONFIG.collections.adminSessions)
+        const snap = await db.collection(_SYS_CFG.cols.adm_ses)
             .orderBy('loginTime', 'desc')
             .limit(50).get();
             
@@ -370,7 +370,7 @@ async function loadActions() {
     container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted)"><i class="fas fa-circle-notch fa-spin"></i> Loglar inceleniyor...</div>';
     
     try {
-        const snap = await db.collection(CONFIG.collections.adminActions)
+        const snap = await db.collection(_SYS_CFG.cols.adm_act)
             .orderBy('timestamp', 'desc')
             .limit(100).get();
             
