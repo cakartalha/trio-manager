@@ -4,6 +4,7 @@
  * Tüm Kullanıcıları LOUT ET
  */
 async function logoutAllUsers() {
+    if (!db) return alert("HATA: Veritabanı bağlantısı yok.");
     if (!confirm("⚠️ UYARI: Bu işlem bağlanan HERKESİ sistemden anında atacaktır.\nEmin misiniz?")) return;
     
     await db.collection(_SYS_CFG.cols.rem_cmd).add({
@@ -43,6 +44,7 @@ async function logoutSession(sessionId) {
  * Panel Erişimini Aç/Kapat
  */
 async function togglePanelAccess(panel) {
+    if (!db) return alert("HATA: Veritabanı bağlantısı yok.");
     
     const docRef = db.collection(_SYS_CFG.cols.sys_set).doc('panelAccess');
     const doc = await docRef.get({source: 'server'}); // Force server check
@@ -70,6 +72,7 @@ async function togglePanelAccess(panel) {
  * Sistem Duyurusu
  */
 async function sendSystemNotification() {
+    if (!db) return alert("HATA: Veritabanı bağlantısı yok.");
     const message = prompt("TÜM KULLANICILARA GÖNDERİLECEK MESAJ:");
     if (!message) return;
     
@@ -89,6 +92,7 @@ async function sendSystemNotification() {
  * Tüm İstemcileri Yenile
  */
 async function reloadAllClients() {
+    if (!db) return alert("HATA: Veritabanı bağlantısı yok.");
     if(!confirm("Tüm tarayıcıları yenilemek istiyor musunuz?")) return;
     await db.collection(_SYS_CFG.cols.rem_cmd).add({
         command: "reload_page",
@@ -104,6 +108,7 @@ async function reloadAllClients() {
  * Bakım Modu Toggle
  */
 async function maintenanceMode() {
+    if (!db) return alert("HATA: Veritabanı bağlantısı yok.");
     // Önce mevcut durumu kontrol et
     const docRef = db.collection(_SYS_CFG.cols.sys_set).doc('maintenance');
     const doc = await docRef.get();
@@ -158,6 +163,7 @@ async function autoCleanupOldData() {
  * Eski Logları Temizle
  */
 async function cleanupOldLogs(interactive = true) {
+    if (!db) return (interactive ? alert("HATA: Veritabanı bağlantısı yok.") : null);
     if (interactive && !confirm(`${90} günden eski tüm logları silmek istediğinize emin misiniz?`)) return;
     
     const days = 90 || 90;
@@ -195,6 +201,7 @@ async function cleanupOldLogs(interactive = true) {
  * Export All Data
  */
 async function exportAllData() {
+    if(!db) return alert("HATA: Veritabanı bağlantısı yok.");
     alert("Veriler hazırlanıyor... Bu işlem biraz sürebilir.");
     
     const exportData = {
@@ -226,6 +233,7 @@ async function exportAllData() {
  * HER ŞEYİ SİL
  */
 async function wipeAdminData() {
+    if(!db) return alert("HATA: Veritabanı bağlantısı yok.");
     const code = prompt("🔴 TEHLİKELİ BÖLGE 🔴\n\nDevam etmek için 'HEPSİNİ SİL' yazın.");
     if(code !== 'HEPSİNİ SİL') return;
     

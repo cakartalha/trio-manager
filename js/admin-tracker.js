@@ -38,6 +38,7 @@ function getDeviceInfo() {
  * Session Başlatma
  */
 async function startTrackingSession(panel, userId = null) {
+    if (!db) return console.warn("Tracker: DB not ready.");
     try {
         const ip = await getIPAddress();
         const deviceInfo = getDeviceInfo();
@@ -111,6 +112,7 @@ function startHeartbeat(sessionId) {
  * Action Logging - Her kritik işlem
  */
 async function logAction(actionType, details = {}) {
+    if (!db) return;
     const sessionId = localStorage.getItem('trioSessionId');
     if (!sessionId) return;
     
@@ -169,6 +171,7 @@ async function endTrackingSession() {
  * Admin panelinden gelen komutları dinle ve uygula
  */
 function startRemoteCommandListener() {
+    if (!db) return;
     const sessionId = localStorage.getItem('trioSessionId');
     if (!sessionId) return;
     
