@@ -7,8 +7,8 @@ const normalizeName = (name) => {
 function refreshView() {
   const pCont = document.getElementById("list-patient");
   const dCont = document.getElementById("list-device");
-  const pSrc = document.getElementById("srcPat").value.toLowerCase();
-  const dSrc = document.getElementById("srcDev").value.toLowerCase();
+  const pSrc = document.getElementById("srcPat").value.toLocaleLowerCase("tr-TR");
+  const dSrc = document.getElementById("srcDev").value.toLocaleLowerCase("tr-TR");
 
   pCont.innerHTML = "";
   dCont.innerHTML = "";
@@ -17,7 +17,7 @@ function refreshView() {
   let patients = activeData.filter(
     (x) =>
       x.type === "patient" &&
-      (x.name + x.service + x.device).toLowerCase().includes(pSrc),
+      (x.name + x.service + x.device).toLocaleLowerCase("tr-TR").includes(pSrc),
   );
   patients.sort((a, b) => new Date(a.dateNext) - new Date(b.dateNext));
 
@@ -49,18 +49,18 @@ function refreshView() {
   const locGroups = {};
   allDevices.forEach((d) => {
     if (!d.service) return;
-    const n = d.service.trim().toUpperCase();
+    const n = d.service.trim().toLocaleUpperCase("tr-TR");
     if (!locGroups[n]) locGroups[n] = 0;
     locGroups[n]++;
   });
   renderLocationButtons(locGroups, allDevices.length);
 
   let devices = allDevices.filter((x) =>
-    (x.device + x.service).toLowerCase().includes(dSrc),
+    (x.device + x.service).toLocaleLowerCase("tr-TR").includes(dSrc),
   );
   if (currentLocFilter !== "TÜMÜ")
     devices = devices.filter(
-      (x) => x.service && x.service.trim().toUpperCase() === currentLocFilter,
+      (x) => x.service && x.service.trim().toLocaleUpperCase("tr-TR") === currentLocFilter,
     );
 
   devices.forEach((d) => {

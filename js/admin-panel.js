@@ -471,3 +471,12 @@ window.onload = function() {
         showDashboard();
     }
 };
+ 
+ f u n c t i o n   t o g g l e S i d e b a r ( )   {  
+         / /   O n l y   t o g g l e   i f   w e   a r e   i n   m o b i l e   m o d e  
+         i f   ( w i n d o w . i n n e r W i d t h   >   1 0 2 4 )   r e t u r n ;  
+          
+         d o c u m e n t . q u e r y S e l e c t o r ( ' . s i d e b a r ' ) . c l a s s L i s t . t o g g l e ( ' a c t i v e ' ) ;  
+         d o c u m e n t . q u e r y S e l e c t o r ( ' . s i d e b a r - o v e r l a y ' ) . c l a s s L i s t . t o g g l e ( ' a c t i v e ' ) ;  
+ }  
+ 

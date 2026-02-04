@@ -53,22 +53,22 @@
             </div>
             
             <ul class="nav-menu">
-                <li class="nav-item active" onclick="switchAdminTab(this, 'monitor')">
+                <li class="nav-item active" onclick="switchAdminTab(this, 'monitor'); toggleSidebar()">
                     <i class="fas fa-chart-pie"></i> Sistem İzleme
                 </li>
-                <li class="nav-item" onclick="switchAdminTab(this, 'control')">
+                <li class="nav-item" onclick="switchAdminTab(this, 'control'); toggleSidebar()">
                     <i class="fas fa-gamepad"></i> Komut Merkezi
                 </li>
-                <li class="nav-item" onclick="switchAdminTab(this, 'sessions')">
+                <li class="nav-item" onclick="switchAdminTab(this, 'sessions'); toggleSidebar()">
                     <i class="fas fa-globe"></i> Erişim Kayıtları
                 </li>
-                <li class="nav-item" onclick="switchAdminTab(this, 'actions')">
+                <li class="nav-item" onclick="switchAdminTab(this, 'actions'); toggleSidebar()">
                     <i class="fas fa-list-alt"></i> İşlem Denetim
                 </li>
-                <li class="nav-item" onclick="switchAdminTab(this, 'settings')">
+                <li class="nav-item" onclick="switchAdminTab(this, 'settings'); toggleSidebar()">
                     <i class="fas fa-sliders-h"></i> Yapılandırma
                 </li>
-                <li class="nav-item" onclick="switchAdminTab(this, 'help')">
+                <li class="nav-item" onclick="switchAdminTab(this, 'help'); toggleSidebar()">
                     <i class="fas fa-book"></i> Dokümantasyon
                 </li>
             </ul>
@@ -83,12 +83,15 @@
                  </div>
             </div>
         </div>
+        
+        <!-- OVERLAY -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
         <!-- İÇERİK ALANI -->
         <div class="main-content">
             
             <div class="top-bar">
-                <button class="btn btn-soft mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('active')" style="display:none; margin-right:10px;">
+                <button class="btn btn-soft mobile-menu-btn" onclick="toggleSidebar()" style="display:none; margin-right:10px;">
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="page-title">
