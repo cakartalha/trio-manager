@@ -1,6 +1,8 @@
 // Patron Panel Logic
-const colRecords = CONFIG.collections.records;
-const colNotifs = CONFIG.collections.notifications;
+// Patron Panel Logic
+// Fix: Use correct configuration object from config.js
+const colRecords = (_SYS_CFG && _SYS_CFG.cols && _SYS_CFG.cols.rec) ? _SYS_CFG.cols.rec : 'trio_records';
+const colNotifs = (_SYS_CFG && _SYS_CFG.cols && _SYS_CFG.cols.ntf) ? _SYS_CFG.cols.ntf : 'trio_notifications';
 
 // Initialize
 window.onload = function() {
@@ -16,6 +18,12 @@ window.onload = function() {
 };
 
 async function loginBoss() {
+    // CRITICAL SAFETY CHECK
+    if (!db) {
+        alert("SİSTEM HATASI: Veri tabanı bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edip sayfayı yenileyin.");
+        return;
+    }
+
     const pw = document.getElementById('bossPass').value;
     
     // ACCESS CONTROL
@@ -60,7 +68,14 @@ function logoutBoss() {
 function loadBossStats() {
     document.getElementById('loader').style.display = 'flex';
     
-    db.collection(colRecords).get().then(snap => {
+    if(!db) {
+         document.getElementById('loader').style.display = 'none';
+         alert("Veri bağlantısı hatası.");
+         return;
+    }
+
+    try {
+        db.collection(colRecords).get().then(snap => {
         let totalDevices = 0;
         let activePatients = 0;
         let emptyDevices = 0;
@@ -151,7 +166,17 @@ function loadBossStats() {
         renderServiceDist(serviceCounts);
         
         document.getElementById('loader').style.display = 'none';
+    })
+    .catch(error => {
+        console.error("Data Load Error:", error);
+        document.getElementById('loader').style.display = 'none';
+        alert("Veriler yüklenirken hata oluştu: " + error.message);
     });
+    } catch(err) {
+        console.error("Sync Error in loadBossStats:", err);
+        document.getElementById('loader').style.display = 'none';
+        alert("Sistem hatası: " + err.message);
+    }
     
     loadRecentActivity();
 }
@@ -180,6 +205,11 @@ function loadRecentActivity() {
     const list = document.getElementById('activityFeed');
     list.innerHTML = '<div class="spinner" style="width:20px; height:20px;"></div>';
     
+    if(!db) {
+        list.innerHTML = '<div style="color:red; font-size:12px;">Bağlantı Hatası</div>';
+        return;
+    }
+
     // Fetch last 5 notifications/actions
     db.collection(colNotifs).orderBy('timestamp', 'desc').limit(8).get().then(snap => {
         list.innerHTML = "";
@@ -201,6 +231,10 @@ function loadRecentActivity() {
         });
         
         if(snap.empty) list.innerHTML = '<div style="opacity:0.5; padding:20px; text-align:center">Aktivite yok.</div>';
+    })
+    .catch(error => {
+        console.error("Activity Load Error:", error);
+        list.innerHTML = '<div style="color:red; font-size:12px;">Veri yükleme hatası.</div>';
     });
 }
 

@@ -1,6 +1,8 @@
 // Nurse Panel Logic
-const colRecords = CONFIG.collections.records;
-const colNotifs = CONFIG.collections.notifications;
+// Nurse Panel Logic
+// Fix: Use correct config object
+const colRecords = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.rec : 'trio_records';
+const colNotifs = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.ntf : 'trio_notifications';
 
 // State
 let sName = "";
@@ -42,14 +44,16 @@ async function login() {
   if (!sName || !nName)
     return alert("Eksik Bilgi: Lütfen birim kodu ve personel kimliğini giriniz.");
 
+  if (!db) return alert("SİSTEM HATASI: Veritabanı bağlantısı yok. Lütfen sayfayı yenileyin.");
+
   // ACCESS CONTROL
   try {
-      const accessDoc = await db.collection(CONFIG.collections.systemSettings).doc('panelAccess').get({source: 'server'});
+      const accessDoc = await db.collection(_SYS_CFG.cols.sys_set).doc('panelAccess').get({source: 'server'});
       if (accessDoc.exists && accessDoc.data().nurse === false) {
           return alert("⛔ Personel portal erişimi şu anda yönetici tarafından kısıtlanmıştır.");
       }
       
-      const maintDoc = await db.collection(CONFIG.collections.systemSettings).doc('maintenance').get({source: 'server'});
+      const maintDoc = await db.collection(_SYS_CFG.cols.sys_set).doc('maintenance').get({source: 'server'});
       if (maintDoc.exists && maintDoc.data().enabled === true) {
           return alert(`🔧 ${maintDoc.data().message || "Sistem bakım modundadır."}`);
       }
@@ -85,6 +89,12 @@ function logout() {
 
 function loadDevices() {
   document.getElementById("loader").style.display = "flex";
+
+  if (!db) {
+      document.getElementById("loader").style.display = "none";
+      alert("Bağlantı hatası.");
+      return;
+  }
 
   db.collection(colRecords).onSnapshot((snap) => {
     const list = document.getElementById("deviceList");

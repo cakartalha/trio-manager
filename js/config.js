@@ -7,10 +7,10 @@ const _F_CFG = {
   appId: "1:447336966368:web:910c838ef487c7c84c8885",
 };
 
-(function() {
-    if (typeof firebase !== "undefined" && !firebase.apps.length) {
-        firebase.initializeApp(_F_CFG);
-    }
+(function () {
+  if (typeof firebase !== "undefined" && !firebase.apps.length) {
+    firebase.initializeApp(_F_CFG);
+  }
 })();
 
 const _SYS_CFG = {
@@ -21,20 +21,29 @@ const _SYS_CFG = {
     adm_ses: "trio_admin_sessions",
     adm_act: "trio_admin_actions",
     rem_cmd: "trio_remote_commands",
-    sys_set: "trio_system_settings"
+    sys_set: "trio_system_settings",
   },
   auth: {
     // Simple verification hash
-    k: "NTY1Ng==", 
-    ttl: 90
+    k: "NTY1Ng==",
+    ttl: 90,
   },
   net: {
     ep: "https://api.ipify.org?format=json",
-    hb: 30000 
+    hb: 30000,
   },
   ux: {
     anim: 300,
   },
 };
 
-const db = firebase.firestore();
+let db;
+try {
+  if (typeof firebase !== "undefined") {
+    db = firebase.firestore();
+  } else {
+    console.error("CRITICAL: Firebase SDK not loaded.");
+  }
+} catch (e) {
+  console.error("CRITICAL: Database init prevented by error:", e);
+}

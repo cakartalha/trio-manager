@@ -491,7 +491,7 @@ function cleanPhantomData() {
 }
 
 // Global Application Logic
-const col = _SYS_CFG.cols.rec;
+const col = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.rec : 'trio_records';
 let allData = [];
 let notifications = [];
 let currentLocFilter = "TÜMÜ";
@@ -515,6 +515,8 @@ let phantomIds = []; // Lists IDs of detected phantom records
 })();
 
 async function checkLogin() {
+  if (!db) return alert("SİSTEM HATASI: Veritabanı başlatılamadı (Network/Config Error).");
+  
   // ACCESS CONTROL
   try {
     // Force server fetch to avoid stale cache
@@ -578,6 +580,12 @@ async function logout() {
 
 function startApp() {
   document.getElementById("loader").style.display = "flex";
+  
+  if (!db) {
+      document.getElementById("loader").style.display = "none";
+      alert("Veri bağlantısı kurulamadı!");
+      return;
+  }
   if (localStorage.getItem("theme") === "dark")
     document.body.classList.add("dark-mode");
 

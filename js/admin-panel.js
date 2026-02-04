@@ -6,14 +6,24 @@ let liveListenerUnsubscribe = null;
 
 // --- AUTHENTICATION ---
 function sysAuth() {
-    const pwd = document.getElementById('adminPassword').value;
-    // B64 Comparison
-    if(btoa(pwd) === _SYS_CFG.auth.k) {
-        localStorage.setItem('trioAdminAuth', 'true');
-        showDashboard();
-    } else {
-        alert("Erişim Reddedildi.");
-        document.getElementById('adminPassword').value = '';
+    try {
+        const pwd = document.getElementById('adminPassword').value;
+        
+        if (typeof _SYS_CFG === 'undefined') {
+             throw new Error("Sistem yapılandırması yüklenemedi. (_SYS_CFG Missing)");
+        }
+
+        // B64 Comparison
+        if(btoa(pwd) === _SYS_CFG.auth.k) {
+            localStorage.setItem('trioAdminAuth', 'true');
+            showDashboard();
+        } else {
+            alert("Erişim Reddedildi.");
+            document.getElementById('adminPassword').value = '';
+        }
+    } catch (e) {
+        console.error("SysAuth Error:", e);
+        alert("Sisteme erişim sırasında bir hata oluştu:\n" + e.message);
     }
 }
 
@@ -53,12 +63,15 @@ function openSystemAsAdmin(target) {
 
 async function logSystemAccess(target) {
     // Log this special admin action
-    await db.collection(_SYS_CFG.cols.adm_act).add({
-        actionType: 'admin_god_mode',
-        details: { target: target, note: 'Direct Access via Admin Panel' },
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        ip: 'ADMIN_INTERNAL'
-    });
+    if (!db) return; // Fail safely
+    try {
+        await db.collection(_SYS_CFG.cols.adm_act).add({
+            actionType: 'admin_god_mode',
+            details: { target: target, note: 'Direct Access via Admin Panel' },
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            ip: 'ADMIN_INTERNAL'
+        });
+    } catch(e) { console.warn("Log access error", e); }
 }
 
 // --- INIT ---
@@ -69,7 +82,7 @@ function showDashboard() {
     // Initial Loads
     updateStats();
     startLiveMonitoring();
-    autoCleanupOldData();
+    try { autoCleanupOldData(); } catch(e) {}
     setInterval(updateStats, 30000); // 30s refresh
 }
 
@@ -81,28 +94,41 @@ function startLiveMonitoring() {
     if(liveListenerUnsubscribe) liveListenerUnsubscribe();
     
     const feed = document.getElementById('live-feed');
+    
+    // Safety check
+    if (!db) {
+        console.warn("Live Monitor skipped: DB not ready.");
+        if(feed) feed.innerHTML = '<div style="padding:10px; color:red;">Veritabanı bağlantısı yok.</div>';
+        return;
+    }
+    
     feed.innerHTML = ''; // Clear previous
     
-    liveListenerUnsubscribe = db.collection(_SYS_CFG.cols.adm_act)
-        .orderBy('timestamp', 'desc')
-        .limit(25)
-        .onSnapshot(snap => {
-            snap.docChanges().forEach(change => {
-                if(change.type === 'added') {
-                    const data = change.doc.data();
-                    const el = createFeedItem(data);
-                    
-                    if (feed.firstChild) {
-                        feed.insertBefore(el, feed.firstChild);
-                    } else {
-                        feed.appendChild(el);
+    try {
+        liveListenerUnsubscribe = db.collection(_SYS_CFG.cols.adm_act)
+            .orderBy('timestamp', 'desc')
+            .limit(25)
+            .onSnapshot(snap => {
+                snap.docChanges().forEach(change => {
+                    if(change.type === 'added') {
+                        const data = change.doc.data();
+                        const el = createFeedItem(data);
+                        
+                        if (feed.firstChild) {
+                            feed.insertBefore(el, feed.firstChild);
+                        } else {
+                            feed.appendChild(el);
+                        }
+                        
+                        // Limit DOM elements
+                        if(feed.children.length > 50) feed.lastElementChild.remove();
                     }
-                    
-                    // Limit DOM elements
-                    if(feed.children.length > 50) feed.lastElementChild.remove();
-                }
+                });
             });
-        });
+    } catch(e) {
+        console.error("Live Monitor Error:", e);
+        feed.innerHTML = '<div style="padding:10px; color:red;">Veri akışı hatası.</div>';
+    }
 }
 
 function createFeedItem(data) {
@@ -164,6 +190,7 @@ function formatDetailsSimple(d) {
 
 // --- STATS ---
 async function updateStats() {
+    if(!db) return; // Safety
     try {
         // Total Sessions
         const sSnap = await db.collection(_SYS_CFG.cols.adm_ses).get();
@@ -193,6 +220,11 @@ async function loadActiveSessionsControl() {
     const container = document.getElementById('active-sessions-list');
     container.innerHTML = '<div style="padding:1rem; color:var(--text-muted)">Ağ taranıyor...</div>';
     
+    if(!db) {
+         container.innerHTML = '<div style="padding:1rem; color:red;">Veritabanı bağlantısı yok.</div>';
+         return;
+    }
+
     try {
         const now = new Date();
         const cutoff = new Date(now.getTime() - 60000); // 1 min active
@@ -249,6 +281,7 @@ async function loadActiveSessionsControl() {
 }
 
 async function updatePanelStatusButtons() {
+    if(!db) return;
     try {
         const doc = await db.collection(_SYS_CFG.cols.sys_set).doc('panelAccess').get();
         const data = doc.exists ? doc.data() : { main:true, nurse:true, boss:true };
@@ -271,7 +304,6 @@ function setToggleState(id, isOn) {
 }
 
 // --- HISTORY LOGS ---
-// --- HISTORY LOGS ---
 const PANEL_NAMES = {
     'main': 'Ana Yönetim Konsolu',
     'nurse': 'Saha Personel Portalı',
@@ -293,6 +325,11 @@ async function loadSessions() {
     const container = document.getElementById('sessions-table-container');
     container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted)"><i class="fas fa-circle-notch fa-spin"></i> Veriler yükleniyor...</div>';
     
+    if(!db) {
+         container.innerHTML = '<div style="padding:2rem; text-align:center; color:red;">Veritabanı bağlantısı yok.</div>';
+         return;
+    }
+
     try {
         const snap = await db.collection(_SYS_CFG.cols.adm_ses)
             .orderBy('loginTime', 'desc')
@@ -369,6 +406,11 @@ async function loadActions() {
     const container = document.getElementById('actions-table-container');
     container.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted)"><i class="fas fa-circle-notch fa-spin"></i> Loglar inceleniyor...</div>';
     
+    if(!db) {
+         container.innerHTML = '<div style="padding:2rem; text-align:center; color:red;">Veritabanı bağlantısı yok.</div>';
+         return;
+    }
+
     try {
         const snap = await db.collection(_SYS_CFG.cols.adm_act)
             .orderBy('timestamp', 'desc')
@@ -471,12 +513,11 @@ window.onload = function() {
         showDashboard();
     }
 };
- 
- f u n c t i o n   t o g g l e S i d e b a r ( )   {  
-         / /   O n l y   t o g g l e   i f   w e   a r e   i n   m o b i l e   m o d e  
-         i f   ( w i n d o w . i n n e r W i d t h   >   1 0 2 4 )   r e t u r n ;  
-          
-         d o c u m e n t . q u e r y S e l e c t o r ( ' . s i d e b a r ' ) . c l a s s L i s t . t o g g l e ( ' a c t i v e ' ) ;  
-         d o c u m e n t . q u e r y S e l e c t o r ( ' . s i d e b a r - o v e r l a y ' ) . c l a s s L i s t . t o g g l e ( ' a c t i v e ' ) ;  
- }  
- 
+ 
+ function toggleSidebar() {  
+         // Only toggle if we are in mobile mode  
+         if (window.innerWidth > 1024) return;  
+          
+         document.querySelector('.sidebar').classList.toggle('active');  
+         document.querySelector('.sidebar-overlay').classList.toggle('active');  
+ }
