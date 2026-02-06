@@ -146,6 +146,10 @@ function deleteSelected() {
       alert(`${count} cihaz silindi.`);
       cancelSelectionMode();
       AnalyticsService.logEvent("bulk_delete_soft", { count });
+      
+      if(typeof logAction === 'function') {
+          logAction('bulk_delete', { count: count });
+      }
     });
   }
 }
@@ -231,7 +235,7 @@ function saveDressingDate() {
         lastDressingDate: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
-    // Log Analytics
+    // Log Analytics & Audit
     AnalyticsService.logEvent("dressing_done", {
       patient: r.name,
       patientNormalized: normalizeName(r.name),
@@ -240,6 +244,16 @@ function saveDressingDate() {
       usedSets: uSets,
       usedCans: uCans,
     });
+    
+    // AUDIT LOG
+    if(typeof logAction === 'function') {
+        logAction('dressing_record', {
+            patient: r.name,
+            service: r.service,
+            sets: uSets, 
+            cans: uCans
+        });
+    }
 
     closeModal("dateModal");
     // Reset inputs for next time
@@ -515,65 +529,34 @@ let phantomIds = []; // Lists IDs of detected phantom records
 })();
 
 async function checkLogin() {
-  if (!db) return alert("SİSTEM HATASI: Veritabanı başlatılamadı (Network/Config Error).");
+  const enteredPass = document.getElementById("passwordInput").value;
   
-  // ACCESS CONTROL
-  try {
-    // Force server fetch to avoid stale cache
-    const accessDoc = await db
-      .collection(_SYS_CFG.cols.sys_set)
-      .doc("panelAccess")
-      .get({ source: "server" });
-    if (accessDoc.exists && accessDoc.data().main === false) {
-      return alert("⛔ Ana yönetim paneli şu anda kilitlidir.");
-    }
-
-    const maintDoc = await db
-      .collection(_SYS_CFG.cols.sys_set)
-      .doc("maintenance")
-      .get({ source: "server" });
-    if (maintDoc.exists && maintDoc.data().enabled === true) {
-      return alert(
-        `🔧 ${maintDoc.data().message || "Sistem şu anda bakım modundadır."}`,
-      );
-    }
-  } catch (e) {
-    console.warn(
-      "Access check failed (network might be down), trying cache...",
-      e,
-    );
-    // Fallback to cache if server fails
-    try {
-      const maintDocCache = await db
-        .collection(_SYS_CFG.cols.sys_set)
-        .doc("maintenance")
-        .get();
-      if (maintDocCache.exists && maintDocCache.data().enabled)
-        return alert("🔧 Sistem bakımda (Çevrimdışı Mod).");
-    } catch (ex) {}
-  }
-
-  if (document.getElementById("passwordInput").value === "0000") {
+  if (enteredPass === "0000") {
+    // --- BASİTLEŞTİRİLMİŞ GİRİŞ ---
     localStorage.setItem("trioLoggedIn", "true");
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("mainApp").style.display = "block";
 
-    // TRACKER
-    startTrackingSession("main", "admin").then(() => {
-      logAction("login", { panel: "main", method: "pin" });
-    });
+    // Tracker & Başlangıç (Hata olsa bile devam et)
+    try {
+        startTrackingSession("main", "admin")
+            .then(() => logAction("login", { panel: "main", method: "pin" }))
+            .catch(e => console.warn("Tracker error:", e));
+            
+        AnalyticsService.logEvent("login", { type: "manual" });
+    } catch(e) {}
 
-    AnalyticsService.logEvent("login", { type: "manual" });
     startApp();
   } else {
-    logAction("login_failed", { panel: "main", attemptedPin: "****" });
+    try { logAction("login_failed", { panel: "main", attemptedPin: "****" }); } catch(e){}
     alert("Erişim Reddedildi: Geçersiz Güvenlik Kodu.");
   }
 }
 
 async function logout() {
-  await logAction("logout", { panel: "main" });
-  await endTrackingSession();
+  try { await logAction("logout", { panel: "main" }); } catch(e){}
+  try { await endTrackingSession(); } catch(e){}
+  
   localStorage.removeItem("trioLoggedIn");
   window.location.reload();
 }
@@ -581,11 +564,11 @@ async function logout() {
 function startApp() {
   document.getElementById("loader").style.display = "flex";
   
+  // DB Bağlantı Kontrolü (Opsiyonel: Offline çalışmaya izin ver)
   if (!db) {
-      document.getElementById("loader").style.display = "none";
-      alert("Veri bağlantısı kurulamadı!");
-      return;
+      console.warn("DB bağlantısı yok, offline mod deneniyor...");
   }
+
   if (localStorage.getItem("theme") === "dark")
     document.body.classList.add("dark-mode");
 
@@ -598,6 +581,22 @@ function startApp() {
   document.getElementById("analyticsDate").value = new Date()
     .toISOString()
     .slice(0, 7);
+
+  // --- ACCESS CHECK (ASENKRON) ---
+  // İçeri girdikten sonra kontrol et, gerekirse at veya uyar
+  if(db) {
+     db.collection(_SYS_CFG.cols.sys_set).doc("panelAccess").get().then(doc => {
+         if(doc.exists && doc.data().main === false) {
+             alert("⛔ YÖNETİCİ UYARISI: Ana panel erişimi şu an kilitli görünüyor.");
+         }
+     }).catch(e => console.warn("Access check skip", e));
+
+     db.collection(_SYS_CFG.cols.sys_set).doc("maintenance").get().then(doc => {
+        if(doc.exists && doc.data().enabled === true) {
+            alert("🔧 BAKIM MODU: " + (doc.data().message || "Sistem bakımda."));
+        }
+    }).catch(e => console.warn("Maint check skip", e));
+  }
 
   // Realtime listeners
   db.collection(col).onSnapshot((snap) => {
@@ -707,12 +706,21 @@ function transferToDevice(id) {
         dateNext: firebase.firestore.FieldValue.delete(),
       });
 
+      
     AnalyticsService.logEvent("patient_discharged", {
       patient: rec.name,
       patientNormalized: normalizeName(rec.name),
       device: rec.device,
       service: n,
     });
+
+    if(typeof logAction === 'function') {
+        logAction('transfer_to_inventory', {
+            device: rec.device,
+            from_patient: rec.name,
+            to_service: n
+        });
+    }
   }
 }
 
@@ -746,6 +754,13 @@ function toggleMaintenance(id, m) {
         service: rec.service,
       },
     );
+
+    if(typeof logAction === 'function') {
+        logAction(m ? 'maintenance_start' : 'maintenance_end', {
+            device: rec.device,
+            service: rec.service
+        });
+    }
   }
 }
 

@@ -168,24 +168,46 @@ function createFeedItem(data) {
 
 const TYPE_MAP_TR = {
     'login': 'Oturum Açma',
-    'login_failed': 'Başarısız Erişim Denemesi',
+    'login_failed': 'Hatalı Giriş',
     'logout': 'Oturum Kapatma',
-    'create': 'Veri Girişi',
-    'update': 'Veri Güncelleme',
-    'soft_delete': 'Arşive Taşıma',
-    'session_start': 'Yeni Oturum',
-    'session_end': 'Oturum Sonu',
-    'notification_sent': 'Sistem Bildirimi',
-    'page_visible': 'Sayfa Görüntüleme'
+    'create': 'Kayıt Eklendi',
+    'update': 'Kayıt Güncellendi',
+    'soft_delete': 'Arşive Gönderildi',
+    'session_start': 'Sistem Başlatıldı',
+    'session_end': 'Sistem Kapatıldı',
+    'notification_sent': 'Duyuru Gönderildi',
+    'page_visible': 'Ekran Aktif',
+    'page_hidden': 'Ekran Gizlendi',
+    'admin_god_mode': 'Panel Geçişi',
+    // Yeni Tipler
+    'dressing_record': 'Tedavi İşlendi',
+    'transfer_to_inventory': 'Teburcu/İade',
+    'maintenance_start': 'Servise Gönderildi',
+    'maintenance_end': 'Servisten Döndü',
+    'bulk_delete': 'Toplu Silme',
+    'bulk_device_added': 'Toplu Ekleme'
 };
 
 function formatDetailsSimple(d) {
     if(!d) return '';
+    
+    // Custom Formatters by Type
+    if(d.patient && d.sets) return `${d.patient} (${d.sets} Set)`;
+    if(d.device && d.to_service) return `${d.device} -> ${d.to_service}`;
+    if(d.count) return `${d.count} Adet Kayıt`;
+    if(d.type === 'maintenance') return `${d.device} (${d.service})`;
+    
+    // Default Fallback
     const parts = [];
     if(d.panel) parts.push(d.panel.toUpperCase());
     if(d.name) parts.push(d.name);
+    if(d.device) parts.push(d.device);
     if(d.userId && d.userId !== d.name) parts.push(d.userId);
-    return parts.join(' • ');
+    
+    // LogAction'dan gelen 'data' objesi varsa (Create/Update işlemlerinde)
+    if(d.data && d.data.name) parts.push(d.data.name);
+    
+    return parts.length > 0 ? parts.join(' • ') : JSON.stringify(d).substring(0, 50);
 }
 
 // --- STATS ---
@@ -451,6 +473,11 @@ async function loadActions() {
             else if(typeRaw.includes('delete')) { icon = 'fa-trash'; color = '#ef4444'; } // Red
             else if(typeRaw.includes('session')) { icon = 'fa-clock'; color = '#8b5cf6'; } // Purple
             else if(typeRaw.includes('notification')) { icon = 'fa-bullhorn'; color = '#ec4899'; } // Pink
+            // YENİ TİPLER
+            else if(typeRaw.includes('dressing')) { icon = 'fa-band-aid'; color = '#6366f1'; } // Indigo
+            else if(typeRaw.includes('transfer')) { icon = 'fa-exchange-alt'; color = '#06b6d4'; } // Cyan
+            else if(typeRaw.includes('maintenance')) { icon = 'fa-tools'; color = '#f97316'; } // Orange
+            else if(typeRaw.includes('bulk')) { icon = 'fa-layer-group'; color = '#be123c'; } // Rose
             
             // Details Formatting
             let detailsText = '';
