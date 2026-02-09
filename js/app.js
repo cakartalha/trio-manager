@@ -1,14 +1,23 @@
+console.log("APP.JS LOADED - Starting...");
 // Utility: Normalize Name
 const normalizeName = (name) => {
   if (!name) return "";
   return name.trim().replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
 };
 
+// Global state variables
+let isBulkTransferMode = false;
+
+
 function refreshView() {
   const pCont = document.getElementById("list-patient");
   const dCont = document.getElementById("list-device");
-  const pSrc = document.getElementById("srcPat").value.toLocaleLowerCase("tr-TR");
-  const dSrc = document.getElementById("srcDev").value.toLocaleLowerCase("tr-TR");
+  const pSrc = document
+    .getElementById("srcPat")
+    .value.toLocaleLowerCase("tr-TR");
+  const dSrc = document
+    .getElementById("srcDev")
+    .value.toLocaleLowerCase("tr-TR");
 
   pCont.innerHTML = "";
   dCont.innerHTML = "";
@@ -24,12 +33,46 @@ function refreshView() {
   patients.forEach((p) => {
     const diff = getDiff(p.dateNext);
     const tagColor = diff.days <= 0 ? "#ef4444" : "#10b981";
+    const serviceColor = getServiceColor(p.service);
+    
+    // Smart Info Calculations
+    const lastDressingDate = p.lastDressingDate 
+        ? new Date(p.lastDressingDate.toDate()).toLocaleDateString('tr-TR')
+        : null;
+    
+    const daysSinceLastDressing = p.lastDressingDate
+        ? Math.floor((Date.now() - p.lastDressingDate.toDate()) / (1000 * 60 * 60 * 24))
+        : null;
+    
+    const dressingCount = p.dressingCount || 0;
+    const totalMaterials = (p.totalSets || 0) + (p.totalCans || 0);
+
     pCont.innerHTML += `
         <div class="item-card">
             <div class="item-header">
                 <div>
                     <div class="item-title">${p.name}</div>
-                    <div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${p.service} &nbsp;•&nbsp; ${p.device}</div>
+                    <div class="item-sub">
+                        <span style="color:${serviceColor}; font-weight:700;">
+                            <i class="fas fa-map-marker-alt"></i> ${p.service}
+                        </span> 
+                        &nbsp;•&nbsp; ${p.device}
+                        ${p.notes 
+                            ? `<br><span style="font-size:10px; color:#f59e0b; font-weight:600; margin-top:3px; display:inline-block;">
+                                 <i class="fas fa-sticky-note"></i> ${p.notes.substring(0, 50)}${p.notes.length > 50 ? '...' : ''}
+                               </span>`
+                            : ''}
+                        ${daysSinceLastDressing !== null 
+                            ? `<br><span style="font-size:10px; opacity:0.7; margin-top:3px; display:inline-block;">
+                                 <i class="fas fa-history"></i> Son: ${daysSinceLastDressing} gün önce
+                               </span>`
+                            : ''}
+                        ${dressingCount > 0 
+                            ? `<br><span style="font-size:10px; opacity:0.7;">
+                                 <i class="fas fa-procedures"></i> ${dressingCount} tedavi • ${totalMaterials} malzeme
+                               </span>`
+                            : ''}
+                    </div>
                 </div>
                 <span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span>
             </div>
@@ -49,7 +92,8 @@ function refreshView() {
   const locGroups = {};
   allDevices.forEach((d) => {
     if (!d.service) return;
-    const n = d.service.trim().toLocaleUpperCase("tr-TR");
+    // Normalize: trim spaces AND collapse multiple spaces into one
+    const n = d.service.trim().replace(/\s+/g, ' ').toLocaleUpperCase("tr-TR");
     if (!locGroups[n]) locGroups[n] = 0;
     locGroups[n]++;
   });
@@ -58,10 +102,17 @@ function refreshView() {
   let devices = allDevices.filter((x) =>
     (x.device + x.service).toLocaleLowerCase("tr-TR").includes(dSrc),
   );
-  if (currentLocFilter !== "TÜMÜ")
-    devices = devices.filter(
-      (x) => x.service && x.service.trim().toLocaleUpperCase("tr-TR") === currentLocFilter,
-    );
+  if (currentLocFilter !== "TÜMÜ") {
+    if (currentLocFilter === "BAKIM") {
+      devices = devices.filter((x) => x.type === "maintenance");
+    } else {
+      devices = devices.filter(
+        (x) =>
+          x.service &&
+          x.service.trim().toLocaleUpperCase("tr-TR") === currentLocFilter,
+      );
+    }
+  }
 
   devices.forEach((d) => {
     const isMaint = d.type === "maintenance";
@@ -73,21 +124,54 @@ function refreshView() {
 
     let actionHtml = `<div class="action-row">${btns}<button class="act-btn btn-soft" onclick="editRecord('${d.id}')"><i class="fas fa-pen"></i></button><button class="act-btn btn-accent" onclick="moveToArchive('${d.id}')"><i class="fas fa-trash"></i></button></div>`;
 
-    // If Selection Mode Active
+    // If Selection Mode Active or Bulk Transfer Mode
     let selectHtml = "";
-    if (isSelectionMode) {
+    if (isSelectionMode || isBulkTransferMode) {
       actionHtml = ""; // Hide buttons in selection mode
-      selectHtml = `<input type="checkbox" class="bulk-check" value="${d.id}" style="width:20px; height:20px; margin-right:15px;">`;
+      const chkClass = isSelectionMode ? 'del-check' : 'bulk-check';
+      selectHtml = `<input type="checkbox" class="${chkClass}" value="${d.id}" style="width:20px; height:20px; margin-right:15px;">`;
     }
 
     dCont.innerHTML += `<div class="item-card"><div class="item-header" style="justify-content:flex-start">
             ${selectHtml}
             <div style="flex:1; display:flex; justify-content:space-between; align-items:center;">
-                <div><div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div><div class="item-sub"><i class="fas fa-map-marker-alt"></i> ${d.service}</div></div>
+                <div>
+                    <div class="item-title" style="font-family:monospace; letter-spacing:1px;">${d.device}</div>
+                    <div class="item-sub">
+                        <i class="fas fa-map-marker-alt"></i> ${d.service}
+                        ${isMaint && d.maintenanceReason ? `<br><span style="color:#f59e0b; font-weight:600;"><i class="fas fa-wrench"></i> ${d.maintenanceReason}</span>` : ""}
+                    </div>
+                </div>
                 <span class="tag ${tagClass}">${status}</span>
             </div>
             </div>${actionHtml}</div>`;
+
+    if (isBulkTransferMode) {
+        // We need to inject the header only once, but here we are in loop.
+        // Better place is outside loop.
+        // However, refreshView Logic structure in this file clears container first.
+        // So we can prepend to dCont after loop or handle it differently.
+        // Let's use the same logic as Selection Mode which probably injects header
+        // Wait, Selection Mode logic is inside render?
+        // Let's check where startSelectionMode injects header.
+        // It injects straight to dCont.
+        // But refreshView clears dCont.
+        // So we should inject header at the top of dCont if mode is active.
+    }
   });
+
+  if (isBulkTransferMode) {
+    dCont.insertAdjacentHTML('afterbegin', `
+        <div style="position:sticky; top:0; z-index:100; background:var(--bg-body); padding:10px; margin-bottom:10px; border-bottom:1px solid var(--border-solid); display:flex; justify-content:space-between; align-items:center;">
+             <span style="font-weight:700; color:var(--text-main)">Toplu Transfer (Yönetici)</span>
+             <div>
+                <button onclick="transferSelected()" class="lux-btn" style="background:#6366f1; padding:8px 15px; font-size:12px;">SEÇİLENLERİ TRANSFER ET</button>
+                <button onclick="cancelBulkTransferMode()" class="lux-btn" style="background:var(--surface); color:var(--text-main); padding:8px 15px; font-size:12px; margin-left:5px;">İptal</button>
+             </div>
+        </div>
+    `);
+  }
+
 
   if (patients.length === 0)
     pCont.innerHTML =
@@ -146,9 +230,9 @@ function deleteSelected() {
       alert(`${count} cihaz silindi.`);
       cancelSelectionMode();
       AnalyticsService.logEvent("bulk_delete_soft", { count });
-      
-      if(typeof logAction === 'function') {
-          logAction('bulk_delete', { count: count });
+
+      if (typeof logAction === "function") {
+        logAction("bulk_delete", { count: count });
       }
     });
   }
@@ -232,6 +316,7 @@ function saveDressingDate() {
         dateNext: newDate,
         totalSets: currentSets + uSets,
         totalCans: currentCans + uCans,
+        dressingCount: firebase.firestore.FieldValue.increment(1),
         lastDressingDate: firebase.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -244,15 +329,15 @@ function saveDressingDate() {
       usedSets: uSets,
       usedCans: uCans,
     });
-    
+
     // AUDIT LOG
-    if(typeof logAction === 'function') {
-        logAction('dressing_record', {
-            patient: r.name,
-            service: r.service,
-            sets: uSets, 
-            cans: uCans
-        });
+    if (typeof logAction === "function") {
+      logAction("dressing_record", {
+        patient: r.name,
+        service: r.service,
+        sets: uSets,
+        cans: uCans,
+      });
     }
 
     closeModal("dateModal");
@@ -261,6 +346,8 @@ function saveDressingDate() {
       document.getElementById("inpUsedSets").value = 1;
       document.getElementById("inpUsedCans").value = 0;
     }, 500);
+    
+    if(typeof updateRecentActivity === 'function') updateRecentActivity();
   }
 }
 
@@ -421,34 +508,63 @@ function validateAnalyticsData(stats) {
   // we can check if the patient name exists in current database.
 
   phantomIds = [];
+  
+  // Get list of already dismissed phantom IDs from localStorage
+  const dismissedPhantoms = JSON.parse(localStorage.getItem('dismissedPhantoms') || '[]');
 
-  // Get all known patient names (Active + Soft Deleted)
+  // Get all known patient names (Active + Soft Deleted + ALL)
+  // Include ALL patients ever recorded, even if deleted
   const knownNames = new Set(
     allData
-      .filter((x) => x.type === "patient")
+      .filter((x) => x.type === "patient" || x.name) // Include any record with a name
       .map((x) => normalizeName(x.name)),
   );
 
   stats.forEach((s) => {
-    // Check 1: 'patient_added' event but no such patient in DB
-    if (s.type === "patient_added") {
-      const pName = normalizeName(s.name);
-      if (!knownNames.has(pName)) {
-        phantomIds.push(s.id);
+    // Check patient-related events for phantom data
+    const patientEventTypes = [
+      'patient_added', 
+      'dressing_done', 
+      'patient_discharged',
+      'device_added',
+      'device_maintenance_start',
+      'device_maintenance_end'
+    ];
+    
+    if (patientEventTypes.includes(s.type)) {
+      // For patient events, check if patient exists
+      if (s.type.startsWith('patient') || s.type === 'dressing_done') {
+        const pName = normalizeName(s.name || s.patient || s.patientNormalized);
+        if (pName && !knownNames.has(pName)) {
+          phantomIds.push(s.id);
+        }
       }
     }
-
-    // Check 2: 'dressing_done' but patient not in DB
-    if (s.type === "dressing_done") {
-      const pName = normalizeName(s.patient || s.patientNormalized);
-      if (!knownNames.has(pName)) {
+    
+    // Also check for any analytics record where normalized patient doesn't exist
+    if (s.patientNormalized && !knownNames.has(s.patientNormalized)) {
+      if (!phantomIds.includes(s.id)) {
         phantomIds.push(s.id);
       }
     }
   });
 
+  // Filter out already dismissed phantoms (those that were deleted but still in cache)
+  phantomIds = phantomIds.filter(id => !dismissedPhantoms.includes(id));
+
   // Update UI
   const count = phantomIds.length;
+  
+  // DEBUG: Log phantom records to console
+  if (count > 0) {
+    console.log("=== PHANTOM KAYITLAR ===");
+    phantomIds.forEach(id => {
+      const record = stats.find(s => s.id === id);
+      console.log("Phantom Record:", id, record);
+    });
+    console.log("========================");
+  }
+  
   if (count > 0) {
     document.getElementById("phantomCount").innerText = `${count} Kayıt`;
     // Show warning button or auto-modal?
@@ -496,16 +612,58 @@ function cleanPhantomData() {
       `Tespit edilen ${phantomIds.length} adet geçersiz kayıt silinecek ve istatistikler düzeltilecek.\nOnaylıyor musunuz?`,
     )
   ) {
-    AnalyticsService.deletePhantomRecords(phantomIds).then((count) => {
-      alert(`${count} adet kayıt temizlendi.`);
-      closeModal("dataCleanupModal");
-      loadAnalytics(); // Reload to see clean state
-    });
+    // Create a copy of IDs to delete
+    const idsToDelete = [...phantomIds];
+    console.log("[Cleanup] Deleting phantom records:", idsToDelete);
+    
+    AnalyticsService.deletePhantomRecords(idsToDelete)
+      .then((count) => {
+        console.log("[Cleanup] Deleted:", count);
+        
+        // Save deleted IDs to localStorage so they won't be detected again (cache workaround)
+        const dismissed = JSON.parse(localStorage.getItem('dismissedPhantoms') || '[]');
+        idsToDelete.forEach(id => {
+          if (!dismissed.includes(id)) dismissed.push(id);
+        });
+        localStorage.setItem('dismissedPhantoms', JSON.stringify(dismissed));
+        
+        // Clear the phantom array
+        phantomIds = [];
+        
+        // Wait 1 second for Firestore to propagate deletion, then reload
+        return new Promise(resolve => setTimeout(resolve, 1000));
+      })
+      .then(() => {
+        // Reload analytics and re-validate
+        return loadAnalytics();
+      })
+      .then(() => {
+        // After reload, check if there are still phantoms
+        if (phantomIds.length === 0) {
+          alert("✅ Tüm geçersiz kayıtlar temizlendi!");
+          closeModal("dataCleanupModal");
+          // Reset the warning button
+          const btn = document.querySelector("#syncBtnContainer button");
+          if (btn) {
+            btn.style.borderColor = "var(--primary)";
+            btn.style.color = "var(--primary)";
+            btn.innerHTML = `<i class="fas fa-sync" style="margin-right:5px;"></i> VERİ SENKRONİZASYONU`;
+          }
+        } else {
+          // Still some phantoms - update count
+          document.getElementById("phantomCount").innerText = `${phantomIds.length} Kayıt`;
+          alert(`⚠️ ${phantomIds.length} adet kayıt hala düzeltme bekliyor. Tekrar deneyin.`);
+        }
+      })
+      .catch(err => {
+        console.error("[Cleanup] Error:", err);
+        alert("Hata oluştu: " + err.message);
+      });
   }
 }
 
 // Global Application Logic
-const col = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.rec : 'trio_records';
+const col = _SYS_CFG && _SYS_CFG.cols ? _SYS_CFG.cols.rec : "trio_records";
 let allData = [];
 let notifications = [];
 let currentLocFilter = "TÜMÜ";
@@ -530,7 +688,7 @@ let phantomIds = []; // Lists IDs of detected phantom records
 
 async function checkLogin() {
   const enteredPass = document.getElementById("passwordInput").value;
-  
+
   if (enteredPass === "0000") {
     // --- BASİTLEŞTİRİLMİŞ GİRİŞ ---
     localStorage.setItem("trioLoggedIn", "true");
@@ -539,34 +697,42 @@ async function checkLogin() {
 
     // Tracker & Başlangıç (Hata olsa bile devam et)
     try {
-        startTrackingSession("main", "admin")
-            .then(() => logAction("login", { panel: "main", method: "pin" }))
-            .catch(e => console.warn("Tracker error:", e));
-            
-        AnalyticsService.logEvent("login", { type: "manual" });
-    } catch(e) {}
+      startTrackingSession("main", "admin")
+        .then(() => logAction("login", { panel: "main", method: "pin" }))
+        .catch((e) => console.warn("Tracker error:", e));
+
+      AnalyticsService.logEvent("login", { type: "manual" });
+    } catch (e) {}
 
     startApp();
   } else {
-    try { logAction("login_failed", { panel: "main", attemptedPin: "****" }); } catch(e){}
+    try {
+      logAction("login_failed", { panel: "main", attemptedPin: "****" });
+    } catch (e) {}
     alert("Erişim Reddedildi: Geçersiz Güvenlik Kodu.");
   }
 }
 
 async function logout() {
-  try { await logAction("logout", { panel: "main" }); } catch(e){}
-  try { await endTrackingSession(); } catch(e){}
-  
+  try {
+    await logAction("logout", { panel: "main" });
+  } catch (e) {}
+  try {
+    await endTrackingSession();
+  } catch (e) {}
+
   localStorage.removeItem("trioLoggedIn");
   window.location.reload();
 }
 
+
+
 function startApp() {
   document.getElementById("loader").style.display = "flex";
-  
+
   // DB Bağlantı Kontrolü (Opsiyonel: Offline çalışmaya izin ver)
   if (!db) {
-      console.warn("DB bağlantısı yok, offline mod deneniyor...");
+    console.warn("DB bağlantısı yok, offline mod deneniyor...");
   }
 
   if (localStorage.getItem("theme") === "dark")
@@ -578,25 +744,16 @@ function startApp() {
   document.getElementById("inpDate").value = d.toISOString().split("T")[0];
 
   // Set default month for analytics
+  // Set default month for analytics
   document.getElementById("analyticsDate").value = new Date()
     .toISOString()
     .slice(0, 7);
 
-  // --- ACCESS CHECK (ASENKRON) ---
-  // İçeri girdikten sonra kontrol et, gerekirse at veya uyar
-  if(db) {
-     db.collection(_SYS_CFG.cols.sys_set).doc("panelAccess").get().then(doc => {
-         if(doc.exists && doc.data().main === false) {
-             alert("⛔ YÖNETİCİ UYARISI: Ana panel erişimi şu an kilitli görünüyor.");
-         }
-     }).catch(e => console.warn("Access check skip", e));
+  // Default Bulk Variables
+  isBulkTransferMode = false;
 
-     db.collection(_SYS_CFG.cols.sys_set).doc("maintenance").get().then(doc => {
-        if(doc.exists && doc.data().enabled === true) {
-            alert("🔧 BAKIM MODU: " + (doc.data().message || "Sistem bakımda."));
-        }
-    }).catch(e => console.warn("Maint check skip", e));
-  }
+  // --- ACCESS CHECK (ASENKRON) ---
+  checkSystemAccess();
 
   // Realtime listeners
   db.collection(col).onSnapshot((snap) => {
@@ -605,7 +762,7 @@ function startApp() {
     document.getElementById("loader").style.display = "none";
     refreshView();
     updateStats();
-    checkAndFixData(); // Auto Check
+    if(typeof updateRecentActivity === 'function') updateRecentActivity();
   });
 
   db.collection(_SYS_CFG.cols.ntf)
@@ -617,6 +774,49 @@ function startApp() {
     });
 }
 
+// Helper function for service colors (global scope)
+function getServiceColor(serviceName) {
+    if (!serviceName) return '#94a3b8';
+    
+    let hash = 0;
+    for (let i = 0; i < serviceName.length; i++) {
+        hash = serviceName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const colors = [
+        '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b',
+        '#ec4899', '#06b6d4', '#84cc16', '#f97316'
+    ];
+    
+    return colors[Math.abs(hash) % colors.length];
+}
+
+// System access check helper (global scope)
+function checkSystemAccess() {
+  if (db) {
+    db.collection(_SYS_CFG.cols.sys_set)
+      .doc("panelAccess")
+      .get()
+      .then((doc) => {
+        if (doc.exists && doc.data().main === false) {
+          alert("⛔ YÖNETİCİ UYARISI: Ana panel erişimi şu an kilitli görünüyor.");
+        }
+      })
+      .catch((e) => console.warn("Access check skip", e));
+
+    db.collection(_SYS_CFG.cols.sys_set)
+      .doc("maintenance")
+      .get()
+      .then((doc) => {
+        if (doc.exists && doc.data().enabled === true) {
+          alert("🔧 BAKIM MODU: " + (doc.data().message || "Sistem bakımda."));
+        }
+      })
+      .catch((e) => console.warn("Maint check skip", e));
+  }
+}
+
+
 /* --- CORE FUNCTIONS --- */
 // Utility: Normalize Name
 // (already defined at top, but ensure it's not duplicated in full file)
@@ -624,11 +824,135 @@ function startApp() {
 function renderLocationButtons(groups, total) {
   const container = document.getElementById("locationFilters");
   const sorted = Object.keys(groups).sort();
+  // Add Maintenance Filter Button
   let html = `<button class="filter-chip ${currentLocFilter === "TÜMÜ" ? "active" : ""}" onclick="setLocFilter('TÜMÜ')">TÜMÜ <span>(${total})</span></button>`;
+  html += `<button class="filter-chip ${currentLocFilter === "BAKIM" ? "active" : ""}" style="border-color:#f59e0b; color:#f59e0b;" onclick="setLocFilter('BAKIM')"><i class="fas fa-tools"></i> BAKIMDAKİLER</button>`;
+
   sorted.forEach((l) => {
-    html += `<button class="filter-chip ${currentLocFilter === l ? "active" : ""}" onclick="setLocFilter('${l}')">${l} <span>(${groups[l]})</span></button>`;
+    const color = getServiceColor(l);
+    html += `<button class="filter-chip ${currentLocFilter === l ? "active" : ""}" onclick="setLocFilter('${l}')" style="border-color:${color}; color:${color};">${l} <span>(${groups[l]})</span></button>`;
   });
   container.innerHTML = html;
+}
+
+function updateRecentActivity() {
+    const container = document.getElementById('timelineList');
+    const wrapper = document.getElementById('recentActivityTimeline');
+    if (!container || !db) return;
+
+    db.collection(_SYS_CFG.cols.adm_act || 'trio_admin_actions')
+        .orderBy('timestamp', 'desc')
+        .limit(20) // Get more, then filter
+        .get()
+        .then(snap => {
+            if (snap.empty) {
+                if(wrapper) wrapper.style.display = 'none';
+                return;
+            }
+            
+            // Filter out technical/internal events
+            const excludedTypes = [
+                'session_start', 'session_end', 'session_heartbeat',
+                'heartbeat', 'page_view', 'scroll', 'click'
+            ];
+            
+            const meaningfulDocs = [];
+            snap.forEach(doc => {
+                const d = doc.data();
+                const actionType = d.actionType || d.type || '';
+                if (!excludedTypes.includes(actionType)) {
+                    meaningfulDocs.push({doc, data: d});
+                }
+            });
+            
+            // Take only first 5 meaningful ones
+            const toShow = meaningfulDocs.slice(0, 5);
+            
+            if (toShow.length === 0) {
+                if(wrapper) wrapper.style.display = 'none';
+                return;
+            }
+            
+            if(wrapper) wrapper.style.display = 'block';
+            let html = '';
+            
+            toShow.forEach(({doc, data: d}) => {
+                const time = d.timestamp 
+                    ? new Date(d.timestamp.toDate()).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})
+                    : '';
+                
+                let icon = 'circle', color = '#94a3b8', text = '';
+                
+                // actionType is the correct field name from logAction
+                const actionType = d.actionType || d.type || '';
+
+                switch(actionType) {
+                    case 'dressing_record':
+                        icon = 'band-aid'; color = '#8b5cf6';
+                        text = `${d.details?.patient || 'Hasta'} tedavi edildi`;
+                        break;
+                    case 'maintenance_start':
+                        icon = 'tools'; color = '#f59e0b';
+                        text = `${d.details?.device || 'Cihaz'} servise gönderildi`;
+                        break;
+                    case 'maintenance_end':
+                        icon = 'check-circle'; color = '#10b981';
+                        text = `${d.details?.device || 'Cihaz'} servisten döndü`;
+                        break;
+                    case 'transfer_to_inventory':
+                        icon = 'box'; color = '#10b981';
+                        text = `${d.details?.device || 'Cihaz'} envantere iade edildi`;
+                        break;
+                    case 'create':
+                        icon = 'plus-circle'; color = '#3b82f6';
+                        text = `${d.details?.data?.name || d.details?.type || 'Yeni kayıt'} eklendi`;
+                        break;
+                    case 'update':
+                        icon = 'edit'; color = '#6366f1';
+                        text = `${d.details?.data?.name || 'Kayıt'} güncellendi`;
+                        break;
+                    case 'soft_delete':
+                        icon = 'trash'; color = '#ef4444';
+                        text = `${d.details?.name || 'Kayıt'} silindi`;
+                        break;
+                    case 'login':
+                        icon = 'sign-in-alt'; color = '#10b981';
+                        text = 'Sisteme giriş yapıldı';
+                        break;
+                    case 'logout':
+                        icon = 'sign-out-alt'; color = '#94a3b8';
+                        text = 'Sistemden çıkış yapıldı';
+                        break;
+                    case 'bulk_transfer':
+                        icon = 'exchange-alt'; color = '#6366f1';
+                        text = `${d.details?.count || ''} cihaz transfer edildi`;
+                        break;
+                    case 'bulk_delete':
+                        icon = 'trash-alt'; color = '#ef4444';
+                        text = `${d.details?.count || ''} kayıt toplu silindi`;
+                        break;
+                    case 'login_failed':
+                        icon = 'times-circle'; color = '#ef4444';
+                        text = 'Başarısız giriş denemesi';
+                        break;
+                    default:
+                        // Make any action type readable
+                        text = actionType ? actionType.replace(/_/g, ' ') : 'İşlem kaydı';
+                }
+
+                html += `
+                <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border-subtle);">
+                    <div style="width:20px; height:20px; border-radius:6px; background:${color}20; color:${color}; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:9px;">
+                        <i class="fas fa-${icon}"></i>
+                    </div>
+                    <div style="flex:1; font-size:11px; color:var(--text-main); line-height:1.3;">${text}</div>
+                    <span style="font-size:10px; opacity:0.5; font-weight:600;">${time}</span>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        })
+        .catch(e => console.warn('Timeline error:', e));
 }
 
 function updateBadge() {
@@ -665,16 +989,17 @@ function openNotifications() {
     }
 
     const time = n.timestamp
-      ? new Date(n.timestamp.toDate()).toLocaleTimeString("tr-TR", {
+      ? new Date(n.timestamp.toDate()).toLocaleString("tr-TR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
           hour: "2-digit",
           minute: "2-digit",
         })
-      : "";
-    l.innerHTML += `<div class="notif-item ${!n.isRead ? "unread" : ""}"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}</p><span style="font-size:10px;opacity:0.5">${time}</span></div></div>`;
+      : "Tarih Yok";
+    l.innerHTML += `<div class="notif-item ${!n.isRead ? "unread" : ""}"><div class="notif-icon"><i class="fas fa-${i}"></i></div><div style="flex:1"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</h4><p style="font-size:12px;color:var(--text-sub)">${n.nurse} (${n.service})<br><b>${n.deviceCode}</b>: ${n.note}<br><span style="font-size:11px;opacity:0.7; color:var(--text-main); font-weight:600;">${time}</span></p></div></div>`;
     if (!n.isRead)
-      db.collection(_SYS_CFG.cols.ntf)
-        .doc(n.id)
-        .update({ isRead: true });
+      db.collection(_SYS_CFG.cols.ntf).doc(n.id).update({ isRead: true });
   });
   document.getElementById("notifModal").classList.add("open");
 }
@@ -697,16 +1022,13 @@ function transferToDevice(id) {
   const n = prompt("Hedef Depo/Konum Giriniz:", "Ana Depo");
   if (n) {
     const rec = allData.find((x) => x.id === id);
-    db.collection(col)
-      .doc(id)
-      .update({
-        type: "device",
-        name: "MÜSAİT",
-        service: n,
-        dateNext: firebase.firestore.FieldValue.delete(),
-      });
+    db.collection(col).doc(id).update({
+      type: "device",
+      name: "MÜSAİT",
+      service: n,
+      dateNext: firebase.firestore.FieldValue.delete(),
+    });
 
-      
     AnalyticsService.logEvent("patient_discharged", {
       patient: rec.name,
       patientNormalized: normalizeName(rec.name),
@@ -714,12 +1036,12 @@ function transferToDevice(id) {
       service: n,
     });
 
-    if(typeof logAction === 'function') {
-        logAction('transfer_to_inventory', {
-            device: rec.device,
-            from_patient: rec.name,
-            to_service: n
-        });
+    if (typeof logAction === "function") {
+      logAction("transfer_to_inventory", {
+        device: rec.device,
+        from_patient: rec.name,
+        to_service: n,
+      });
     }
   }
 }
@@ -735,31 +1057,52 @@ function transferToPatient(id) {
 }
 
 function toggleMaintenance(id, m) {
-  if (
-    confirm(
-      m
-        ? "Cihaz teknik servise alınsın mı?"
-        : "Cihaz tekrar depoya (müsait) alınsın mı?",
-    )
-  ) {
-    const rec = allData.find((x) => x.id === id);
-    db.collection(col)
-      .doc(id)
-      .update({ type: m ? "maintenance" : "device" });
+  if (m) {
+    const reason = prompt(
+      "Cihaz teknik servise alınıyor. Lütfen arıza/bakım sebebini belirtiniz:",
+    );
+    if (!reason) return; // User cancelled
 
-    AnalyticsService.logEvent(
-      m ? "device_maintenance_start" : "device_maintenance_end",
-      {
+    const rec = allData.find((x) => x.id === id);
+    db.collection(col).doc(id).update({
+      type: "maintenance",
+      maintenanceReason: reason,
+      maintenanceDate: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    AnalyticsService.logEvent("device_maintenance_start", {
+      device: rec.device,
+      service: rec.service,
+      reason: reason,
+    });
+
+    if (typeof logAction === "function") {
+      logAction("maintenance_start", {
         device: rec.device,
         service: rec.service,
-      },
-    );
+        reason: reason,
+      });
+    }
+  } else {
+    if (confirm("Cihaz tekrar depoya (müsait) alınsın mı?")) {
+      const rec = allData.find((x) => x.id === id);
+      db.collection(col).doc(id).update({
+        type: "device",
+        maintenanceReason: firebase.firestore.FieldValue.delete(),
+        maintenanceDate: firebase.firestore.FieldValue.delete(),
+      });
 
-    if(typeof logAction === 'function') {
-        logAction(m ? 'maintenance_start' : 'maintenance_end', {
-            device: rec.device,
-            service: rec.service
+      AnalyticsService.logEvent("device_maintenance_end", {
+        device: rec.device,
+        service: rec.service,
+      });
+
+      if (typeof logAction === "function") {
+        logAction("maintenance_end", {
+          device: rec.device,
+          service: rec.service,
         });
+      }
     }
   }
 }
@@ -826,6 +1169,116 @@ function hardDelete(id) {
   }
 }
 
+// --- PATIENT ARCHIVE VIEWER ---
+async function openPatientArchive() {
+    closeModal("settingsModal");
+    document.getElementById("archiveModal").classList.add("open");
+    const list = document.getElementById("archiveList");
+    list.innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+
+    try {
+        // 1. Get Soft Deleted Patients (simplified query - no orderBy to avoid index requirement)
+        const snap = await db.collection(col)
+            .where('isDeleted', '==', true)
+            .where('type', '==', 'patient')
+            .limit(50)
+            .get();
+
+        if (snap.empty) {
+            list.innerHTML = '<div style="text-align:center; padding:30px; opacity:0.5">Arşivde hasta kaydı bulunamadı.</div>';
+            return;
+        }
+
+        // 2. Fetch Analytics for Treatment History (Optimized: fetch all dressing events for these patients?)
+        // Fetching individual history for 50 items is heavy. 
+        // Strategy: Just show list first, load details on click?
+        // User requested "Show treatment count". We need to aggregate.
+        // Let's rely on stored totals in the patient record if available, or fetch simply.
+
+        let html = '';
+        snap.forEach(doc => {
+            const d = doc.data();
+            const dateDel = d.deletedAt ? new Date(d.deletedAt).toLocaleDateString('tr-TR') : '?';
+            const totalSets = d.totalSets || 0;
+            const totalCans = d.totalCans || 0;
+            
+            html += `
+            <div class="item-card" style="border-left:4px solid #94a3b8;">
+                <div class="item-header">
+                    <div>
+                        <div class="item-title">${d.name}</div>
+                        <div class="item-sub">Arşiv Tarihi: ${dateDel} • ${d.service}</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <span class="tag" style="background:#f1f5f9; color:#64748b;">TOPLAM: ${totalSets} SET</span>
+                    </div>
+                </div>
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                     <button class="act-btn btn-soft" onclick="loadPatientHistoryDetails('${doc.id}', '${d.name}')" style="font-size:11px; padding:6px 12px;">
+                        <i class="fas fa-history"></i> TEDAVİ GEÇMİŞİNİ GÖR
+                     </button>
+                     <button class="act-btn btn-brand" onclick="restore('${doc.id}')" style="font-size:11px; padding:6px 12px; background:#10b981;">
+                        <i class="fas fa-trash-restore"></i> GERİ YÜKLE
+                     </button>
+                </div>
+                <div id="history-${doc.id}" style="display:none; margin-top:10px; background:#f8fafc; padding:10px; border-radius:8px; font-size:12px;"></div>
+            </div>`;
+        });
+        
+        list.innerHTML = html;
+
+    } catch (e) {
+        console.error(e);
+        list.innerHTML = '<div style="color:red; padding:20px;">Veriler yüklenirken hata oluştu.</div>';
+    }
+}
+
+async function loadPatientHistoryDetails(id, name) {
+    const container = document.getElementById(`history-${id}`);
+    if (container.style.display === 'block') {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    container.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geçmiş taranıyor...';
+    
+    const nName = normalizeName(name);
+
+    try {
+        const snap = await db.collection(_SYS_CFG.cols.adm_act || 'trio_admin_actions') 
+            .where('type', '==', 'dressing_record')
+            .where('details.patient', '==', name) // Or normalize? Currently logAction uses raw name in 'details.patient'
+            .orderBy('timestamp', 'desc')
+            .limit(10)
+            .get();
+
+        if(snap.empty) {
+             container.innerHTML = `
+                <div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">KAYITLI ÖZET VERİLER:</div>
+                <div>Toplam Set Kullanımı: <b>${allData.find(x=>x.id==id)?.totalSets || 0}</b></div>
+                <div>Toplam Kap Kullanımı: <b>${allData.find(x=>x.id==id)?.totalCans || 0}</b></div>
+                <div style="margin-top:10px; opacity:0.5;">Son işlem kaydı bulunamadı.</div>
+            `;
+            return;
+        }
+
+        let hHtml = '<div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">SON İŞLEMLER:</div><ul style="padding-left:15px; margin:0;">';
+        snap.forEach(doc => {
+            const d = doc.data();
+            const date = d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString('tr-TR') : '-';
+            hHtml += `<li><b>${date}:</b> ${d.details.sets} Set, ${d.details.cans} Kap</li>`;
+        });
+        hHtml += '</ul>';
+        container.innerHTML = hHtml;
+            
+    } catch(e) {
+        console.warn(e);
+        container.innerHTML = "Detay yüklenemedi: " + e.message;
+    }
+}
+
+
 function emptyTrash() {
   if (
     confirm(
@@ -847,6 +1300,50 @@ function emptyTrash() {
       AnalyticsService.logEvent("trash_emptied", { count: deleted.length });
     });
   }
+}
+
+
+// --- BULK TRANSFER LOGIC ---
+
+function startBulkTransferMode() {
+    isBulkTransferMode = true;
+    isSelectionMode = false;
+    closeModal("settingsModal");
+    switchTab("device");
+    refreshView();
+}
+
+function cancelBulkTransferMode() {
+    isBulkTransferMode = false;
+    refreshView();
+}
+
+function transferSelected() {
+    const checks = document.querySelectorAll('.bulk-check:checked');
+    if (checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
+
+    const targetService = prompt("Hedef Servis/Lokasyon:");
+    if (!targetService) return;
+
+    if (confirm(`${checks.length} cihaz "${targetService}" servisine transfer edilecek. Onaylıyor musunuz?`)) {
+        const batch = db.batch();
+        let count = 0;
+        checks.forEach(c => {
+            const ref = db.collection(col).doc(c.value);
+            batch.update(ref, { service: targetService });
+            count++;
+        });
+
+        batch.commit().then(() => {
+            alert(`${count} cihaz transfer edildi.`);
+            cancelBulkTransferMode();
+            
+            if(typeof logAction === 'function') {
+                logAction('bulk_transfer', { count: count, target: targetService });
+            }
+            if(typeof updateRecentActivity === 'function') updateRecentActivity();
+        }).catch(e => alert("Hata: " + e.message));
+    }
 }
 
 function normalizeDeviceCode(code) {
@@ -941,12 +1438,18 @@ function commitRecord() {
   if (t === "patient") {
     data.name = normalizeText(document.getElementById("inpName").value);
     data.dateNext = document.getElementById("inpDate").value;
+    data.notes = document.getElementById("inpNotes").value.trim(); // NEW
+
     if (!data.name) return alert("Lütfen hasta adını giriniz.");
 
     // MOD: Save Initial Consumables for New Patient
     if (!id) {
-        data.totalSets = parseInt(document.getElementById('inpInitSets').value) || 0;
-        data.totalCans = parseInt(document.getElementById('inpInitCans').value) || 0;
+      data.totalSets =
+        parseInt(document.getElementById("inpInitSets").value) || 0;
+      data.totalCans =
+        parseInt(document.getElementById("inpInitCans").value) || 0;
+      // Start dressing count at 0
+      data.dressingCount = 0;
     }
   } else {
     data.name = "MÜSAİT";
@@ -986,28 +1489,70 @@ function editRecord(id) {
   if (r.type === "patient") {
     document.getElementById("inpName").value = r.name;
     document.getElementById("inpDate").value = r.dateNext;
+    document.getElementById("inpNotes").value = r.notes || ""; // NEW
   }
 }
 
 function sharePatient(id) {
   const p = allData.find((x) => x.id === id);
-  window.open(
-    `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*HASTA KAYDI:* ${p.name}\n*BİRİM:* ${p.service}\n*CİHAZ:* ${p.device}\n*TARİH:* ${formatDate(p.dateNext)}`)}`,
-    "_blank",
-  );
+  if (!p) return;
 
-  AnalyticsService.logEvent("report_shared", {
-    type: "patient",
-    patient: p.name,
-  });
+  const startDate = p.dateAdded 
+      ? new Date(p.dateAdded.toDate()).toLocaleDateString('tr-TR')
+      : 'Bilinmiyor';
+  
+  const lastTreatment = p.lastDressingDate
+      ? new Date(p.lastDressingDate.toDate()).toLocaleDateString('tr-TR')
+      : 'Hiç yapılmadı';
+  
+  const treatmentCount = p.dressingCount || 0;
+  const totalSets = p.totalSets || 0;
+  const totalCans = p.totalCans || 0;
+
+  const msg = `🏥 *TRIO MANAGER - HASTA RAPORU*
+
+👤 *Hasta:* ${p.name}
+📅 *Kayıt Tarihi:* ${startDate}
+🩹 *Son Tedavi:* ${lastTreatment}
+📊 *Toplam İşlem:* ${treatmentCount} Tedavi
+
+📦 *MALZEME KULLANIMI:*
+  • Kapama Seti: ${totalSets} adet
+  • Toplama Kabı: ${totalCans} adet
+
+📍 *Cihaz:* ${p.device} (${p.service})
+⏰ *Sonraki İşlem:* ${p.dateNext || 'Planlanmadı'}
+
+━━━━━━━━━━━━━━━
+_Trio Manager Elite v3.0_`;
+
+  const num = localStorage.getItem("trioAdminNumber") || "";
+  if (!num) {
+    alert("Lütfen önce ayarlardan iletişim numarası kaydedin.");
+    return;
+  }
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
 }
 
 function shareDevice(id) {
   const d = allData.find((x) => x.id === id);
-  window.open(
-    `https://api.whatsapp.com/send?phone=${savedNumber}&text=${encodeURIComponent(`*MÜSAİT ENVANTER*\n*KOD:* ${d.device}\n*KONUM:* ${d.service}`)}`,
-    "_blank",
-  );
+  if (!d) return;
+
+  const msg = `🏥 *TRIO MANAGER - CİHAZ RAPORU*
+
+📦 *Cihaz:* ${d.device}
+📍 *Konum:* ${d.service}
+📊 *Durum:* MÜSAİT (Depoda)
+
+━━━━━━━━━━━━━━━
+_Trio Manager Elite v3.0_`;
+
+  const num = localStorage.getItem("trioAdminNumber") || "";
+  if (!num) {
+    alert("Lütfen önce ayarlardan iletişim numarası kaydedin.");
+    return;
+  }
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
 }
 
 function setType(t) {

@@ -39,6 +39,8 @@ const AnalyticsService = {
         ...doc.data(),
       }));
       results.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      
+      console.log("[Analytics] Loaded", results.length, "records for", monthStr);
 
       return results;
     } catch (error) {
