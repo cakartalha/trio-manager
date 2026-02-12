@@ -1,5 +1,4 @@
 // Nurse Panel Logic
-// Nurse Panel Logic
 // Fix: Use correct config object
 const colRecords = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.rec : 'trio_records';
 const colNotifs = (_SYS_CFG && _SYS_CFG.cols) ? _SYS_CFG.cols.ntf : 'trio_notifications';

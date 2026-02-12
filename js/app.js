@@ -239,7 +239,6 @@ function deleteSelected() {
 }
 
 /* --- NEW ANALYTICS LOGIC --- */
-/* --- NEW ANALYTICS LOGIC --- */
 // Helper to get safe YYYY-MM-DD string
 function getSafeDateStr(addDays = 0) {
   const d = new Date();
@@ -258,7 +257,7 @@ function registerDressing(id) {
 
 // Fixed Date Logic: Uses the currently selected date in the input as the base,
 // allowing "Monday + 3 Days = Thursday" logic.
-function setQuickDate(days) {
+function setQuickDate(days, btnEl) {
   const input = document.getElementById("dressingDateInput");
   let baseDate = new Date(); // Default to today
 
@@ -290,8 +289,8 @@ function setQuickDate(days) {
   document
     .querySelectorAll(".quick-btn")
     .forEach((b) => b.classList.remove("active"));
-  if (window.event && window.event.target.classList.contains("quick-btn")) {
-    window.event.target.classList.add("active");
+  if (btnEl && btnEl.classList && btnEl.classList.contains("quick-btn")) {
+    btnEl.classList.add("active");
   }
 }
 window.setQuickDate = setQuickDate;
@@ -818,8 +817,7 @@ function checkSystemAccess() {
 
 
 /* --- CORE FUNCTIONS --- */
-// Utility: Normalize Name
-// (already defined at top, but ensure it's not duplicated in full file)
+
 
 function renderLocationButtons(groups, total) {
   const container = document.getElementById("locationFilters");
