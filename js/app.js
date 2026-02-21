@@ -210,7 +210,7 @@ function cancelSelectionMode() {
 }
 
 function deleteSelected() {
-  const checks = document.querySelectorAll(".bulk-check:checked");
+  const checks = document.querySelectorAll(".del-check:checked");
   if (checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
 
   if (
@@ -1020,6 +1020,23 @@ function transferToDevice(id) {
   const n = prompt("Hedef Depo/Konum Giriniz:", "Ana Depo");
   if (n) {
     const rec = allData.find((x) => x.id === id);
+
+    // Hasta kapanıyorsa (arşive gidiyorsa), hastanın geçmiş bilgisini tutmak için arşive bir kopya ekle.
+    if (rec && rec.type === "patient") {
+      db.collection(col).add({
+        type: "patient",
+        name: rec.name,
+        device: rec.device,
+        service: rec.service,
+        isDeleted: true, // Arşivde ve Çöp Kutusunda görünmesi için
+        deletedAt: Date.now(),
+        totalSets: rec.totalSets || 0,
+        totalCans: rec.totalCans || 0,
+        dressingCount: rec.dressingCount || 0,
+        createdAt: rec.createdAt || Date.now()
+      });
+    }
+
     db.collection(col).doc(id).update({
       type: "device",
       name: "MÜSAİT",
@@ -1124,7 +1141,7 @@ function moveToArchive(id) {
     });
     AnalyticsService.logEvent("item_deleted_soft", { type: rec.type, id });
 
-    showNotification(`${rec.name || rec.device} çöp kutusuna taşındı.`);
+    alert(`${rec.name || rec.device} çöp kutusuna taşındı.`);
   }
 }
 
@@ -1245,8 +1262,8 @@ async function loadPatientHistoryDetails(id, name) {
 
     try {
         const snap = await db.collection(_SYS_CFG.cols.adm_act || 'trio_admin_actions') 
-            .where('type', '==', 'dressing_record')
-            .where('details.patient', '==', name) // Or normalize? Currently logAction uses raw name in 'details.patient'
+            .where('actionType', '==', 'dressing_record')
+            .where('details.patient', '==', name)
             .orderBy('timestamp', 'desc')
             .limit(10)
             .get();
@@ -1641,6 +1658,13 @@ function closeModal(id) {
   document.getElementById(id).classList.remove("open");
 }
 
+// Overlay tıklama ile modal kapatma (tüm modallar için)
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) {
+    e.target.classList.remove('open');
+  }
+});
+
 function toggleHelp() {
   document.getElementById("helpModal").classList.add("open");
 }
@@ -1745,7 +1769,7 @@ function exportMasterExcel() {
       }),
     );
 
-  let csv = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;HASTA ADI;PANSUMAN TARIHI\n";
+  let csv = "\uFEFFDURUM;CIHAZ KODU;SERVIS/KONUM;SONRAKI TARIH;KALAN SURE\n";
   sortedData.forEach(
     (r) => (csv += `${r.d};"${r.c}";"${r.k}";"${r.i}";${r.t}\n`),
   );
