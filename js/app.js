@@ -8,7 +8,6 @@ const normalizeName = (name) => {
 // Global state variables
 let isBulkTransferMode = false;
 
-
 function refreshView() {
   const pCont = document.getElementById("list-patient");
   const dCont = document.getElementById("list-device");
@@ -34,16 +33,18 @@ function refreshView() {
     const diff = getDiff(p.dateNext);
     const tagColor = diff.days <= 0 ? "#ef4444" : "#10b981";
     const serviceColor = getServiceColor(p.service);
-    
+
     // Smart Info Calculations
-    const lastDressingDate = p.lastDressingDate 
-        ? new Date(p.lastDressingDate.toDate()).toLocaleDateString('tr-TR')
-        : null;
-    
+    const lastDressingDate = p.lastDressingDate
+      ? new Date(p.lastDressingDate.toDate()).toLocaleDateString("tr-TR")
+      : null;
+
     const daysSinceLastDressing = p.lastDressingDate
-        ? Math.floor((Date.now() - p.lastDressingDate.toDate()) / (1000 * 60 * 60 * 24))
-        : null;
-    
+      ? Math.floor(
+          (Date.now() - p.lastDressingDate.toDate()) / (1000 * 60 * 60 * 24),
+        )
+      : null;
+
     const dressingCount = p.dressingCount || 0;
     const totalMaterials = (p.totalSets || 0) + (p.totalCans || 0);
 
@@ -57,21 +58,27 @@ function refreshView() {
                             <i class="fas fa-map-marker-alt"></i> ${p.service}
                         </span> 
                         &nbsp;•&nbsp; ${p.device}
-                        ${p.notes 
+                        ${
+                          p.notes
                             ? `<br><span style="font-size:10px; color:#f59e0b; font-weight:600; margin-top:3px; display:inline-block;">
-                                 <i class="fas fa-sticky-note"></i> ${p.notes.substring(0, 50)}${p.notes.length > 50 ? '...' : ''}
+                                 <i class="fas fa-sticky-note"></i> ${p.notes.substring(0, 50)}${p.notes.length > 50 ? "..." : ""}
                                </span>`
-                            : ''}
-                        ${daysSinceLastDressing !== null 
+                            : ""
+                        }
+                        ${
+                          daysSinceLastDressing !== null
                             ? `<br><span style="font-size:10px; opacity:0.7; margin-top:3px; display:inline-block;">
                                  <i class="fas fa-history"></i> Son: ${daysSinceLastDressing} gün önce
                                </span>`
-                            : ''}
-                        ${dressingCount > 0 
+                            : ""
+                        }
+                        ${
+                          dressingCount > 0
                             ? `<br><span style="font-size:10px; opacity:0.7;">
                                  <i class="fas fa-procedures"></i> ${dressingCount} tedavi • ${totalMaterials} malzeme
                                </span>`
-                            : ''}
+                            : ""
+                        }
                     </div>
                 </div>
                 <span style="color:${tagColor}; font-weight:800; font-size:11px;">${diff.text}</span>
@@ -93,7 +100,7 @@ function refreshView() {
   allDevices.forEach((d) => {
     if (!d.service) return;
     // Normalize: trim spaces AND collapse multiple spaces into one
-    const n = d.service.trim().replace(/\s+/g, ' ').toLocaleUpperCase("tr-TR");
+    const n = d.service.trim().replace(/\s+/g, " ").toLocaleUpperCase("tr-TR");
     if (!locGroups[n]) locGroups[n] = 0;
     locGroups[n]++;
   });
@@ -128,7 +135,7 @@ function refreshView() {
     let selectHtml = "";
     if (isSelectionMode || isBulkTransferMode) {
       actionHtml = ""; // Hide buttons in selection mode
-      const chkClass = isSelectionMode ? 'del-check' : 'bulk-check';
+      const chkClass = isSelectionMode ? "del-check" : "bulk-check";
       selectHtml = `<input type="checkbox" class="${chkClass}" value="${d.id}" style="width:20px; height:20px; margin-right:15px;">`;
     }
 
@@ -147,21 +154,23 @@ function refreshView() {
             </div>${actionHtml}</div>`;
 
     if (isBulkTransferMode) {
-        // We need to inject the header only once, but here we are in loop.
-        // Better place is outside loop.
-        // However, refreshView Logic structure in this file clears container first.
-        // So we can prepend to dCont after loop or handle it differently.
-        // Let's use the same logic as Selection Mode which probably injects header
-        // Wait, Selection Mode logic is inside render?
-        // Let's check where startSelectionMode injects header.
-        // It injects straight to dCont.
-        // But refreshView clears dCont.
-        // So we should inject header at the top of dCont if mode is active.
+      // We need to inject the header only once, but here we are in loop.
+      // Better place is outside loop.
+      // However, refreshView Logic structure in this file clears container first.
+      // So we can prepend to dCont after loop or handle it differently.
+      // Let's use the same logic as Selection Mode which probably injects header
+      // Wait, Selection Mode logic is inside render?
+      // Let's check where startSelectionMode injects header.
+      // It injects straight to dCont.
+      // But refreshView clears dCont.
+      // So we should inject header at the top of dCont if mode is active.
     }
   });
 
   if (isBulkTransferMode) {
-    dCont.insertAdjacentHTML('afterbegin', `
+    dCont.insertAdjacentHTML(
+      "afterbegin",
+      `
         <div style="position:sticky; top:0; z-index:100; background:var(--bg-body); padding:10px; margin-bottom:10px; border-bottom:1px solid var(--border-solid); display:flex; justify-content:space-between; align-items:center;">
              <span style="font-weight:700; color:var(--text-main)">Toplu Transfer (Yönetici)</span>
              <div>
@@ -169,9 +178,9 @@ function refreshView() {
                 <button onclick="cancelBulkTransferMode()" class="lux-btn" style="background:var(--surface); color:var(--text-main); padding:8px 15px; font-size:12px; margin-left:5px;">İptal</button>
              </div>
         </div>
-    `);
+    `,
+    );
   }
-
 
   if (patients.length === 0)
     pCont.innerHTML =
@@ -255,30 +264,18 @@ function registerDressing(id) {
   document.getElementById("dateModal").classList.add("open");
 }
 
-// Fixed Date Logic: Uses the currently selected date in the input as the base,
-// allowing "Monday + 3 Days = Thursday" logic.
+// Fixed Date Logic: Always use TRUE CURRENT DAY as the base.
+// Removed logic that stacked days based on the manually selected input value.
 function setQuickDate(days, btnEl) {
   const input = document.getElementById("dressingDateInput");
-  let baseDate = new Date(); // Default to today
 
-  // If the input already has a value (user selected Monday manually), use that as base.
-  if (input.value) {
-    // Parse input value (YYYY-MM-DD) carefully to avoid UTC shifts
-    const parts = input.value.split("-");
-    if (parts.length === 3) {
-      // New Date(y, mIndex, d) creates local date
-      baseDate = new Date(
-        parseInt(parts[0]),
-        parseInt(parts[1]) - 1,
-        parseInt(parts[2]),
-      );
-    }
-  }
+  // Create a new Date object representing RIGHT NOW.
+  let baseDate = new Date();
 
-  // Add days
+  // Add the required days exactly to TODAY.
   baseDate.setDate(baseDate.getDate() + days);
 
-  // Format back to YYYY-MM-DD
+  // Format back to exactly YYYY-MM-DD using local time
   const y = baseDate.getFullYear();
   const m = String(baseDate.getMonth() + 1).padStart(2, "0");
   const d = String(baseDate.getDate()).padStart(2, "0");
@@ -345,8 +342,8 @@ function saveDressingDate() {
       document.getElementById("inpUsedSets").value = 1;
       document.getElementById("inpUsedCans").value = 0;
     }, 500);
-    
-    if(typeof updateRecentActivity === 'function') updateRecentActivity();
+
+    if (typeof updateRecentActivity === "function") updateRecentActivity();
   }
 }
 
@@ -507,9 +504,11 @@ function validateAnalyticsData(stats) {
   // we can check if the patient name exists in current database.
 
   phantomIds = [];
-  
+
   // Get list of already dismissed phantom IDs from localStorage
-  const dismissedPhantoms = JSON.parse(localStorage.getItem('dismissedPhantoms') || '[]');
+  const dismissedPhantoms = JSON.parse(
+    localStorage.getItem("dismissedPhantoms") || "[]",
+  );
 
   // Get all known patient names (Active + Soft Deleted + ALL)
   // Include ALL patients ever recorded, even if deleted
@@ -522,24 +521,24 @@ function validateAnalyticsData(stats) {
   stats.forEach((s) => {
     // Check patient-related events for phantom data
     const patientEventTypes = [
-      'patient_added', 
-      'dressing_done', 
-      'patient_discharged',
-      'device_added',
-      'device_maintenance_start',
-      'device_maintenance_end'
+      "patient_added",
+      "dressing_done",
+      "patient_discharged",
+      "device_added",
+      "device_maintenance_start",
+      "device_maintenance_end",
     ];
-    
+
     if (patientEventTypes.includes(s.type)) {
       // For patient events, check if patient exists
-      if (s.type.startsWith('patient') || s.type === 'dressing_done') {
+      if (s.type.startsWith("patient") || s.type === "dressing_done") {
         const pName = normalizeName(s.name || s.patient || s.patientNormalized);
         if (pName && !knownNames.has(pName)) {
           phantomIds.push(s.id);
         }
       }
     }
-    
+
     // Also check for any analytics record where normalized patient doesn't exist
     if (s.patientNormalized && !knownNames.has(s.patientNormalized)) {
       if (!phantomIds.includes(s.id)) {
@@ -549,21 +548,21 @@ function validateAnalyticsData(stats) {
   });
 
   // Filter out already dismissed phantoms (those that were deleted but still in cache)
-  phantomIds = phantomIds.filter(id => !dismissedPhantoms.includes(id));
+  phantomIds = phantomIds.filter((id) => !dismissedPhantoms.includes(id));
 
   // Update UI
   const count = phantomIds.length;
-  
+
   // DEBUG: Log phantom records to console
   if (count > 0) {
     console.log("=== PHANTOM KAYITLAR ===");
-    phantomIds.forEach(id => {
-      const record = stats.find(s => s.id === id);
+    phantomIds.forEach((id) => {
+      const record = stats.find((s) => s.id === id);
       console.log("Phantom Record:", id, record);
     });
     console.log("========================");
   }
-  
+
   if (count > 0) {
     document.getElementById("phantomCount").innerText = `${count} Kayıt`;
     // Show warning button or auto-modal?
@@ -614,23 +613,25 @@ function cleanPhantomData() {
     // Create a copy of IDs to delete
     const idsToDelete = [...phantomIds];
     console.log("[Cleanup] Deleting phantom records:", idsToDelete);
-    
+
     AnalyticsService.deletePhantomRecords(idsToDelete)
       .then((count) => {
         console.log("[Cleanup] Deleted:", count);
-        
+
         // Save deleted IDs to localStorage so they won't be detected again (cache workaround)
-        const dismissed = JSON.parse(localStorage.getItem('dismissedPhantoms') || '[]');
-        idsToDelete.forEach(id => {
+        const dismissed = JSON.parse(
+          localStorage.getItem("dismissedPhantoms") || "[]",
+        );
+        idsToDelete.forEach((id) => {
           if (!dismissed.includes(id)) dismissed.push(id);
         });
-        localStorage.setItem('dismissedPhantoms', JSON.stringify(dismissed));
-        
+        localStorage.setItem("dismissedPhantoms", JSON.stringify(dismissed));
+
         // Clear the phantom array
         phantomIds = [];
-        
+
         // Wait 1 second for Firestore to propagate deletion, then reload
-        return new Promise(resolve => setTimeout(resolve, 1000));
+        return new Promise((resolve) => setTimeout(resolve, 1000));
       })
       .then(() => {
         // Reload analytics and re-validate
@@ -650,11 +651,14 @@ function cleanPhantomData() {
           }
         } else {
           // Still some phantoms - update count
-          document.getElementById("phantomCount").innerText = `${phantomIds.length} Kayıt`;
-          alert(`⚠️ ${phantomIds.length} adet kayıt hala düzeltme bekliyor. Tekrar deneyin.`);
+          document.getElementById("phantomCount").innerText =
+            `${phantomIds.length} Kayıt`;
+          alert(
+            `⚠️ ${phantomIds.length} adet kayıt hala düzeltme bekliyor. Tekrar deneyin.`,
+          );
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("[Cleanup] Error:", err);
         alert("Hata oluştu: " + err.message);
       });
@@ -724,8 +728,6 @@ async function logout() {
   window.location.reload();
 }
 
-
-
 function startApp() {
   document.getElementById("loader").style.display = "flex";
 
@@ -761,7 +763,7 @@ function startApp() {
     document.getElementById("loader").style.display = "none";
     refreshView();
     updateStats();
-    if(typeof updateRecentActivity === 'function') updateRecentActivity();
+    if (typeof updateRecentActivity === "function") updateRecentActivity();
   });
 
   db.collection(_SYS_CFG.cols.ntf)
@@ -775,19 +777,25 @@ function startApp() {
 
 // Helper function for service colors (global scope)
 function getServiceColor(serviceName) {
-    if (!serviceName) return '#94a3b8';
-    
-    let hash = 0;
-    for (let i = 0; i < serviceName.length; i++) {
-        hash = serviceName.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    const colors = [
-        '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b',
-        '#ec4899', '#06b6d4', '#84cc16', '#f97316'
-    ];
-    
-    return colors[Math.abs(hash) % colors.length];
+  if (!serviceName) return "#94a3b8";
+
+  let hash = 0;
+  for (let i = 0; i < serviceName.length; i++) {
+    hash = serviceName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const colors = [
+    "#3b82f6",
+    "#10b981",
+    "#8b5cf6",
+    "#f59e0b",
+    "#ec4899",
+    "#06b6d4",
+    "#84cc16",
+    "#f97316",
+  ];
+
+  return colors[Math.abs(hash) % colors.length];
 }
 
 // System access check helper (global scope)
@@ -798,7 +806,9 @@ function checkSystemAccess() {
       .get()
       .then((doc) => {
         if (doc.exists && doc.data().main === false) {
-          alert("⛔ YÖNETİCİ UYARISI: Ana panel erişimi şu an kilitli görünüyor.");
+          alert(
+            "⛔ YÖNETİCİ UYARISI: Ana panel erişimi şu an kilitli görünüyor.",
+          );
         }
       })
       .catch((e) => console.warn("Access check skip", e));
@@ -815,9 +825,7 @@ function checkSystemAccess() {
   }
 }
 
-
 /* --- CORE FUNCTIONS --- */
-
 
 function renderLocationButtons(groups, total) {
   const container = document.getElementById("locationFilters");
@@ -834,111 +842,133 @@ function renderLocationButtons(groups, total) {
 }
 
 function updateRecentActivity() {
-    const container = document.getElementById('timelineList');
-    const wrapper = document.getElementById('recentActivityTimeline');
-    if (!container || !db) return;
+  const container = document.getElementById("timelineList");
+  const wrapper = document.getElementById("recentActivityTimeline");
+  if (!container || !db) return;
 
-    db.collection(_SYS_CFG.cols.adm_act || 'trio_admin_actions')
-        .orderBy('timestamp', 'desc')
-        .limit(20) // Get more, then filter
-        .get()
-        .then(snap => {
-            if (snap.empty) {
-                if(wrapper) wrapper.style.display = 'none';
-                return;
-            }
-            
-            // Filter out technical/internal events
-            const excludedTypes = [
-                'session_start', 'session_end', 'session_heartbeat',
-                'heartbeat', 'page_view', 'scroll', 'click'
-            ];
-            
-            const meaningfulDocs = [];
-            snap.forEach(doc => {
-                const d = doc.data();
-                const actionType = d.actionType || d.type || '';
-                if (!excludedTypes.includes(actionType)) {
-                    meaningfulDocs.push({doc, data: d});
-                }
-            });
-            
-            // Take only first 5 meaningful ones
-            const toShow = meaningfulDocs.slice(0, 5);
-            
-            if (toShow.length === 0) {
-                if(wrapper) wrapper.style.display = 'none';
-                return;
-            }
-            
-            if(wrapper) wrapper.style.display = 'block';
-            let html = '';
-            
-            toShow.forEach(({doc, data: d}) => {
-                const time = d.timestamp 
-                    ? new Date(d.timestamp.toDate()).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'})
-                    : '';
-                
-                let icon = 'circle', color = '#94a3b8', text = '';
-                
-                // actionType is the correct field name from logAction
-                const actionType = d.actionType || d.type || '';
+  db.collection(_SYS_CFG.cols.adm_act || "trio_admin_actions")
+    .orderBy("timestamp", "desc")
+    .limit(20) // Get more, then filter
+    .get()
+    .then((snap) => {
+      if (snap.empty) {
+        if (wrapper) wrapper.style.display = "none";
+        return;
+      }
 
-                switch(actionType) {
-                    case 'dressing_record':
-                        icon = 'band-aid'; color = '#8b5cf6';
-                        text = `${d.details?.patient || 'Hasta'} tedavi edildi`;
-                        break;
-                    case 'maintenance_start':
-                        icon = 'tools'; color = '#f59e0b';
-                        text = `${d.details?.device || 'Cihaz'} servise gönderildi`;
-                        break;
-                    case 'maintenance_end':
-                        icon = 'check-circle'; color = '#10b981';
-                        text = `${d.details?.device || 'Cihaz'} servisten döndü`;
-                        break;
-                    case 'transfer_to_inventory':
-                        icon = 'box'; color = '#10b981';
-                        text = `${d.details?.device || 'Cihaz'} envantere iade edildi`;
-                        break;
-                    case 'create':
-                        icon = 'plus-circle'; color = '#3b82f6';
-                        text = `${d.details?.data?.name || d.details?.type || 'Yeni kayıt'} eklendi`;
-                        break;
-                    case 'update':
-                        icon = 'edit'; color = '#6366f1';
-                        text = `${d.details?.data?.name || 'Kayıt'} güncellendi`;
-                        break;
-                    case 'soft_delete':
-                        icon = 'trash'; color = '#ef4444';
-                        text = `${d.details?.name || 'Kayıt'} silindi`;
-                        break;
-                    case 'login':
-                        icon = 'sign-in-alt'; color = '#10b981';
-                        text = 'Sisteme giriş yapıldı';
-                        break;
-                    case 'logout':
-                        icon = 'sign-out-alt'; color = '#94a3b8';
-                        text = 'Sistemden çıkış yapıldı';
-                        break;
-                    case 'bulk_transfer':
-                        icon = 'exchange-alt'; color = '#6366f1';
-                        text = `${d.details?.count || ''} cihaz transfer edildi`;
-                        break;
-                    case 'bulk_delete':
-                        icon = 'trash-alt'; color = '#ef4444';
-                        text = `${d.details?.count || ''} kayıt toplu silindi`;
-                        break;
-                    case 'login_failed':
-                        icon = 'times-circle'; color = '#ef4444';
-                        text = 'Başarısız giriş denemesi';
-                        break;
-                    default:
-                        // Make any action type readable
-                        text = actionType ? actionType.replace(/_/g, ' ') : 'İşlem kaydı';
-                }
+      // Filter out technical/internal events
+      const excludedTypes = [
+        "session_start",
+        "session_end",
+        "session_heartbeat",
+        "heartbeat",
+        "page_view",
+        "scroll",
+        "click",
+      ];
 
-                html += `
+      const meaningfulDocs = [];
+      snap.forEach((doc) => {
+        const d = doc.data();
+        const actionType = d.actionType || d.type || "";
+        if (!excludedTypes.includes(actionType)) {
+          meaningfulDocs.push({ doc, data: d });
+        }
+      });
+
+      // Take only first 5 meaningful ones
+      const toShow = meaningfulDocs.slice(0, 5);
+
+      if (toShow.length === 0) {
+        if (wrapper) wrapper.style.display = "none";
+        return;
+      }
+
+      if (wrapper) wrapper.style.display = "block";
+      let html = "";
+
+      toShow.forEach(({ doc, data: d }) => {
+        const time = d.timestamp
+          ? new Date(d.timestamp.toDate()).toLocaleTimeString("tr-TR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "";
+
+        let icon = "circle",
+          color = "#94a3b8",
+          text = "";
+
+        // actionType is the correct field name from logAction
+        const actionType = d.actionType || d.type || "";
+
+        switch (actionType) {
+          case "dressing_record":
+            icon = "band-aid";
+            color = "#8b5cf6";
+            text = `${d.details?.patient || "Hasta"} tedavi edildi`;
+            break;
+          case "maintenance_start":
+            icon = "tools";
+            color = "#f59e0b";
+            text = `${d.details?.device || "Cihaz"} servise gönderildi`;
+            break;
+          case "maintenance_end":
+            icon = "check-circle";
+            color = "#10b981";
+            text = `${d.details?.device || "Cihaz"} servisten döndü`;
+            break;
+          case "transfer_to_inventory":
+            icon = "box";
+            color = "#10b981";
+            text = `${d.details?.device || "Cihaz"} envantere iade edildi`;
+            break;
+          case "create":
+            icon = "plus-circle";
+            color = "#3b82f6";
+            text = `${d.details?.data?.name || d.details?.type || "Yeni kayıt"} eklendi`;
+            break;
+          case "update":
+            icon = "edit";
+            color = "#6366f1";
+            text = `${d.details?.data?.name || "Kayıt"} güncellendi`;
+            break;
+          case "soft_delete":
+            icon = "trash";
+            color = "#ef4444";
+            text = `${d.details?.name || "Kayıt"} silindi`;
+            break;
+          case "login":
+            icon = "sign-in-alt";
+            color = "#10b981";
+            text = "Sisteme giriş yapıldı";
+            break;
+          case "logout":
+            icon = "sign-out-alt";
+            color = "#94a3b8";
+            text = "Sistemden çıkış yapıldı";
+            break;
+          case "bulk_transfer":
+            icon = "exchange-alt";
+            color = "#6366f1";
+            text = `${d.details?.count || ""} cihaz transfer edildi`;
+            break;
+          case "bulk_delete":
+            icon = "trash-alt";
+            color = "#ef4444";
+            text = `${d.details?.count || ""} kayıt toplu silindi`;
+            break;
+          case "login_failed":
+            icon = "times-circle";
+            color = "#ef4444";
+            text = "Başarısız giriş denemesi";
+            break;
+          default:
+            // Make any action type readable
+            text = actionType ? actionType.replace(/_/g, " ") : "İşlem kaydı";
+        }
+
+        html += `
                 <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--border-subtle);">
                     <div style="width:20px; height:20px; border-radius:6px; background:${color}20; color:${color}; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:9px;">
                         <i class="fas fa-${icon}"></i>
@@ -946,11 +976,11 @@ function updateRecentActivity() {
                     <div style="flex:1; font-size:11px; color:var(--text-main); line-height:1.3;">${text}</div>
                     <span style="font-size:10px; opacity:0.5; font-weight:600;">${time}</span>
                 </div>`;
-            });
+      });
 
-            container.innerHTML = html;
-        })
-        .catch(e => console.warn('Timeline error:', e));
+      container.innerHTML = html;
+    })
+    .catch((e) => console.warn("Timeline error:", e));
 }
 
 function updateBadge() {
@@ -1033,7 +1063,7 @@ function transferToDevice(id) {
         totalSets: rec.totalSets || 0,
         totalCans: rec.totalCans || 0,
         dressingCount: rec.dressingCount || 0,
-        createdAt: rec.createdAt || Date.now()
+        createdAt: rec.createdAt || Date.now(),
       });
     }
 
@@ -1186,38 +1216,42 @@ function hardDelete(id) {
 
 // --- PATIENT ARCHIVE VIEWER ---
 async function openPatientArchive() {
-    closeModal("settingsModal");
-    document.getElementById("archiveModal").classList.add("open");
-    const list = document.getElementById("archiveList");
-    list.innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
+  closeModal("settingsModal");
+  document.getElementById("archiveModal").classList.add("open");
+  const list = document.getElementById("archiveList");
+  list.innerHTML = '<div class="spinner" style="margin:20px auto;"></div>';
 
-    try {
-        // 1. Get Soft Deleted Patients (simplified query - no orderBy to avoid index requirement)
-        const snap = await db.collection(col)
-            .where('isDeleted', '==', true)
-            .where('type', '==', 'patient')
-            .limit(50)
-            .get();
+  try {
+    // 1. Get Soft Deleted Patients (simplified query - no orderBy to avoid index requirement)
+    const snap = await db
+      .collection(col)
+      .where("isDeleted", "==", true)
+      .where("type", "==", "patient")
+      .limit(50)
+      .get();
 
-        if (snap.empty) {
-            list.innerHTML = '<div style="text-align:center; padding:30px; opacity:0.5">Arşivde hasta kaydı bulunamadı.</div>';
-            return;
-        }
+    if (snap.empty) {
+      list.innerHTML =
+        '<div style="text-align:center; padding:30px; opacity:0.5">Arşivde hasta kaydı bulunamadı.</div>';
+      return;
+    }
 
-        // 2. Fetch Analytics for Treatment History (Optimized: fetch all dressing events for these patients?)
-        // Fetching individual history for 50 items is heavy. 
-        // Strategy: Just show list first, load details on click?
-        // User requested "Show treatment count". We need to aggregate.
-        // Let's rely on stored totals in the patient record if available, or fetch simply.
+    // 2. Fetch Analytics for Treatment History (Optimized: fetch all dressing events for these patients?)
+    // Fetching individual history for 50 items is heavy.
+    // Strategy: Just show list first, load details on click?
+    // User requested "Show treatment count". We need to aggregate.
+    // Let's rely on stored totals in the patient record if available, or fetch simply.
 
-        let html = '';
-        snap.forEach(doc => {
-            const d = doc.data();
-            const dateDel = d.deletedAt ? new Date(d.deletedAt).toLocaleDateString('tr-TR') : '?';
-            const totalSets = d.totalSets || 0;
-            const totalCans = d.totalCans || 0;
-            
-            html += `
+    let html = "";
+    snap.forEach((doc) => {
+      const d = doc.data();
+      const dateDel = d.deletedAt
+        ? new Date(d.deletedAt).toLocaleDateString("tr-TR")
+        : "?";
+      const totalSets = d.totalSets || 0;
+      const totalCans = d.totalCans || 0;
+
+      html += `
             <div class="item-card" style="border-left:4px solid #94a3b8;">
                 <div class="item-header">
                     <div>
@@ -1238,61 +1272,64 @@ async function openPatientArchive() {
                 </div>
                 <div id="history-${doc.id}" style="display:none; margin-top:10px; background:#f8fafc; padding:10px; border-radius:8px; font-size:12px;"></div>
             </div>`;
-        });
-        
-        list.innerHTML = html;
+    });
 
-    } catch (e) {
-        console.error(e);
-        list.innerHTML = '<div style="color:red; padding:20px;">Veriler yüklenirken hata oluştu.</div>';
-    }
+    list.innerHTML = html;
+  } catch (e) {
+    console.error(e);
+    list.innerHTML =
+      '<div style="color:red; padding:20px;">Veriler yüklenirken hata oluştu.</div>';
+  }
 }
 
 async function loadPatientHistoryDetails(id, name) {
-    const container = document.getElementById(`history-${id}`);
-    if (container.style.display === 'block') {
-        container.style.display = 'none';
-        return;
-    }
-    
-    container.style.display = 'block';
-    container.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geçmiş taranıyor...';
-    
-    const nName = normalizeName(name);
+  const container = document.getElementById(`history-${id}`);
+  if (container.style.display === "block") {
+    container.style.display = "none";
+    return;
+  }
 
-    try {
-        const snap = await db.collection(_SYS_CFG.cols.adm_act || 'trio_admin_actions') 
-            .where('actionType', '==', 'dressing_record')
-            .where('details.patient', '==', name)
-            .orderBy('timestamp', 'desc')
-            .limit(10)
-            .get();
+  container.style.display = "block";
+  container.innerHTML =
+    '<i class="fas fa-spinner fa-spin"></i> Geçmiş taranıyor...';
 
-        if(snap.empty) {
-             container.innerHTML = `
+  const nName = normalizeName(name);
+
+  try {
+    const snap = await db
+      .collection(_SYS_CFG.cols.adm_act || "trio_admin_actions")
+      .where("actionType", "==", "dressing_record")
+      .where("details.patient", "==", name)
+      .orderBy("timestamp", "desc")
+      .limit(10)
+      .get();
+
+    if (snap.empty) {
+      container.innerHTML = `
                 <div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">KAYITLI ÖZET VERİLER:</div>
-                <div>Toplam Set Kullanımı: <b>${allData.find(x=>x.id==id)?.totalSets || 0}</b></div>
-                <div>Toplam Kap Kullanımı: <b>${allData.find(x=>x.id==id)?.totalCans || 0}</b></div>
+                <div>Toplam Set Kullanımı: <b>${allData.find((x) => x.id == id)?.totalSets || 0}</b></div>
+                <div>Toplam Kap Kullanımı: <b>${allData.find((x) => x.id == id)?.totalCans || 0}</b></div>
                 <div style="margin-top:10px; opacity:0.5;">Son işlem kaydı bulunamadı.</div>
             `;
-            return;
-        }
-
-        let hHtml = '<div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">SON İŞLEMLER:</div><ul style="padding-left:15px; margin:0;">';
-        snap.forEach(doc => {
-            const d = doc.data();
-            const date = d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString('tr-TR') : '-';
-            hHtml += `<li><b>${date}:</b> ${d.details.sets} Set, ${d.details.cans} Kap</li>`;
-        });
-        hHtml += '</ul>';
-        container.innerHTML = hHtml;
-            
-    } catch(e) {
-        console.warn(e);
-        container.innerHTML = "Detay yüklenemedi: " + e.message;
+      return;
     }
-}
 
+    let hHtml =
+      '<div style="font-weight:700; color:var(--text-main); margin-bottom:5px;">SON İŞLEMLER:</div><ul style="padding-left:15px; margin:0;">';
+    snap.forEach((doc) => {
+      const d = doc.data();
+      const date = d.timestamp
+        ? new Date(d.timestamp.toDate()).toLocaleDateString("tr-TR")
+        : "-";
+      hHtml += `<li><b>${date}:</b> ${d.details.sets} Set, ${d.details.cans} Kap</li>`;
+    });
+    hHtml += "</ul>";
+    container.innerHTML = hHtml;
+  } catch (e) {
+    console.warn(e);
+    container.innerHTML = "Detay yüklenemedi: " + e.message;
+  }
+}
 
 function emptyTrash() {
   if (
@@ -1317,48 +1354,54 @@ function emptyTrash() {
   }
 }
 
-
 // --- BULK TRANSFER LOGIC ---
 
 function startBulkTransferMode() {
-    isBulkTransferMode = true;
-    isSelectionMode = false;
-    closeModal("settingsModal");
-    switchTab("device");
-    refreshView();
+  isBulkTransferMode = true;
+  isSelectionMode = false;
+  closeModal("settingsModal");
+  switchTab("device");
+  refreshView();
 }
 
 function cancelBulkTransferMode() {
-    isBulkTransferMode = false;
-    refreshView();
+  isBulkTransferMode = false;
+  refreshView();
 }
 
 function transferSelected() {
-    const checks = document.querySelectorAll('.bulk-check:checked');
-    if (checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
+  const checks = document.querySelectorAll(".bulk-check:checked");
+  if (checks.length === 0) return alert("Hiçbir cihaz seçmediniz.");
 
-    const targetService = prompt("Hedef Servis/Lokasyon:");
-    if (!targetService) return;
+  const targetService = prompt("Hedef Servis/Lokasyon:");
+  if (!targetService) return;
 
-    if (confirm(`${checks.length} cihaz "${targetService}" servisine transfer edilecek. Onaylıyor musunuz?`)) {
-        const batch = db.batch();
-        let count = 0;
-        checks.forEach(c => {
-            const ref = db.collection(col).doc(c.value);
-            batch.update(ref, { service: targetService });
-            count++;
-        });
+  if (
+    confirm(
+      `${checks.length} cihaz "${targetService}" servisine transfer edilecek. Onaylıyor musunuz?`,
+    )
+  ) {
+    const batch = db.batch();
+    let count = 0;
+    checks.forEach((c) => {
+      const ref = db.collection(col).doc(c.value);
+      batch.update(ref, { service: targetService });
+      count++;
+    });
 
-        batch.commit().then(() => {
-            alert(`${count} cihaz transfer edildi.`);
-            cancelBulkTransferMode();
-            
-            if(typeof logAction === 'function') {
-                logAction('bulk_transfer', { count: count, target: targetService });
-            }
-            if(typeof updateRecentActivity === 'function') updateRecentActivity();
-        }).catch(e => alert("Hata: " + e.message));
-    }
+    batch
+      .commit()
+      .then(() => {
+        alert(`${count} cihaz transfer edildi.`);
+        cancelBulkTransferMode();
+
+        if (typeof logAction === "function") {
+          logAction("bulk_transfer", { count: count, target: targetService });
+        }
+        if (typeof updateRecentActivity === "function") updateRecentActivity();
+      })
+      .catch((e) => alert("Hata: " + e.message));
+  }
 }
 
 function normalizeDeviceCode(code) {
@@ -1512,14 +1555,14 @@ function sharePatient(id) {
   const p = allData.find((x) => x.id === id);
   if (!p) return;
 
-  const startDate = p.dateAdded 
-      ? new Date(p.dateAdded.toDate()).toLocaleDateString('tr-TR')
-      : 'Bilinmiyor';
-  
+  const startDate = p.dateAdded
+    ? new Date(p.dateAdded.toDate()).toLocaleDateString("tr-TR")
+    : "Bilinmiyor";
+
   const lastTreatment = p.lastDressingDate
-      ? new Date(p.lastDressingDate.toDate()).toLocaleDateString('tr-TR')
-      : 'Hiç yapılmadı';
-  
+    ? new Date(p.lastDressingDate.toDate()).toLocaleDateString("tr-TR")
+    : "Hiç yapılmadı";
+
   const treatmentCount = p.dressingCount || 0;
   const totalSets = p.totalSets || 0;
   const totalCans = p.totalCans || 0;
@@ -1536,7 +1579,7 @@ function sharePatient(id) {
   • Toplama Kabı: ${totalCans} adet
 
 📍 *Cihaz:* ${p.device} (${p.service})
-⏰ *Sonraki İşlem:* ${p.dateNext || 'Planlanmadı'}
+⏰ *Sonraki İşlem:* ${p.dateNext || "Planlanmadı"}
 
 ━━━━━━━━━━━━━━━
 _Trio Manager Elite v3.0_`;
@@ -1659,9 +1702,12 @@ function closeModal(id) {
 }
 
 // Overlay tıklama ile modal kapatma (tüm modallar için)
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) {
-    e.target.classList.remove('open');
+document.addEventListener("click", function (e) {
+  if (
+    e.target.classList.contains("modal-overlay") &&
+    e.target.classList.contains("open")
+  ) {
+    e.target.classList.remove("open");
   }
 });
 
@@ -1695,9 +1741,25 @@ function switchTab(v, b) {
 }
 
 function getDiff(d) {
-  const df = Math.ceil(
-    (new Date(d) - new Date().setHours(0, 0, 0, 0)) / 86400000,
+  if (!d) return { days: 0, text: "-" };
+
+  // Create a date object for the target date string (e.g. "2026-03-02")
+  // Using y/m/d parsing strictly avoids timezone shift issues that happen with ISO strings
+  const parts = d.split("-");
+  const targetDate = new Date(
+    parseInt(parts[0]),
+    parseInt(parts[1]) - 1,
+    parseInt(parts[2]),
   );
+  targetDate.setHours(0, 0, 0, 0);
+
+  // Create a date object for strictly TODAY at 00:00:00 local time
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Calculate strict day difference
+  const df = Math.round((targetDate.getTime() - today.getTime()) / 86400000);
+
   if (df === 0) return { days: 0, text: "BUGÜN" };
   if (df === 1) return { days: 1, text: "YARIN" };
   if (df < 0) return { days: -1, text: "GECİKTİ" };
